@@ -26,6 +26,7 @@ import SearchByName from './componet/videoPage/SearchByName';
 import Login from './adminComponets/login';
 
 import ProtectedRoute from './adminComponets/ProtectedRoute'; 
+import OurNetworks from './adminComponets/OurNetworks';
 
 function App() {
   return (
@@ -72,6 +73,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminTeraBox />
+                </ProtectedRoute>
+              } 
+            />
+
+<Route 
+              path="/admin/ournetworks" 
+              element={
+                <ProtectedRoute>
+                   <OurNetworks/>
                 </ProtectedRoute>
               } 
             />

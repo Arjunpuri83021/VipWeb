@@ -17,6 +17,10 @@ function AdminNav() {
        <NavLink exact to="/admin/aman" activeClassName="active-link">
          <li>Posts</li>
        </NavLink>
+       <NavLink to="/admin/ournetworks" activeClassName="active-link">
+         <li>Networks</li>
+       </NavLink>
+
        <NavLink to="/admin/stars" activeClassName="active-link">
          <li>Stars</li>
        </NavLink>
