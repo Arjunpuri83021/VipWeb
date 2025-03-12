@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
+import Footer from "../partials/Footer";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function Milf() {
@@ -28,8 +29,8 @@ function Milf() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `MilfNut Videos page ${currentPage} on comxxx - milf300 wwwxxx sex adelt movies`;
-        const metaDescContent = "Explore a collection of premium MilfNut videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `MilfNut Videos page ${currentPage} on VipMilfNut - milf300 wwwxxx sex adelt movies`;
+        const metaDescContent = "Explore a collection of premium MilfNut videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -42,7 +43,7 @@ function Milf() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/milfnut/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/milfnut/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -110,9 +111,9 @@ function Milf() {
     return (
         <>
             <Helmet>
-                <title>MilfNut Videos on comxxx - milf300 wwwxxx sex adelt movies</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/milfnut/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium MilfNut videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>MilfNut Videos on VipMilfNut - milf300 wwwxxx sex adelt movies</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/milfnut/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium MilfNut videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
@@ -145,6 +146,8 @@ function Milf() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

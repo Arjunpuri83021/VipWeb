@@ -27,6 +27,12 @@ import Family from './components/Category/Family';
 import Teen from './components/Category/Teen';
 import SmallTits from './components/Category/SmallTits';
 import Network from './components/Networks';
+import Comxxx from './components/Category/Comxxx';
+import Badwap from './components/Category/Badwap';
+import Chochox from './components/Category/Chochox';
+import Sex18 from './components/Category/Sex18';
+import Aunt from './components/Category/Aunt';
+import Fullporner from './components/Category/Fullporner';
 
 function App() {
     return (
@@ -46,6 +52,24 @@ function App() {
                 
                 <Route path='/category/scout69' element={<Scout69 />} />
                 <Route path='/category/scout69/:page' element={<Scout69 />} />
+
+                <Route path='/category/comxxx' element={<Comxxx/>} />
+                <Route path='/category/comxxx/:page' element={<Comxxx/>} />
+
+                <Route path='/category/badwap' element={<Badwap/>} />
+                <Route path='/category/badwap/:page' element={<Badwap/>} />
+
+                <Route path='/category/chochox' element={<Chochox/>} />
+                <Route path='/category/chochox/:page' element={<Chochox/>} />
+
+                <Route path='/category/sex18' element={<Sex18/>} />
+                <Route path='/category/sex18/:page' element={<Sex18/>} />
+
+                <Route path='/category/aunt-sex' element={<Aunt/>} />
+                <Route path='/category/aunt-sex/:page' element={<Aunt/>} />
+
+                <Route path='/category/fullporner' element={<Fullporner/>} />
+                <Route path='/category/fullporner/:page' element={<Fullporner/>} />
 
                 <Route path='/category/lesbify' element={<Lesbify />} />
                 <Route path='/category/lesbify/:page' element={<Lesbify />} />

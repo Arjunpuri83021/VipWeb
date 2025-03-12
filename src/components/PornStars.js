@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider";
 import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -18,7 +19,7 @@ function PornStars() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "Adult Actress 3Pornstar 4K Pornstar Black Pornstars | comxxx";
+        document.title = "Adult Actress 3Pornstar 4K Pornstar Black Pornstars | VipMilfNut";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -34,7 +35,7 @@ function PornStars() {
         if (!canonicalLink) {
             const newCanonical = document.createElement("link");
             newCanonical.rel = "canonical";
-            newCanonical.href = "https://comxxx.fun/Pornstars";
+            newCanonical.href = "https://vipmilfnut.com/Pornstars";
             document.head.appendChild(newCanonical);
         }
     }, []);
@@ -78,8 +79,8 @@ function PornStars() {
     return (
         <>
             <Helmet>
-                <title>Adult Actress 3Pornstar 4K Pornstar Black Pornstars | comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/Pornstars" />
+                <title>Adult Actress 3Pornstar 4K Pornstar Black Pornstars | VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/Pornstars" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="description" content="A list of top-rated adult actresses and pornstars, including black pornstars and 4K-rated performers." />
                 <meta name="robots" content="index, follow" />
@@ -89,7 +90,7 @@ function PornStars() {
             <Slider onCategorySelect={(category) => setSelectedCategory(category)}/>
 
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Porn Stars</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center"}}>Adult Actress 3Pornstar and 4K Pornstar and Black Pornstars Videos </h1>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-around" }}>
@@ -113,6 +114,8 @@ function PornStars() {
                     </div>
                 )}
             </div>
+
+            <Footer/>
         </>
     );
 }

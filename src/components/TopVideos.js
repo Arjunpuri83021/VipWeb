@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -17,15 +18,15 @@ function TopVideo() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "scout69 porndish hitbdsm pornwild tubsexer pornhits pornhut | comxxx";
+        document.title = "scout69 porndish hitbdsm pornwild tubsexer pornhits pornhut | VipMilfNut";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
-            metaDesc.setAttribute("content", "pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | comxxx");
+            metaDesc.setAttribute("content", "pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | VipMilfNut");
         } else {
             const newMeta = document.createElement("meta");
             newMeta.name = "description";
-            newMeta.content = "pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | comxxx";
+            newMeta.content = "pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | VipMilfNut";
             document.head.appendChild(newMeta);
         }
 
@@ -33,7 +34,7 @@ function TopVideo() {
         if (!canonicalLink) {
             const newCanonical = document.createElement("link");
             newCanonical.rel = "canonical";
-            newCanonical.href = "https://comxxx.fun/top-videos";
+            newCanonical.href = "https://vipmilfnut.com/top-videos";
             document.head.appendChild(newCanonical);
         }
     }, []);
@@ -89,10 +90,10 @@ function TopVideo() {
     return (
         <>
             <Helmet>
-                <title>scout69 porndish hitbdsm pornwild tubsexer pornhits pornhut | comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/top-videos" />
+                <title>scout69 porndish hitbdsm pornwild tubsexer pornhits pornhut | VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/top-videos" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
-                <meta name="description" content="pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | comxxx" />
+                <meta name="description" content="pornmz pornwild hitbdsm freesexyindians milf300 sex18 desi49 wwwxxx xvedeo sex sister freeomovie 3gp king aunty sex adelt movies bf full hd bigfucktv | VipMilfNut" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
             <Sidebar onSearch={(query) => setSearch(query)} />
@@ -128,6 +129,8 @@ function TopVideo() {
                     <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
                 </div>
             </div>
+
+            <Footer/>
         </>
     );
 }

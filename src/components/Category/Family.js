@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
+import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -29,8 +30,8 @@ function Family() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `famili sex com page ${currentPage} on comxxx - step family xvedeo`;
-        const metaDescContent = "Explore a collection of premium famili sex com videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `famili sex com page ${currentPage} on VipMilfNut - step family xvedeo`;
+        const metaDescContent = "Explore a collection of premium famili sex com videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -43,7 +44,7 @@ function Family() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/famili-sex-com/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/famili-sex-com/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -111,9 +112,9 @@ function Family() {
     return (
         <>
             <Helmet>
-                <title>famili sex com on comxxx - step family xvedeo</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/famili-sex-com/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium famili sex com videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>famili sex com on VipMilfNut - step family xvedeo</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/famili-sex-com/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium famili sex com videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
@@ -146,6 +147,8 @@ function Family() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

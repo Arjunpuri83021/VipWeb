@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
 import PaginationComponent from '../components/partials/PaginationComponent'; // Import the PaginationComponent
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -30,25 +31,25 @@ function Home() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = `wowuncut spanbank xxxhd pornve 3gp king bf xx Page ${currentPage} on comxxx`;
+        document.title = `WowUncut XXXHD Videos SpanBank Full HD Streaming Page ${currentPage} on VipMilfNut`;
     
         // Update meta description
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
             metaDesc.setAttribute(
                 "content",
-                "fry99 hqpornee freeomovie 3gp king adelt movies auntymaza badwap com bf full hd bf hd video bfxxx bigfucktv xxxhd spanbank borwap com pornve wowuncut| comxxx"
+                "fry99 hqpornee freeomovie 3gp king adelt movies auntymaza badwap com bf full hd bf hd video bfxxx bigfucktv xxxhd spanbank borwap com pornve wowuncut| VipMilfNut"
             );
         } else {
             const newMeta = document.createElement("meta");
             newMeta.name = "description";
-            newMeta.content = "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | comxxx";
+            newMeta.content = "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | VipMilfNut";
             document.head.appendChild(newMeta);
         }
     
         // Update canonical link dynamically based on current page
         const canonicalLink = document.querySelector("link[rel='canonical']");
-        const currentUrl = `https://comxxx.fun/${currentPage === 1 ? '' : currentPage}`;  // Handle root URL (page 1) and others
+        const currentUrl = `https://vipmilfnut.com/${currentPage === 1 ? '' : currentPage}`;  // Handle root URL (page 1) and others
         if (canonicalLink) {
             canonicalLink.setAttribute("href", currentUrl);
         } else {
@@ -101,15 +102,7 @@ function Home() {
         window.scrollTo(0, 0); // Change URL to reflect the selected page
     };
 
-    // Shuffle posts (for display purposes, if needed)
-    const shuffleArray = (array) => {
-        const shuffled = [...array];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-        return shuffled;
-    };
+ 
 
     const handleCardClick = async (id, currentViews) => {
         try {
@@ -132,29 +125,30 @@ function Home() {
     return (
         <>
             <Helmet>
-                <title>wowuncut spanbank xxxhd pornve hqpornee 3gp king bf xx |comxxx</title>
+                <title>WowUncut XXXHD Videos | SpanBank Full HD Streaming On VipMilfNut</title>
                 {/* Dynamically set the canonical link */}
                 <link 
                     rel="canonical" 
-                    href={`https://comxxx.fun/${currentPage === 1 ? '' : currentPage}`} 
+                    href={`https://vipmilfnut.com/${currentPage === 1 ? '' : currentPage}`} 
                 />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta 
                     name="description" 
-                    content="fry99 hqpornee freeomovie 3gp king adelt movies auntymaza badwap com bf full hd bf hd video bfxxx bigfucktv xxxhd spanbank borwap com pornve wowuncut| comxxx" 
+                    content="fry99 hqpornee freeomovie 3gp king adelt movies auntymaza badwap com bf full hd bf hd video bfxxx bigfucktv xxxhd spanbank borwap com pornve wowuncut| VipMilfNut" 
                 />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
             <Sidebar onSearch={(query) => setSearch(query)} />
             <Slider onCategorySelect={(category) => setSelectedCategory(category)} />
-
+            
+            <h1 style={{fontSize:"18px", textAlign:"center"}}>Watch All MilfNut Videos – Latest & Trending Updates</h1>
             <div style={{ width: "95%", margin: "auto" }}>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
                 <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {shuffleArray(postData).map((post) => (
+                    {postData.map((post) => (
                         <div className="col" key={post._id}>
                             <Link onClick={(e) => handleCardClick(post._id, post.views)}
                                 to={`/video/${post._id}-${slugifyTitle(post.titel)}`}
@@ -196,6 +190,8 @@ function Home() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -17,7 +18,7 @@ function MostLiked() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "bad wap wwwxxx xvedeo sexv icegay sex sister tiktits |comxxx";
+        document.title = "bad wap wwwxxx xvedeo sexv icegay sex sister tiktits |VipMilfNut";
 
         const updateMetaTag = (name, content) => {
             let tag = document.querySelector(`meta[name='${name}']`);
@@ -31,7 +32,7 @@ function MostLiked() {
             }
         };
 
-        updateMetaTag("description", "xmoviesforyou aunty sex wwwxxx sex sister aunty sexy video bad wap beeg hindi badwap badwap com sexv tiktits boobs kiss boobs pressing borwap boudi sex | comxxx");
+        updateMetaTag("description", "xmoviesforyou aunty sex wwwxxx sex sister aunty sexy video bad wap beeg hindi badwap badwap com sexv tiktits boobs kiss boobs pressing borwap boudi sex | VipMilfNut");
         updateMetaTag("robots", "index, follow");
 
         let canonical = document.querySelector("link[rel='canonical']");
@@ -40,7 +41,7 @@ function MostLiked() {
             canonical.rel = "canonical";
             document.head.appendChild(canonical);
         }
-        canonical.href = "https://comxxx.fun/most-liked";
+        canonical.href = "https://vipmilfnut.com/most-liked";
     }, []);
 
     const fetchData = async (page = 1, category = "", searchQuery = "") => {
@@ -98,15 +99,16 @@ function MostLiked() {
     return (
         <>
             <Helmet>
-                <title>bad wap wwwxxx xvedeo sexv icegay sex sister tiktits |comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/most-liked" />
+                <title>bad wap wwwxxx xvedeo sexv icegay sex sister tiktits |VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/most-liked" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
-                <meta name="description" content="xmoviesforyou aunty sex wwwxxx sex sister aunty sexy video bad wap beeg hindi badwap badwap com sexv tiktits boobs kiss boobs pressing borwap boudi sex | comxxx" />
+                <meta name="description" content="xmoviesforyou aunty sex wwwxxx sex sister aunty sexy video bad wap beeg hindi badwap badwap com sexv tiktits boobs kiss boobs pressing borwap boudi sex | VipMilfNut" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
             <Sidebar onSearch={(query) => setSearch(query)} />
             <Slider onCategorySelect={(category) => setSelectedCategory(category)} />
+            <h1 style={{fontSize:"18px", textAlign:"center"}}>Watch All MilfNut most Liked Videos – Latest & Trending Videos</h1>
 
             <div style={{ width: "95%", margin: "auto" }}>
                 {loading && <p>Loading...</p>}
@@ -146,6 +148,8 @@ function MostLiked() {
                     </button>
                 </div>
             </div>
+
+            <Footer/>
         </>
     );
 }

@@ -9,12 +9,12 @@ import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
-function Scout69() {
+function Fullporner() {
     const [postData, setPostData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
-    const [search, setSearch] = useState("big");
+    const [search, setSearch] = useState("girl");
     const itemsPerPage = 16;
 
     const { page } = useParams(); // Get the current page number from the URL
@@ -24,14 +24,14 @@ function Scout69() {
 
 
     useEffect(() => {
-            if (currentPage === 1 && window.location.pathname !== '/category/scout69') {
-                navigate('/category/scout69');  // Redirect to root URL
+            if (currentPage === 1 && window.location.pathname !== '/category/fullporner') {
+                navigate('/category/fullporner');  // Redirect to root URL
             }
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Scout69 Videos page ${currentPage} on VipMilfNut - bad wap wwwxxx xvedeo`;
-        const metaDescContent = "Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `fullporner Videos page ${currentPage} on VipMilfNut - bad wap wwwxxx xvedeo`;
+        const metaDescContent = "Explore a collection of premium fullporner Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -44,7 +44,7 @@ function Scout69() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://vipmilfnut.com/category/scout69/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/fullporner/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -56,7 +56,7 @@ function Scout69() {
         }
     }, [currentPage]); // Run when currentPage changes
 
-    const fetchData = async (page = 1, searchQuery = "big") => {
+    const fetchData = async (page = 1, searchQuery = "girl") => {
         setLoading(true);
         setError(null);
         try {
@@ -77,13 +77,13 @@ function Scout69() {
     }, [currentPage, search]);
 
     const handlePageChange = (event, value) => {
-        navigate(`/category/scout69/${value}`); // Update URL with new page
+        navigate(`/category/fullporner/${value}`); // Update URL with new page
         window.scrollTo(0, 0); // Scroll to top after page change
     };
 
     const handleSearch = (query) => {
-        setSearch(query || "big");
-        navigate(`/category/scout69/1`); // Reset to page 1 on search
+        setSearch(query || "girl");
+        navigate(`/category/fullporner/1`); // Reset to page 1 on search
     };
 
     const slugifyTitle = (title) => title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -111,14 +111,14 @@ function Scout69() {
     return (
         <>
             <Helmet>
-                <title>Scout69 Videos on VipMilfNut - bad wap wwwxxx xvedeo</title>
-                <link rel="canonical" href={`https://vipmilfnut.com/category/scout69/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>fullporner Videos on VipMilfNut - bad wap wwwxxx xvedeo</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/fullporner/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium fullporner Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Scout69 - Big boobs big dick Videos</h1>
+                <h1>fullporner - Big Ass Girl And big dick Videos</h1>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                  <div className="row row-cols-2 row-cols-md-3 g-2">
@@ -152,4 +152,4 @@ function Scout69() {
     );
 }
 
-export default Scout69;
+export default Fullporner;

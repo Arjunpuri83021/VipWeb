@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider"; // Import the slider component
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -17,28 +18,28 @@ function Indian() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "desi49 sxyprn wwwsexcom bf sex sex video indiangaysite | comxxx";
+        document.title = "Desi49 SxyPrn & BF Sex Videos | IndianGaySite & Milfnut on VipMilfNut";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
             metaDesc.setAttribute(
                 "content",
-                "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | comxxx"
+                "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | VipMilfNut"
             );
         } else {
             const newMeta = document.createElement("meta");
             newMeta.name = "description";
-            newMeta.content = "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | comxxx";
+            newMeta.content = "desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | VipMilfNut";
             document.head.appendChild(newMeta);
         }
 
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
-            canonicalLink.setAttribute("href", "https://comxxx.fun/indian");
+            canonicalLink.setAttribute("href", "https://vipmilfnut.com/indian");
         } else {
             const newCanonical = document.createElement("link");
             newCanonical.rel = "canonical";
-            newCanonical.href = "https://comxxx.fun/indian";
+            newCanonical.href = "https://vipmilfnut.com/indian";
             document.head.appendChild(newCanonical);
         }
     }, []);
@@ -100,10 +101,10 @@ function Indian() {
     return (
         <>
             <Helmet>
-                <title>desi49 sxyprn wwwsexcom bf sex sex video indiangaysite | comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/indian" />
+                <title>Desi49 SxyPrn & BF Sex Videos | IndianGaySite & milfnut on VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/indian" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
-                <meta name="description" content="desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | comxxx" />
+                <meta name="description" content="desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | VipMilfNut" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
@@ -142,6 +143,8 @@ function Indian() {
                     <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
                 </div>
             </div>
+
+            <Footer/>
         </>
     );
 }

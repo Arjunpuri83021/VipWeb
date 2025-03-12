@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
+import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -29,8 +30,8 @@ function Desi() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `desi49 sex Videos page ${currentPage} on comxxx – Watch hot desi clips in HD`;
-        const metaDescContent = "Explore a collection of premium desi49 videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `desi49 sex Videos page ${currentPage} on VipMilfNut – Watch hot desi clips in HD`;
+        const metaDescContent = "Explore a collection of premium desi49 videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -43,7 +44,7 @@ function Desi() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/desi49/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/desi49/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -111,9 +112,9 @@ function Desi() {
     return (
         <>
             <Helmet>
-                <title>Desi49 Sex Videos on ComXXX – Watch hot desi clips in HD</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/desi49/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium desi49 videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>Desi49 Sex Videos on VipMilfNut – Watch hot desi clips in HD</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/desi49/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium desi49 videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
@@ -147,6 +148,8 @@ function Desi() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

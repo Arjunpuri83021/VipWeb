@@ -77,7 +77,7 @@ function Video() {
         setIsFullDescVisible(!isFullDescVisible);
     };
 
-    const titleText = `xxxhd of ${videoData?.titel || ""} 3gp king bf xx`;
+    const titleText = `${videoData?.titel || ""}`;
     const truncatedTitle = titleText.length > 60 ? titleText.slice(0, 57) + "..." : titleText;
 
     useEffect(() => {
@@ -93,7 +93,7 @@ function Video() {
             document.head.appendChild(newMeta);
         }
 
-        const canonicalHref = `https://comxxx.fun/video/${numericId}-${slugifyTitle(videoData.titel || "")}`;
+        const canonicalHref = `https://vipmilfnut.com/video/${numericId}-${slugifyTitle(videoData.titel || "")}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalHref);
@@ -133,7 +133,7 @@ function Video() {
                 <meta name="description" content={videoData.desc} />
                 <link
                     rel="canonical"
-                    href={`https://comxxx.fun/video/${numericId}-${slugifyTitle(videoData.titel || "")}`}
+                    href={`https://vipmilfnut.com/video/${numericId}-${slugifyTitle(videoData.titel || "")}`}
                 />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="robots" content="index, follow" />
@@ -157,7 +157,7 @@ function Video() {
             </Link>
 
             <div className="video-desc">
-                <h1 className="custom-video-title">xxxhd {videoData.titel} 3gp king bf xx</h1>
+                <h1 className="custom-video-title">{videoData.titel}</h1>
 
                 <div className="d-flex flex-wrap">
                     {Array.isArray(videoData.name) ? (

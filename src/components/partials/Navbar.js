@@ -44,7 +44,7 @@ const Sidebar = ({ onSearch }) => {
                     </button>
                     {/* Logo */}
                     <Link style={{ textDecoration: "none" }} to="/">
-                        <h2 className="logo">ComXxx</h2>
+                        <h2 className="logo">VipMilfNut</h2>
                     </Link>
                 </div>
                 <div className="right-section">

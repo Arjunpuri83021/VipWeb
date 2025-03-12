@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import "./category.css"
+import Footer from "../partials/Footer";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function Blueflim() {
@@ -28,8 +29,8 @@ function Blueflim() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Blueflim Videos Page ${currentPage} on ComXXX – Watch HD videos online`;
-        const metaDescContent = "Explore a collection of premium Blueflim videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `Blueflim Videos Page ${currentPage} on VipMilfNut – Watch HD videos online`;
+        const metaDescContent = "Explore a collection of premium Blueflim videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -42,7 +43,7 @@ function Blueflim() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/blueflim/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/blueflim/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -109,9 +110,9 @@ function Blueflim() {
     return (
         <>
             <Helmet>
-                <title>Blueflim Videos on ComXXX – Watch HD videos online now</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/blueflim/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium Blueflim videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>Blueflim Videos on VipMilfNut – Watch HD videos online now</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/blueflim/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium Blueflim videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
@@ -145,6 +146,7 @@ function Blueflim() {
                     onPageChange={handlePageChange}
                 />
             </div>
+            <Footer/>
         </>
     );
 }

@@ -3,17 +3,23 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
 
 const categories = [
+    "chochox",
    "scout69",
+   "comxxx",
     "lesbify",
     "milfnut",
+    "badwap",
     "sex sister",
+    "sex18",
     "desi49",
     "dehati sex",
     "boobs pressing",
     "blueflim",
+    "aunt sex",
     "famili sex com",
     "teen sex",
     "small tits",
+    "fullporner",
 ];
 
 const Slider = () => {

@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -17,9 +18,9 @@ function NewContent() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | comxxx";
+        document.title = "fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | VipMilfNut";
 
-        const metaDescContent = "gekso fsiblog com fsiblog fry99 com english bf video elephant tube bad wap beeg hindi draftsex dinotube df6 org tiktits 3gp king icegay xxxhd sex18 imo sex | comxxx";
+        const metaDescContent = "gekso fsiblog com fsiblog fry99 com english bf video elephant tube bad wap beeg hindi draftsex dinotube df6 org tiktits 3gp king icegay xxxhd sex18 imo sex | VipMilfNut";
 
         let metaDesc = document.querySelector("meta[name='description']");
         if (!metaDesc) {
@@ -35,7 +36,7 @@ function NewContent() {
             canonicalLink.rel = "canonical";
             document.head.appendChild(canonicalLink);
         }
-        canonicalLink.href = "https://comxxx.fun/new-content";
+        canonicalLink.href = "https://vipmilfnut.com/new-content";
     }, []);
 
     const fetchData = async (page = 1, category = "", searchQuery = "") => {
@@ -113,8 +114,8 @@ function NewContent() {
     return (
         <>
             <Helmet>
-                <title>fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/new-content" />
+                <title>fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/new-content" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="description" content="gekso fsiblog com fsiblog fry99 com english bf video elephant tube..." />
                 <meta name="robots" content="index, follow" />
@@ -155,6 +156,8 @@ function NewContent() {
                     <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
                 </div>
             </div>
+
+            <Footer/>
         </>
     );
 }

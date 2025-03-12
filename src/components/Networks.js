@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import CardActionArea from '@mui/material/CardActionArea';
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -26,10 +27,10 @@ const Network = () => {
 
     useEffect(() => {
         // Set dynamic meta title & description based on first network site
-        const firstSite ="Comxxx- Providing Best Porn Sites & Free Porn Tubes List of All Time! ";
+        const firstSite ="VipMilfNut- Providing Best Porn Sites & Free Porn Tubes List of All Time! ";
         const description = networks.length > 0 
-            ? `Discover ${firstSite} and other top adult sites offering high-quality streaming. Explore the best porn websites curated by Comxxx!` 
-            : "Explore Comxxx's curated list of the best porn sites & free porn tubes of all time. Enjoy high-quality adult content with fast streaming and unlimited access!";
+            ? `Discover ${firstSite} and other top adult sites offering high-quality streaming. Explore the best porn websites curated by VipMilfNut!` 
+            : "Explore VipMilfNut's curated list of the best porn sites & free porn tubes of all time. Enjoy high-quality adult content with fast streaming and unlimited access!";
         
         
         
@@ -42,7 +43,7 @@ const Network = () => {
             newMeta.content = description;
             document.head.appendChild(newMeta);
         }
-        const canonicalUrl = "https://comxxx.fun/our-network"; // Adjust URL based on your route
+        const canonicalUrl = "https://vipmilfnut.com/our-network"; // Adjust URL based on your route
     const existingCanonical = document.querySelector("link[rel='canonical']");
     
     if (existingCanonical) {
@@ -62,10 +63,10 @@ const Network = () => {
     return (
         <>
             <Helmet>
-                <title>Comxxx- Providing Best Porn Sites & Free Porn Tubes List of All Time! </title>
-                <link rel="canonical" href="https://comxxx.fun/our-network" />
+                <title>VipMilfNut- Providing Best Porn Sites & Free Porn Tubes List of All Time! </title>
+                <link rel="canonical" href="https://vipmilfnut.com/our-network" />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
-                <meta name="description" content="Explore Comxxx's curated list of the best porn sites & free porn tubes of all time. Enjoy high-quality adult content with fast streaming and unlimited access!" />
+                <meta name="description" content="Explore VipMilfNut's curated list of the best porn sites & free porn tubes of all time. Enjoy high-quality adult content with fast streaming and unlimited access!" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
@@ -104,6 +105,8 @@ const Network = () => {
                     ))}
                 </Box>
             </div>
+
+            <Footer/>
         </>
     );
 };

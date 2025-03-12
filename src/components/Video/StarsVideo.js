@@ -72,11 +72,11 @@ function StarsVideo() {
     
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
-            canonicalLink.setAttribute("href", `https://comxxx.fun/pornstar/${name}`);
+            canonicalLink.setAttribute("href", `https://vipmilfnut.com/pornstar/${name}`);
         } else {
             const newCanonical = document.createElement("link");
             newCanonical.rel = "canonical";
-            newCanonical.href = `https://comxxx.fun/pornstar/${name}`;
+            newCanonical.href = `https://vipmilfnut.com/pornstar/${name}`;
             document.head.appendChild(newCanonical);
         }
     
@@ -141,7 +141,7 @@ function StarsVideo() {
         <>
             <Helmet>
                 <title>{name.replace(/-/g, " ")} xvids porno missax trisha paytas porn</title>
-                <link rel="canonical" href={`https://comxxx.fun/pornstar/${name}`} />
+                <link rel="canonical" href={`https://vipmilfnut.com/pornstar/${name}`} />
                 <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta
                     name="description"

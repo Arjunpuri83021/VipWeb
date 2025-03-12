@@ -9,12 +9,12 @@ import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
-function Dehati() {
+function Sex18() {
     const [postData, setPostData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
-    const [search, setSearch] = useState("indian");
+    const [search, setSearch] = useState("room");
     const itemsPerPage = 16;
 
     const { page } = useParams(); // Get the current page number from the URL
@@ -24,14 +24,14 @@ function Dehati() {
 
 
     useEffect(() => {
-        if (currentPage === 1 && window.location.pathname !== '/category/dehati-sex') {
-            navigate('/category/dehati-sex');  // Redirect to root URL
+        if (currentPage === 1 && window.location.pathname !== '/category/sex18') {
+            navigate('/category/sex18');  // Redirect to root URL
         }
     }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Dehati Videos page ${currentPage} on VipMilfNut – Watch rural desi clips in HD`;
-        const metaDescContent = "Explore a collection of premium Milf videos on Dehati. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `sex18 Videos page ${currentPage} on VipMilfNut - xxxhd,wwwsexcom videos`;
+        const metaDescContent = "Explore a collection of premium sex18 videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -44,7 +44,7 @@ function Dehati() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://vipmilfnut.com/category/dehati-sex/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/sex18/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -56,7 +56,7 @@ function Dehati() {
         }
     }, [currentPage]); // Run when currentPage changes
 
-    const fetchData = async (page = 1, searchQuery = "indian") => {
+    const fetchData = async (page = 1, searchQuery = "room") => {
         setLoading(true);
         setError(null);
         try {
@@ -77,13 +77,13 @@ function Dehati() {
     }, [currentPage, search]);
 
     const handlePageChange = (event, value) => {
-        navigate(`/category/dehati-sex/${value}`); // Update URL with new page
+        navigate(`/category/sex18/${value}`); // Update URL with new page
         window.scrollTo(0, 0); // Scroll to top after page change
     };
 
     const handleSearch = (query) => {
-        setSearch(query || "indian");
-        navigate(`/category/dehati-sex/1`); // Reset to page 1 on search
+        setSearch(query || "room");
+        navigate(`/category/sex18/1`); // Reset to page 1 on search
     };
 
     const slugifyTitle = (title) => title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -91,36 +91,36 @@ function Dehati() {
 
     const handleCardClick = async (id, currentViews) => {
         try {
-          const updatedViews = (currentViews || 0) + 1;
-          const updatedPosts = postData.map((item) =>
-            item._id === id ? { ...item, views: updatedViews } : item
-          );
-          setPostData(updatedPosts);
-    
-          await fetch(`${apiUrl}/updateviews/${id}`, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ views: updatedViews }),
-          });
+            const updatedViews = (currentViews || 0) + 1;
+            const updatedPosts = postData.map((item) =>
+                item._id === id ? { ...item, views: updatedViews } : item
+            );
+            setPostData(updatedPosts);
+
+            await fetch(`${apiUrl}/updateviews/${id}`, {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ views: updatedViews }),
+            });
         } catch (error) {
-          console.error("Error updating views:", error);
+            console.error("Error updating views:", error);
         }
-      };
+    };
+
 
 
     return (
         <>
             <Helmet>
-                <title>Dehati Videos on VipMilfNut – Watch rural desi clips in HD</title>
-                <link rel="canonical" href={`https://vipmilfnut.com/category/dehati-sex/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium Milf videos on Dehati. Enjoy handpicked, high-quality content filtered for your preferences." />
-                <meta name="robots" content="index, follow" />
+                <title>sex18 Videos on VipMilfNut - xxxhd,wwwsexcom videos</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/sex18/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium sex18 videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Dehati sex Videos</h1>
+                <h1>Sex18 - sexy Videos</h1>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <div className="row row-cols-2 row-cols-md-3 g-2">
@@ -154,4 +154,4 @@ function Dehati() {
     );
 }
 
-export default Dehati;
+export default Sex18;

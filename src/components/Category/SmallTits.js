@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
+import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -29,7 +30,7 @@ function SmallTits() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Small Tits sex Videos page ${currentPage} on comxxx - 4K Pornstar 3pornstar`;
+        document.title = `Small Tits sex Videos page ${currentPage} on VipMilfNut - 4K Pornstar 3pornstar`;
         const metaDescContent = "Explore a collection of premium SmallTits videos. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
@@ -43,7 +44,7 @@ function SmallTits() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/small-tits/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/small-tits/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -111,8 +112,8 @@ function SmallTits() {
     return (
         <>
             <Helmet>
-                <title>Small Tits Videos on comxxx - 4K Pornstar 3pornstar</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/small-tits/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <title>Small Tits Videos on VipMilfNut - 4K Pornstar 3pornstar</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/small-tits/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
                 <meta name="description" content="Explore a collection of premium SmallTits videos. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
@@ -146,6 +147,8 @@ function SmallTits() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

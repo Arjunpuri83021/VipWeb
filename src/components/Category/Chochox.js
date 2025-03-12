@@ -9,12 +9,12 @@ import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
-function Scout69() {
+function Chochox() {
     const [postData, setPostData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [totalPages, setTotalPages] = useState(1);
-    const [search, setSearch] = useState("big");
+    const [search, setSearch] = useState("ass");
     const itemsPerPage = 16;
 
     const { page } = useParams(); // Get the current page number from the URL
@@ -24,14 +24,14 @@ function Scout69() {
 
 
     useEffect(() => {
-            if (currentPage === 1 && window.location.pathname !== '/category/scout69') {
-                navigate('/category/scout69');  // Redirect to root URL
-            }
-        }, [currentPage, navigate]);
+        if (currentPage === 1 && window.location.pathname !== '/category/chochox') {
+            navigate('/category/chochox');  // Redirect to root URL
+        }
+    }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Scout69 Videos page ${currentPage} on VipMilfNut - bad wap wwwxxx xvedeo`;
-        const metaDescContent = "Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `chochox Videos page ${currentPage} on VipMilfNut – Watch Cartoon porn clips in HD`;
+        const metaDescContent = "Explore a collection of premium chochox videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -44,7 +44,7 @@ function Scout69() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://vipmilfnut.com/category/scout69/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/chochox/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -56,7 +56,7 @@ function Scout69() {
         }
     }, [currentPage]); // Run when currentPage changes
 
-    const fetchData = async (page = 1, searchQuery = "big") => {
+    const fetchData = async (page = 1, searchQuery = "ass") => {
         setLoading(true);
         setError(null);
         try {
@@ -77,16 +77,17 @@ function Scout69() {
     }, [currentPage, search]);
 
     const handlePageChange = (event, value) => {
-        navigate(`/category/scout69/${value}`); // Update URL with new page
+        navigate(`/category/chochox/${value}`); // Update URL with new page
         window.scrollTo(0, 0); // Scroll to top after page change
     };
 
     const handleSearch = (query) => {
-        setSearch(query || "big");
-        navigate(`/category/scout69/1`); // Reset to page 1 on search
+        setSearch(query || "ass");
+        navigate(`/category/chochox/1`); // Reset to page 1 on search
     };
 
     const slugifyTitle = (title) => title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
 
     const handleCardClick = async (id, currentViews) => {
         try {
@@ -111,35 +112,36 @@ function Scout69() {
     return (
         <>
             <Helmet>
-                <title>Scout69 Videos on VipMilfNut - bad wap wwwxxx xvedeo</title>
-                <link rel="canonical" href={`https://vipmilfnut.com/category/scout69/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>chochox Videos on VipMilfNut – Watch Cartoon Porn clips in HD</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/chochox/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium chochox videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <meta name="robots" content="index, follow" />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Scout69 - Big boobs big dick Videos</h1>
+                <h1>chochox sex Videos</h1>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
-                 <div className="row row-cols-2 row-cols-md-3 g-2">
-                                    {postData.map((post) => (
-                                        <div className="col" key={post._id}>
-                                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
-                                                <div className="card">
-                                                    <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
-                                                    <div className="card-body p-2">
-                                                        <h2 className="card-title" style={{ fontSize: "13px", margin: "0px", padding: "0px" }}>{post.titel.length > 30 ? `${post.titel.substring(0, 30)}...` : post.titel}</h2>
-                                                        <div style={{ borderBottom: "0px", justifyContent: "start", marginTop: "5px", }}>
-                
-                                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}K+</p>
-                                                            <p><i className="bi bi-clock-fill ms-3"></i> {post.minutes}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </Link>
+                <div className="row row-cols-2 row-cols-md-3 g-2">
+                    {postData.map((post) => (
+                        <div className="col" key={post._id}>
+                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
+                                <div className="card">
+                                    <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
+                                    <div className="card-body p-2">
+                                        <h2 className="card-title" style={{ fontSize: "13px", margin: "0px", padding: "0px" }}>{post.titel.length > 30 ? `${post.titel.substring(0, 30)}...` : post.titel}</h2>
+                                        <div style={{ borderBottom: "0px", justifyContent: "start", marginTop: "5px", }}>
+
+                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}K+</p>
+                                            <p><i className="bi bi-clock-fill ms-3"></i> {post.minutes}</p>
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
                 <PaginationComponent
                     count={totalPages}
                     page={currentPage}
@@ -152,4 +154,4 @@ function Scout69() {
     );
 }
 
-export default Scout69;
+export default Chochox;

@@ -5,6 +5,7 @@ import Sidebar from "../partials/Navbar";
 import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
+import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -29,8 +30,8 @@ function Boobs() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Boobs Pressing page ${currentPage} Videos on ComXXX – Watch HD clips now`;
-        const metaDescContent = "Explore a collection of premium boobs pressing videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences.";
+        document.title = `Boobs Pressing page ${currentPage} Videos on VipMilfNut – Watch HD clips now`;
+        const metaDescContent = "Explore a collection of premium boobs pressing videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -43,7 +44,7 @@ function Boobs() {
         }
 
         // Dynamically set the canonical link
-        const canonicalUrl = `https://comxxx.fun/category/boobs-pressing/${currentPage === 1 ? '' : currentPage}`;
+        const canonicalUrl = `https://vipmilfnut.com/category/boobs-pressing/${currentPage === 1 ? '' : currentPage}`;
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
             canonicalLink.setAttribute("href", canonicalUrl);
@@ -111,9 +112,9 @@ function Boobs() {
     return (
         <>
             <Helmet>
-                <title>Boobs Pressing Videos on ComXXX – Watch HD clips now</title>
-                <link rel="canonical" href={`https://comxxx.fun/category/boobs-pressing/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
-                <meta name="description" content="Explore a collection of premium boobs pressing videos on comxxx. Enjoy handpicked, high-quality content filtered for your preferences." />
+                <title>Boobs Pressing Videos on VipMilfNut – Watch HD clips now</title>
+                <link rel="canonical" href={`https://vipmilfnut.com/category/boobs-pressing/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
+                <meta name="description" content="Explore a collection of premium boobs pressing videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
@@ -147,6 +148,8 @@ function Boobs() {
                     onPageChange={handlePageChange}
                 />
             </div>
+
+            <Footer/>
         </>
     );
 }

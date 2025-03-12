@@ -3,6 +3,7 @@ import Sidebar from "./partials/Navbar";
 import Slider from "./partials/Slider";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
+import Footer from "./partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -17,11 +18,11 @@ function Muslim() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "bp sexy video bravotube brazzers3x brezzar comxxx blueflim | comxxx";
+        document.title = "bp sexy video bravotube brazzers3x brezzar comxxx blueflim | VipMilfNut";
 
         const metaDescription = document.querySelector("meta[name='description']");
         if (metaDescription) {
-            metaDescription.setAttribute("content", "boobs kiss bravotube boobs pressing blueflim brazzers3x dasi sex dehati sex brezzar bfxxx comxxx bf sexy banglaxx beeg hindi blueflim auntymaza adult movies | comxxx");
+            metaDescription.setAttribute("content", "boobs kiss bravotube boobs pressing blueflim brazzers3x dasi sex dehati sex brezzar bfxxx comxxx bf sexy banglaxx beeg hindi blueflim auntymaza adult movies | VipMilfNut");
         } else {
             const newMeta = document.createElement("meta");
             newMeta.name = "description";
@@ -31,11 +32,11 @@ function Muslim() {
 
         const canonicalLink = document.querySelector("link[rel='canonical']");
         if (canonicalLink) {
-            canonicalLink.setAttribute("href", "https://comxxx.fun/muslim");
+            canonicalLink.setAttribute("href", "https://vipmilfnut.com/muslim");
         } else {
             const newCanonical = document.createElement("link");
             newCanonical.rel = "canonical";
-            newCanonical.href = "https://comxxx.fun/muslim";
+            newCanonical.href = "https://vipmilfnut.com/muslim";
             document.head.appendChild(newCanonical);
         }
     }, []);
@@ -90,9 +91,9 @@ function Muslim() {
     return (
         <>
             <Helmet>
-                <title>bp sexy video bravotube brazzers3x brezzar comxxx blueflim | comxxx</title>
-                <link rel="canonical" href="https://comxxx.fun/muslim" />
-                <meta name="description" content="boobs kiss bravotube boobs pressing blueflim brazzers3x dasi sex dehati sex brezzar bfxxx comxxx bf sexy banglaxx beeg hindi blueflim auntymaza adult movies | comxxx" />
+                <title>bp sexy video bravotube brazzers3x brezzar comxxx blueflim | VipMilfNut</title>
+                <link rel="canonical" href="https://vipmilfnut.com/muslim" />
+                <meta name="description" content="boobs kiss bravotube boobs pressing blueflim brazzers3x dasi sex dehati sex brezzar bfxxx comxxx bf sexy banglaxx beeg hindi blueflim auntymaza adult movies | VipMilfNut" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
@@ -132,6 +133,8 @@ function Muslim() {
                     <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
                 </div>
             </div>
+
+            <Footer/>
         </>
     );
 }
