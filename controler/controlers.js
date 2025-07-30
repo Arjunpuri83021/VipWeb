@@ -1,4 +1,6 @@
 const Data = require('../model/dataModel');
+const RvData = require('../model/rvmodels/rvdatamodel')
+
 const Stars = require('../model/Stars.model')
 const Admin = require('../model/RegAdmin')
 const Website = require('../model/website')
@@ -87,7 +89,7 @@ exports.search = async(req,res)=>{
 
 
 exports.data = async (req, res) => {
-  const { videoNo, views, link, imageUrl, titel, minutes, Category, name, desc,altKeywords,metatitel } = req.body;
+  const { videoNo, views, link, imageUrl, titel, minutes, Category, name, tags, desc, altKeywords, metatitel } = req.body;
 
   try {
     // Check if `name` is provided and valid
@@ -97,12 +99,56 @@ exports.data = async (req, res) => {
 
     // Slugify each name individually
     const slugifiedNames = name.map((item) => slugify(item));
+    // Slugify each tag if provided
+    const slugifiedTags = (tags && Array.isArray(tags)) ? tags.map((item) => slugify(item)) : tags;
 
     // Create a new record with the processed `name` array
     const record = new Data({
       imageUrl,
       altKeywords,
       name: slugifiedNames, // Use the slugified array
+      tags: slugifiedTags,
+      videoNo,
+      views,
+      link,
+      titel,
+      metatitel,
+      minutes,
+      Category,
+      desc
+    });
+
+    // Save the record to the database
+    await record.save();
+
+    console.log(record);
+    res.status(201).json(record);
+  } catch (error) {
+    console.error("Error in data post API:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.rvdata = async (req, res) => {
+  const { videoNo, views, link, imageUrl, titel, minutes, Category, name, tags, desc, altKeywords, metatitel } = req.body;
+
+  try {
+    // Check if `name` is provided and valid
+    if (!name || !Array.isArray(name)) {
+      return res.status(400).json({ error: "The 'name' field must be an array of strings." });
+    }
+
+    // Slugify each name individually
+    const slugifiedNames = name.map((item) => slugify(item));
+    // Slugify each tag if provided
+    const slugifiedTags = (tags && Array.isArray(tags)) ? tags.map((item) => slugify(item)) : tags;
+
+    // Create a new record with the processed `name` array
+    const record = new RvData({
+      imageUrl,
+      altKeywords,
+      name: slugifiedNames, // Use the slugified array
+      tags: updatedTags,
       videoNo,
       views,
       link,
@@ -160,6 +206,43 @@ exports.getpostdata = async (req, res) => {
   }
 };
 
+exports.rvgetpostdata = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $or: [
+        { videoNo: { $regex: search, $options: "i" } },
+        { titel: { $regex: search, $options: "i" } },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 exports.getpopularVideos = async (req, res) => {
   try {
@@ -189,6 +272,47 @@ exports.getpopularVideos = async (req, res) => {
 
     // Get the total count for pagination metadata
     const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.rvgetpopularVideos = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $gt: 40 } }, // Filter for views greater than 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
 
     res.json({
       totalRecords,
@@ -244,6 +368,47 @@ exports.getnewVideos = async (req, res) => {
   }
 };
 
+exports.rvgetnewVideos = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $lte: 40 } }, // Filter for views less than or equal to 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getLessPopularVideos API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.getTopRate = async (req, res) => {
   try {
     const { search = "", page = 1, limit = 16 } = req.query;
@@ -285,6 +450,47 @@ exports.getTopRate = async (req, res) => {
   }
 };
 
+exports.rvgetTopRate = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { views: { $gt: 100 } }, // Filter for views greater than 40
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } },
+            { titel: { $regex: search, $options: "i" } },
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 exports.relatedpostData = async (req, res) => {
   try {
     const { search = "", page = 1, limit = 16 } = req.query;
@@ -308,6 +514,43 @@ exports.relatedpostData = async (req, res) => {
 
     // Get the total count for pagination metadata
     const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+exports.rvrelatedpostData = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // Split the search term into words for better matching
+    const searchWords = search.split(" ");
+    const query = {
+      $or: searchWords.map((word) => ({
+        titel: { $regex: word, $options: "i" },
+      })),
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting, and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
 
     res.json({
       totalRecords,
@@ -358,6 +601,43 @@ exports.getMovies = async (req, res) => {
   }
 };
 
+exports.rvgetMovies = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $or: [
+        { videoNo: { $regex: search, $options: "i" } },
+        { titel: { $regex: search, $options: "i" } },
+      ],
+      minutes: { $gte: 49 }, // Filter to show only videos of 49 minutes or more
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting, and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getpostdata API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 exports.deletepost = async (req, res) => {
   const id = req.params.id;
@@ -370,13 +650,29 @@ exports.deletepost = async (req, res) => {
   }
 };
 
+exports.rvdeletepost = async (req, res) => {
+  const id = req.params.id;
+  try {
+    const record = await RvData.findByIdAndDelete(id);
+    res.json(record);
+  } catch (error) {
+    console.log("error in delete post api", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 exports.updatepost = async (req, res) => {
   const { postId } = req.params;
-  const { videoNo, name, views, link, imageUrl, titel, minutes, Category, desc,altKeywords,metatitel} = req.body;
+  const { videoNo, name, tags, views, link, imageUrl, titel, minutes, Category, desc, altKeywords, metatitel } = req.body;
 
   try {
     // Check if `name` is provided and slugify it if it's an array
     let updatedName = name;
+    // Prepare slugified tags for update
+    let updatedTags = tags;
+    if (tags && Array.isArray(tags)) {
+      updatedTags = tags.map((item) => slugify(item));
+    }
 
     if (name && Array.isArray(name)) {
       updatedName = name.map((item) => slugify(item));
@@ -391,6 +687,7 @@ exports.updatepost = async (req, res) => {
         imageUrl,
         altKeywords,
         name: updatedName, // Ensure the updated name is slugified
+        tags: updatedTags,
         videoNo,
         views,
         link,
@@ -414,6 +711,55 @@ exports.updatepost = async (req, res) => {
   }
 };
 
+exports.rvupdatepost = async (req, res) => {
+  const { postId } = req.params;
+  const { videoNo, name, tags, views, link, imageUrl, titel, minutes, Category, desc, altKeywords, metatitel } = req.body;
+
+  try {
+    // Check if `name` is provided and slugify it if it's an array
+    let updatedName = name;
+    // Prepare slugified tags for update
+    let updatedTags = tags;
+    if (tags && Array.isArray(tags)) {
+      updatedTags = tags.map((item) => slugify(item));
+    }
+
+    if (name && Array.isArray(name)) {
+      updatedName = name.map((item) => slugify(item));
+    } else if (name && typeof name === 'string') {
+      updatedName = slugify(name);
+    }
+
+    // Perform the update operation
+    const updatedRecord = await RvData.findByIdAndUpdate(
+      postId,
+      {
+        imageUrl,
+        altKeywords,
+        name: updatedName, // Ensure the updated name is slugified
+        tags: updatedTags,
+        videoNo,
+        views,
+        link,
+        titel,
+        minutes,
+        Category,
+        desc,
+        metatitel
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedRecord) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json(updatedRecord);
+  } catch (error) {
+    console.error("Error in update post API:", error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 
 
@@ -505,6 +851,21 @@ exports.updateviews = async (req, res) => {
   }
 };
 
+exports.rvupdateviews = async (req, res) => {
+  const { id } = req.params;
+  const { views } = req.body;
+
+  try {
+    const updatedPost = await RvData.findByIdAndUpdate(id, { views }, { new: true });
+    if (!updatedPost) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    res.json(updatedPost);
+  } catch (error) {
+    console.log("Error in update views API", error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 exports.getindians = async (req, res) => {
   try {
@@ -534,6 +895,47 @@ exports.getindians = async (req, res) => {
 
     // Get the total count for pagination metadata
     const totalRecords = await Data.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getindians API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+exports.rvgetindians = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { Category: "indian" }, // Filter for "indian" category
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } }, // Search by video number
+            { titel: { $regex: search, $options: "i" } },   // Search by title
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by newest records first
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
 
     res.json({
       totalRecords,
@@ -589,6 +991,47 @@ exports.getHijabi = async (req, res) => {
   }
 };
 
+exports.rvgetHijabi = async (req, res) => {
+  try {
+    const { search = "", page = 1, limit = 16 } = req.query;
+
+    // MongoDB query to filter data
+    const query = {
+      $and: [
+        { Category: "hijabi" }, // Filter for hijabi category
+        {
+          $or: [
+            { videoNo: { $regex: search, $options: "i" } }, // Search in videoNo
+            { titel: { $regex: search, $options: "i" } },   // Search in titel
+          ],
+        },
+      ],
+    };
+
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records with search, sorting by createdAt (most recent first), and pagination
+    const records = await RvData.find(query)
+      .sort({ createdAt: -1 }) // Sort by latest records (newest first)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    // Get the total count for pagination metadata
+    const totalRecords = await RvData.countDocuments(query);
+
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.log("Error in getHijabi API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 
 
 exports.getVideo = async(req,res)=>{
@@ -596,6 +1039,13 @@ exports.getVideo = async(req,res)=>{
  const record=  await Data.findById(id)
  res.json(record)
 }
+
+exports.rvgetVideo = async(req,res)=>{
+  const id =req.params.id
+  const record=  await RvData.findById(id)
+  res.json(record)
+ }
+ 
 
 
 
@@ -634,20 +1084,80 @@ exports.searchByName = async (req, res) => {
   }
 };
 
-exports.addWebsite = async(req,res)=>{
-  console.log(req.body)
-  const {name,link,description} = req.body
-  const record=await new Website({
-    webName:name,
-    webLink:link,
-    webDesc:description,
-  })
+exports.rvsearchByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+    const { page = 1, limit = 16 } = req.query; // Get page and limit from query parameters
 
- await record.save()
-//  console.log(record)
- res.send(record)
+    // MongoDB query to match the name using $regex for case-insensitive and partial match
+    const query = {
+      name: { $regex: name, $options: 'i' }, // Case-insensitive match of the name
+    };
 
-}
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Fetch records matching the query with pagination
+    const records = await RvData.find(query)
+      .skip(skip)
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 }); // Sorting by createdAt, most recent first
+
+    // Get the total count of documents matching the query (for pagination metadata)
+    const totalRecords = await RvData.countDocuments(query);
+
+    // Return the paginated data along with metadata
+    res.json({
+      totalRecords,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page),
+      records,
+    });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+};
+
+
+exports.addWebsite = async (req, res) => {
+  try {
+    const { name, link, description,email } = req.body;
+    const logoFile = req.file;
+
+    if (!logoFile) {
+      return res.status(400).send("Logo is required.");
+    }
+
+    const record = new Website({
+      webName: name,
+      webLink: link,
+      webDesc: description,
+      email:email,
+      webLogo: logoFile.filename,
+      active: false
+    });
+      console.log(record)
+    await record.save();
+    res.status(201).send(record);
+  } catch (err) {
+    console.error("Error saving website:", err);
+    res.status(500).send("Server error.");
+  }
+};
+
+exports.toggleActive = async (req, res) => {
+  try {
+    const website = await Website.findById(req.params.id);
+    if (!website) return res.status(404).send({ message: "Website not found" });
+
+    website.active = !website.active;
+    await website.save();
+    res.send({ message: "Status updated", active: website.active });
+  } catch (err) {
+    res.status(500).send({ message: "Error updating status" });
+  }
+};
 
 exports.findWebsite = async(req,res)=>{
   const record=await Website.find()

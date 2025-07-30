@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const cAPi = require('../controler/controlers');
+const ControlerApi = require("../controler/toyController");
+
 
 // Sitemap Route
 // Sitemap Route
@@ -58,23 +60,63 @@ router.get('/', (req, res) => {
 });
 
 
+router.post("/product", upload.single("image"), ControlerApi.Product); // clothe prodect add api
+router.get('/getAllClothe',ControlerApi.getClothe) // clothe data find api
+router.delete('/deleteproduct/:id', ControlerApi.deleteProduct) // this for delete clothe prodect
+router.get('/showeditvalues/:id', ControlerApi.showeditvalues) // this is for show values in edit modal
+router.put("/updateproduct/:id",upload.single("image"), ControlerApi.updateProduct) // update clothe product
+router.get("/getAllProduct",ControlerApi.getAllProduct) // this is for all product get
+router.get("/getAllElectronic",ControlerApi.getAllElectronic)
+router.get("/getAllGrocery",ControlerApi.getAllGrocery)
+router.post('/idsprodects',ControlerApi.idsprodects)
+router.post('/checkout',ControlerApi.checkout)
+router.get('/findCheckout',ControlerApi.findCheckout)  // this is for all checkout order address and data
+router.post('/findorders',ControlerApi.findorders) 
+router.delete('/deleteorder/:id',ControlerApi.deleteOrder)  /// this is for delete order
+router.get('/productfindbyId/:id',ControlerApi.productbyid) // this is for find product for cheackout data from ProductModel
+router.post('/userregister',upload.single("profile"),ControlerApi.userregister) // this is for register user
+router.post('/userlogin',ControlerApi.userlogin) // this is for login user
+router.get('/findusers',ControlerApi.findusers) // this is for findall users
+router.get('/findUserOrder/:userId',ControlerApi.findUserOrder)
+
+
 router.post('/adminReg',cAPi.createAdmin)
 router.post('/adminlogin',cAPi.loginAdmin)
 
 // API Routes
 router.post("/postdata", cAPi.data);
+router.post("/rvpostdata", cAPi.rvdata);
+
 router.get('/getpostdata', cAPi.getpostdata);
+router.get('/rvgetpostdata', cAPi.rvgetpostdata);
+
 router.get('/relatedpostData',cAPi.relatedpostData)
+router.get('/rvrelatedpostData',cAPi.rvrelatedpostData)
+
 router.get('/getmovies',cAPi.getMovies)
+router.get('/rvgetmovies',cAPi.rvgetMovies)
+
 router.get('/getpopularVideos', cAPi.getpopularVideos);
+router.get('/rvgetpopularVideos', cAPi.rvgetpopularVideos);
+
+
 router.get('/getnewVideos', cAPi.getnewVideos);
+router.get('/rvgetnewVideos', cAPi.rvgetnewVideos);
+
+
 router.get('/getTopRate', cAPi.getTopRate);
+router.get('/rvgetTopRate', cAPi.rvgetTopRate);
+
 
 
 
 
 router.delete('/deletepost/:id', cAPi.deletepost);
+router.delete('/rvdeletepost/:id', cAPi.rvdeletepost);
+
+
 router.put('/updatepost/:postId', cAPi.updatepost);
+router.put('/rvupdatepost/:postId', cAPi.rvupdatepost);
 
 // Star-related API Endpoints
 router.post('/addStar', cAPi.addStar);
@@ -84,15 +126,27 @@ router.delete('/deleteStar/:starId', cAPi.deleteStar);
 
 // Views and Categories
 router.post('/updateviews/:id', cAPi.updateviews);
+router.post('/rvupdateviews/:id', cAPi.rvupdateviews);
+
 router.get('/getindians', cAPi.getindians);
+router.get('/rvgetindians', cAPi.rvgetindians);
+
+
 router.get('/getHijabi', cAPi.getHijabi);
+router.get('/rvgetHijabi', cAPi.rvgetHijabi);
+
 
 //video Get
 router.post('/getVideo/:id', cAPi.getVideo);
+router.post('/rvgetVideo/:id', cAPi.rvgetVideo);
+
 router.get("/pornstar/:name", cAPi.searchByName)
-router.post('/add-website',cAPi.addWebsite)
+router.get("/rvpornstar/:name", cAPi.rvsearchByName)
+
+router.post('/add-website', upload.single('logo'),cAPi.addWebsite);
 router.get('/find-website',cAPi.findWebsite)
 router.delete('/delete-website/:id',cAPi.deleteWebsite)
+router.patch('/toggle-active/:id',cAPi.toggleActive)
 
 
 

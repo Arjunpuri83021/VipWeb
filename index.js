@@ -1,7 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+
 const mongoose = require('mongoose');
 const apiRouter = require('./router/router');
+
+
+
+
 require('dotenv').config(); // Load environment variables
 
 const app = express();
@@ -16,7 +22,7 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   });
 
 // CORS Configuration
-const allowedOrigins = ['http://localhost:3000','https://majehimaje.netlify.app','https://hexmy.com','https://sendfex.com','https://xartx.fun','https://comxxx.fun','https://majehimaje.fun','https://majehimajeadmin.netlify.app','https://api.majehimaje.life','https://hexmynext.netlify.app'];
+const allowedOrigins = [ 'https://lovefex.com','http://localhost:3001','http://localhost:3000','https://vipmilfnut.com','https://majehimaje.netlify.app','https://hexmy.com','https://sendfex.com','https://xartx.fun','https://comxxx.fun','https://majehimaje.fun','https://majehimajeadmin.netlify.app','https://api.majehimaje.life','https://rvadmin.netlify.app'];
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -29,6 +35,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 // Middleware to parse JSON and URL-encoded data
 app.use(express.urlencoded({ extended: false }));
@@ -39,6 +47,7 @@ app.use(express.static('./public/uploads'));
 
 // Use your API router
 app.use(apiRouter);
+
 
 // Handle 404 errors
 app.use((req, res, next) => {

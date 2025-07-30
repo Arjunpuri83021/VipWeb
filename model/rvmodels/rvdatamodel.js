@@ -13,7 +13,6 @@ const mongoSchema = mongoose.Schema({
   imageUrl: String,
   altKeywords: String,
   name: { type: [String], required: true },
-  tags: { type: [String], default: [] },
   titel: String,
   metatitel:String,
   videoNo: String,
@@ -33,4 +32,4 @@ mongoSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('postData', mongoSchema);
+module.exports = mongoose.model('rvpostData', mongoSchema);
