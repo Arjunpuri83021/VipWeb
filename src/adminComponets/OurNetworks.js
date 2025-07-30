@@ -6,9 +6,9 @@ const OurNetworks = () => {
   const [webName, setWebName] = useState('');
   const [webLink, setWebLink] = useState('');
   const [webDesc, setWebDesc] = useState('');
-  const [websites, setWebsites] = useState([]); // State to store fetched websites
+  const [webLogo, setWebLogo] = useState('');
+  const [websites, setWebsites] = useState([]);
 
-  // Fetch website data from API
   const fetchWebsites = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/find-website`);
@@ -29,7 +29,7 @@ const OurNetworks = () => {
 
   const handleNetwork = async (e) => {
     e.preventDefault();
-    const data = { name: webName, link: webLink, description: webDesc };
+    const data = { name: webName, link: webLink, description: webDesc, logo: webLogo };
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/add-website`, {
@@ -43,8 +43,9 @@ const OurNetworks = () => {
         setWebName('');
         setWebLink('');
         setWebDesc('');
-        setShowModal(false); // Close the modal after successful submission
-        fetchWebsites(); // Refresh the list of websites
+        setWebLogo('');
+        setShowModal(false);
+        fetchWebsites();
       } else {
         alert("Failed to add website. Please try again.");
       }
@@ -54,75 +55,71 @@ const OurNetworks = () => {
     }
   };
 
-  function handelDelete(id){
-// console.log(id) 
-   fetch(`${process.env.REACT_APP_API_URL}/delete-website/${id}`,{
-    method:"DELETE"
-   }).then((res)=>{return res.json()}).then((data)=>{
-    console.log(data)
-    if(data.message==="deleted"){
-      fetchWebsites();
+  const handelDelete = (id) => {
+    fetch(`${process.env.REACT_APP_API_URL}/delete-website/${id}`, {
+      method: "DELETE"
+    }).then((res) => res.json()).then((data) => {
+      if (data.message === "deleted") {
+        fetchWebsites();
+      }
+    });
+  };
+
+  const toggleActive = async (id) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/toggle-active/${id}`, {
+        method: "PATCH",
+      });
+      if (res.ok) {
+        fetchWebsites();
+      } else {
+        alert("Failed to toggle active status");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error toggling status");
     }
-   })
-  }
+  };
 
   return (
     <>
       <AdminNav />
       <div className="mt-5">
-        <button className="btn btn-primary mt-3 d-flex m-auto" onClick={() => setShowModal(true)}>
-          Add Website
-        </button>
+       
 
         {/* Website List */}
         <div className="mt-4">
           <h3 className="text-center text-light">Our Networks</h3>
-          <ul style={{background:"black"}} className="list-group">
-            {websites.map((site,key) => (
-              <li style={{background:"black"}} key={site._id} className="list-group-item">
-                 <p className="text-light">{key +1} {site.webName}</p><a href={site.webLink} target="_blank" rel="noopener noreferrer">{site.webLink}</a>
-                <p style={{color:"white"}}>{site.webDesc}</p>
-                <button onClick={()=>{handelDelete(site._id)}} className="btn btn-danger">delete</button>
+          <ul style={{ background: "black" }} className="list-group">
+            {websites.map((site, key) => (
+              <li style={{ background: "black" }} key={site._id} className="list-group-item">
+                <p className="text-light">
+                  {key + 1}. {site.webName} - 
+                  <span style={{ color: site.active ? "lightgreen" : "orange", marginLeft: "10px" }}>
+                    {site.active ? "Active" : "Inactive"}
+                  </span>
+                </p>
+                {site.webLogo && (
+                  <img className="bg-dark"
+                                        src={`${process.env.REACT_APP_API_URL}/${site.webLogo}`} // assumes logo is like "uploads/xyz.jpg"
+                                        alt={site.webName}
+                                        style={{ width: '100%', height: '150px', objectFit: 'cover' }}
+                                    />                )}
+                <a href={site.webLink} target="_blank" rel="noopener noreferrer">{site.webLink}</a>
+                <p style={{ color: "white" }}>{site.webDesc}</p>
+                <p style={{ color: "white" }}>{site.email}</p>
+                <button onClick={() => handelDelete(site._id)} className="btn btn-danger me-2">Delete</button>
+                <button
+                  onClick={() => toggleActive(site._id)}
+                  className={`btn ${site.active ? 'btn-warning' : 'btn-success'}`}>
+                  {site.active ? "Deactivate" : "Activate"}
+                </button>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Modal */}
-        {showModal && (
-          <div className="modal show d-block" tabIndex="-1">
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">Add New Website</h5>
-                  <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-                </div>
-                <div className="modal-body">
-                  <form onSubmit={handleNetwork}>
-                    <div className="mb-3">
-                      <label className="form-label">Website Name</label>
-                      <input value={webName} onChange={(e) => setWebName(e.target.value)} type="text" className="form-control" placeholder="Enter website name" required />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">Website Link</label>
-                      <input value={webLink} onChange={(e) => setWebLink(e.target.value)} type="url" className="form-control" placeholder="Enter website URL" required />
-                    </div>
-
-                    <div className="mb-3">
-                      <label className="form-label">Website Description</label>
-                      <textarea value={webDesc} onChange={(e) => setWebDesc(e.target.value)} className="form-control" placeholder="Enter description"></textarea>
-                    </div>
-
-                    <button type="submit" className="btn btn-success">Submit</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {showModal && <div className="modal-backdrop show" onClick={() => setShowModal(false)}></div>}
+       
       </div>
     </>
   );

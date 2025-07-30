@@ -4,10 +4,22 @@ import AdminNav from "./AdminNav";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function Dashboard() {
+  // Predefined tags
+  const suggestedTags = [
+    'Caught', 'Close Up', 'Redhead', 'BBW', 'Wife', 'Japanese', 'Yoga', 'Spanking',
+    'Ladyboy', 'FFM', 'Tattoo', 'Skinny', 'Cumshot', 'Cameltoe', 'Korean', 'Russian',
+    'Legs', 'Webcam', 'Pussy', 'Footjob', 'College', 'Slut', 'Orgasm', 'Perfect',
+    'Cum In Pussy', 'Panties', 'Sport', 'Cowgirl', 'Natural Tits', 'Pretty', 'Doggystyle',
+    'Maid', 'Housewife', 'Curvy', 'Deepthroat', 'Surprise', 'Redhead', 'Party', 'BBC',
+    'Doggystyle','Shower','Screaming','Jeans','Handjob','Teacher','Stuck','Babysitter','Masturbation','Girlfriend','Big Tits','Kissing','Panties','Saggy Tits','White','Beautiful','Teen','Chinese','Pregnant','Perfect','Glasses','Twins','Short Hair','Swinger','Stockings','Bathroom','Indian','Wedding','BBC','Cheerleader','office','babe'
+  ];
+
   const [imageUrl, setImgUrl] = useState('');
   const [altKeywords, setAltKeywords] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [name, setname] = useState([]);
+  const [tagInput, setTagInput] = useState('');
+  const [tags, setTags] = useState([]);
   const [videoNo, setVideoNo] = useState('');
   const [views, setViews] = useState('');
   const [link, setLink] = useState('');
@@ -15,6 +27,9 @@ function Dashboard() {
   const [minutes, setMinutes] = useState('');
   const [Category, setCategory] = useState('');
   const [desc, setDesc] = useState(''); // New state for description
+
+  // State for tag suggestions visibility
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [postdata, setData] = useState([]);
   const [postId, setPostId] = useState('');
@@ -28,7 +43,7 @@ function Dashboard() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = { imageUrl, altKeywords, name, videoNo, views, link, titel, minutes, Category, desc };
+    const formData = { imageUrl, altKeywords, name, tags, videoNo, views, link, titel, minutes, Category, desc };
   
     const url = isUpdateMode
       ? `${apiUrl}/updatepost/${postId}`
@@ -106,6 +121,8 @@ function Dashboard() {
     setImgUrl(item.imageUrl);
     setAltKeywords(item.altKeywords || '');
     setname(item.name || []);
+    setTags(item.tags || []);
+    setTagInput('');
     setVideoNo(item.videoNo);
     setViews(item.views);
     setLink(item.link);
@@ -141,6 +158,8 @@ function Dashboard() {
     setAltKeywords('');
     setNameInput('');
     setname([]);
+  setTags([]);
+  setTagInput('');
     setVideoNo('');
     setViews('');
     setLink('');
@@ -175,6 +194,24 @@ function Dashboard() {
 
   const removeName = (index) => {
     setname(name.filter((_, i) => i !== index));
+  };
+
+  const removeTag = (index) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
+  // Filter tags based on input
+  const filteredTags = tagInput
+    ? suggestedTags.filter(tag => tag.toLowerCase().includes(tagInput.toLowerCase()))
+    : suggestedTags;
+
+  // Add tag from suggestions
+  const addTagFromSuggestion = (tag) => {
+    if (!tags.includes(tag)) {
+      setTags([...tags, tag]);
+      setTagInput('');
+      setShowSuggestions(false);
+    }
   };
 
   return (
@@ -287,7 +324,63 @@ function Dashboard() {
                   <i onClick={() => removeName(index)} className="bi bi-x-circle"></i>
                 </div>
               ))}
-
+              <div className="mb-3">
+                <label htmlFor="tags" className="form-label">Tags</label>
+                <div className="d-flex flex-wrap gap-2 mb-2">
+                  {tags.map((tag, index) => (
+                    <span key={index} className="badge bg-primary">
+                      {tag} <button onClick={() => removeTag(index)} className="btn-close btn-close-white" aria-label="Remove tag"></button>
+                    </span>
+                  ))}
+                </div>
+                <div className="d-flex position-relative">
+                  <input
+                    type="text"
+                    className="form-control"
+                    id="tags"
+                    value={tagInput}
+                    onChange={(e) => {
+                      setTagInput(e.target.value);
+                      if (e.target.value) {
+                        setShowSuggestions(true);
+                      } else {
+                        setShowSuggestions(false);
+                      }
+                    }}
+                    placeholder="Enter tag"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (tagInput.trim() !== '' && !tags.includes(tagInput.trim())) {
+                        setTags([...tags, tagInput.trim()]);
+                        setTagInput('');
+                        setShowSuggestions(false);
+                      }
+                    }}
+                    className="btn btn-light ms-2"
+                  >
+                    Add
+                  </button>
+                  {showSuggestions && (
+                    <div className="position-absolute top-100 start-0 w-100 bg-white border rounded p-2" style={{ zIndex: 2 }}>
+                      {filteredTags.length ? (
+                        filteredTags.map((tag, index) => (
+                          <div
+                            key={index}
+                            className="p-1 hoverable text-muted"
+                            onClick={() => addTagFromSuggestion(tag)}
+                          >
+                            {tag}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-1 text-muted">No suggestions</div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
               <label htmlFor="title">Title</label>
               <input value={titel} onChange={(e) => settitel(e.target.value)} className="form-control" type="text" name="title" id="title" />
 
@@ -301,19 +394,9 @@ function Dashboard() {
                 <option className="text-light" value="hijabi">Hijabi</option>
                 <option className="text-light" value="viral">Viral</option>
               </select>
-              <label htmlFor="desc">Description</label>
-              <textarea
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
-                className="form-control"
-                name="desc"
-                id="desc"
-                rows="3"
-              ></textarea>
+              
 
-              <label htmlFor="videoNo">Video No</label>
-              <input value={videoNo} onChange={(e) => setVideoNo(e.target.value)} className="form-control" type="number" name="videoNo" id="videoNo" />
-
+             
               <label htmlFor="link">Link</label>
               <input value={link} onChange={(e) => setLink(e.target.value)} className="form-control" type="text" name="link" id="link" />
 
