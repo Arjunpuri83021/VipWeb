@@ -7,6 +7,8 @@ import { Helmet } from "react-helmet";
 
 import PaginationComponent from '../components/partials/PaginationComponent'; // Import the PaginationComponent
 import Footer from "./partials/Footer";
+import "./Video/Video.css";
+import SmartLinkBanner from "./partials/SmartLinkBanner";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -15,6 +17,13 @@ function Home() {
     const currentPage = page ? Number(page) : 1; // Default to page 1 if not present
     const navigate = useNavigate();
     
+
+    useEffect(() => {
+        if (isNaN(currentPage) || currentPage < 1) {
+            navigate('/404', { replace: true });
+        }
+    }, [currentPage, navigate]);
+
     // Redirect to root URL if currentPage is 1
     useEffect(() => {
         if (currentPage === 1 && window.location.pathname !== '/') {
@@ -30,8 +39,10 @@ function Home() {
     const [selectedCategory, setSelectedCategory] = useState(""); 
     const itemsPerPage = 16;
 
+   
+
     useEffect(() => {
-        document.title = `WowUncut XXXHD Videos SpanBank Full HD Streaming Page ${currentPage} on VipMilfNut`;
+        document.title = `VipMilfNut WowUncut XXXHD Videos SpanBank Page ${currentPage}`;
     
         // Update meta description
         const metaDesc = document.querySelector("meta[name='description']");
@@ -125,13 +136,13 @@ function Home() {
     return (
         <>
             <Helmet>
-                <title>WowUncut XXXHD Videos | SpanBank Full HD Streaming On VipMilfNut</title>
+                <title>VipMilfNut WowUncut XXXHD Videos | SpanBank Full HD Streaming On VipMilfNut</title>
                 {/* Dynamically set the canonical link */}
                 <link 
                     rel="canonical" 
                     href={`https://vipmilfnut.com/${currentPage === 1 ? '' : currentPage}`} 
                 />
-                <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
+               
                 <meta 
                     name="description" 
                     content="fry99 hqpornee freeomovie 3gp king adelt movies auntymaza badwap com bf full hd bf hd video bfxxx bigfucktv xxxhd spanbank borwap com pornve wowuncut| VipMilfNut" 
@@ -142,44 +153,53 @@ function Home() {
             <Sidebar onSearch={(query) => setSearch(query)} />
             <Slider onCategorySelect={(category) => setSelectedCategory(category)} />
             
-            <h1 style={{fontSize:"18px", textAlign:"center"}}>Watch All MilfNut Videos – Latest & Trending Updates</h1>
+            <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>Watch All VipMilfNut Videos – Latest & Trending Updates</h1>
+
             <div style={{ width: "95%", margin: "auto" }}>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
                 <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {postData.map((post) => (
-                        <div className="col" key={post._id}>
-                            <Link onClick={(e) => handleCardClick(post._id, post.views)}
-                                to={`/video/${post._id}-${slugifyTitle(post.titel)}`}
-                                style={{ textDecoration: "none" }}
-                            >
-                                <div className="card">
-                                    <img
-                                        loading="lazy"
-                                        style={{ height: "250px" }}
-                                        src={post.imageUrl}
-                                        className="card-img-top"
-                                        alt={post.altKeywords?.trim() || post.titel}
-                                    />
-                                    <div className="card-body">
-                                        <div>
-                                            <p>
-                                                <i className="bi bi-hand-thumbs-up-fill"></i>{" "}
-                                                {Math.min(Math.round((post.views / 200) * 100), 100)}%
-                                            </p>
-                                            <p>
-                                                <i className="bi bi-clock-fill"></i> {post.minutes}
-                                            </p>
-                                            <p>
-                                                <i className="bi bi-eye-fill"></i> {post.views || 2}K+ ..
-                                            </p>
+                    {postData.map((post, idx) => (
+                        <React.Fragment key={idx}>
+                            <div className="col">
+                                <Link onClick={(e) => handleCardClick(post._id, post.views)}
+                                    to={`/video/${post._id}`}
+                                    style={{ textDecoration: "none" }}
+                                >
+                                    <div className="card">
+                                        <img
+                                            loading="lazy"
+                                            style={{ height: "250px" }}
+                                            src={post.imageUrl}
+                                            className="card-img-top"
+                                            alt={post.altKeywords?.trim() || post.titel}
+                                        />
+                                        <div className="card-body">
+                                            <div>
+                                                <p>
+                                                    <i className="bi bi-hand-thumbs-up-fill"></i>{" "}
+                                                    {Math.min(Math.round((post.views / 200) * 100), 100)}%
+                                                </p>
+                                                <p>
+                                                    <i className="bi bi-clock-fill"></i> {post.minutes}
+                                                </p>
+                                                <p>
+                                                    <i className="bi bi-eye-fill"></i> {post.views || 2}
+                                                </p>
+                                            </div>
+                                            <h2 className="card-title">{post.titel}</h2>
                                         </div>
-                                        <h2 className="card-title">{post.titel}</h2>
                                     </div>
+                                </Link>
+                            </div>
+                           
+                                    {((idx + 1) % 2 === 0) && (
+                                <div className="col" key={`ad-${idx}`}>
+                                    <SmartLinkBanner />
                                 </div>
-                            </Link>
-                        </div>
+                            )}
+                        </React.Fragment>
                     ))}
                 </div>
 

@@ -6,6 +6,7 @@ import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
 import Footer from "../partials/Footer";
+import SmartLinkBanner from "../partials/SmartLinkBanner";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -30,7 +31,7 @@ function Chochox() {
     }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `chochox Videos page ${currentPage} on VipMilfNut – Watch Cartoon porn clips in HD`;
+        document.title = `VipMilfNut chochox Videos page ${currentPage} – Watch Cartoon porn clips in HD`;
         const metaDescContent = "Explore a collection of premium chochox videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
@@ -112,7 +113,7 @@ function Chochox() {
     return (
         <>
             <Helmet>
-                <title>chochox Videos on VipMilfNut – Watch Cartoon Porn clips in HD</title>
+                <title>VipMilfNut chochox– Watch Cartoon Porn clips in HD</title>
                 <link rel="canonical" href={`https://vipmilfnut.com/category/chochox/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
                 <meta name="description" content="Explore a collection of premium chochox videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
                 <meta name="robots" content="index, follow" />
@@ -120,13 +121,14 @@ function Chochox() {
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>chochox sex Videos</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>vipmilfnut chochox sex Videos</h1>
+                <SmartLinkBanner />
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <div className="row row-cols-2 row-cols-md-3 g-2">
                     {postData.map((post) => (
                         <div className="col" key={post._id}>
-                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
+                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}`}>
                                 <div className="card">
                                     <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
                                     <div className="card-body p-2">

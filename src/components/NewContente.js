@@ -18,7 +18,7 @@ function NewContent() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | VipMilfNut";
+        document.title = "VipMilfNut fsiblog df6 org df6org dinotube draftsex drtuber";
 
         const metaDescContent = "gekso fsiblog com fsiblog fry99 com english bf video elephant tube bad wap beeg hindi draftsex dinotube df6 org tiktits 3gp king icegay xxxhd sex18 imo sex | VipMilfNut";
 
@@ -114,9 +114,8 @@ function NewContent() {
     return (
         <>
             <Helmet>
-                <title>fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com | VipMilfNut</title>
+                <title>VipMilfNut fsiblog df6 org df6org dinotube draftsex drtuber fsiblog com |</title>
                 <link rel="canonical" href="https://vipmilfnut.com/new-content" />
-                <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="description" content="gekso fsiblog com fsiblog fry99 com english bf video elephant tube..." />
                 <meta name="robots" content="index, follow" />
             </Helmet>
@@ -130,14 +129,14 @@ function NewContent() {
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     {postData.map((post, index) => (
                         <div className="col" key={post._id}>
-                            <Link onClick={(e) => handleCardClick(post._id, post.views)} to={`/video/${post._id}-${slugifyTitle(post.titel)}`} style={{ textDecoration: "none" }}>
+                            <Link onClick={(e) => handleCardClick(post._id, post.views)} to={`/video/${post._id}`} style={{ textDecoration: "none" }}>
                                 <div className="card">
                                     <img loading="lazy" style={{ height: "250px" }} src={post.imageUrl} className="card-img-top" alt={post.altKeywords?.trim() || post.titel} />
                                     <div className="card-body">
                                         <div>
                                             <p><i className="bi bi-hand-thumbs-up-fill"></i> {Math.min(Math.round((post.views / 200) * 100), 100)}%</p>
 
-                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}K+..</p>
+                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}</p>
                                             <p><i className="bi bi-clock-fill"></i> {post.minutes}</p>
                                         </div>
                                         {index === 0 ? <h1 className="card-title">{post.titel}</h1> : <h2 className="card-title">{post.titel}</h2>}
@@ -149,12 +148,44 @@ function NewContent() {
                 </div>
 
                 <div style={{ marginTop: "20px", textAlign: "center" }}>
-                    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ marginRight: "10px" }}>Previous</button>
-                    {generatePageNumbers().map((pageNumber) => (
-                        <button key={pageNumber} className={`btn btn-dark ${currentPage === pageNumber ? "active" : ""}`} onClick={() => handlePageChange(pageNumber)} style={{ margin: "0 5px" }}>{pageNumber}</button>
-                    ))}
-                    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
-                </div>
+    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ marginRight: "10px" }}>
+        Previous
+    </button>
+
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter((page) => {
+            return (
+                page === 1 || // always show first page
+                page === totalPages || // always show last page
+                (page >= currentPage - 1 && page <= currentPage + 1) // show around current
+            );
+        })
+        .reduce((acc, page, index, array) => {
+            if (index > 0 && page - array[index - 1] > 1) {
+                acc.push("ellipsis"); // inject ellipsis
+            }
+            acc.push(page);
+            return acc;
+        }, [])
+        .map((page, index) => {
+            if (page === "ellipsis") {
+                return <span key={`ellipsis-${index}`} className="btn btn-dark disabled">...</span>;
+            }
+            return (
+                <button style={{margin:"10px"}}
+                    key={page}
+                    className={`btn btn-dark ${currentPage === page ? "active" : ""}`}
+                    onClick={() => handlePageChange(page)}
+                >
+                    {page}
+                </button>
+            );
+        })}
+
+    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>
+        Next
+    </button>
+</div>
             </div>
 
             <Footer/>

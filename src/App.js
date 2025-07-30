@@ -5,7 +5,6 @@ import {
     Route
 } from 'react-router-dom';
 import Home from './components/Home';
-import Navbar from './components/partials/Navbar';
 import Video from './components/Video/Video';
 import StarsVideo from './components/Video/StarsVideo';
 import Indian from './components/Indians';
@@ -107,6 +106,8 @@ function App() {
 
                 {/* Catch-all route for unmatched URLs */}
                 <Route path='*' element={<NotFound />} />
+                <Route path="/404" element={<NotFound />} />
+                <Route path="/notfound" element={<NotFound />} />
             </Routes>
         </Router>
     );

@@ -139,6 +139,70 @@
     margin-top: 10px;
 }
 
+.pornstar-name{
+    text-decoration: underline;
+}
+
+/* Advertisement Card Styles */
+
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+.ad-card {
+    background: linear-gradient(270deg,#ff4081,#f50057,#ff4081);
+    background-size: 400% 400%;
+    animation: gradientMove 6s ease infinite;
+    color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    font-family: sans-serif;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s, box-shadow .3s;
+}
+
+.ad-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 18px rgba(0,0,0,.4);
+}
+
+/* Variant with background image */
+.ad-card.with-img {
+    background-size: cover;
+    background-position: center;
+}
+.ad-card.with-img::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+}
+
+.ad-card-content { /* inner wrapper to stay above overlay */
+    position: relative;
+    z-index: 1;
+}
+
+.cta-pill {
+    background: #fff;
+    color: #f50057;
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: inline-block;
+    font-weight: bold;
+    animation: pulse 1.4s infinite;
+    margin-top: 10px;
+}
+
 @media(max-width:500px) {
     .custom-video-container {
         width: 100%;

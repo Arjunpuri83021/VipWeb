@@ -46,7 +46,24 @@ const Sidebar = ({ onSearch }) => {
                     <Link style={{ textDecoration: "none" }} to="/">
                         <h2 className="logo">VipMilfNut</h2>
                     </Link>
+                   
                 </div>
+              
+                 <span className="icon profile-icon">
+      <a
+        href="https://t.ancdu.link/378191/3785/0?bo=2753,2754,2755,2756&po=6456&aff_sub5=banner1"
+        target="_blank"
+        rel="noopener noreferrer nofollow sponsored"
+        style={{
+          display: 'block',
+          maxWidth: '100%',
+          margin: '20px auto',
+          textAlign: 'center',
+        }}
+      >
+       
+      </a>
+    </span>
                 <div className="right-section">
                     {/* Search Icon (Only visible on mobile) */}
                     <span className="icon search-icon" onClick={toggleSearchBar}>🔍</span>
@@ -59,7 +76,10 @@ const Sidebar = ({ onSearch }) => {
                         onChange={handleSearchChange}
                     />
                     {/* Profile Icon */}
-                    <span className="icon profile-icon">👤</span>
+                    
+                    
+                   
+
                 </div>
             </div>
 

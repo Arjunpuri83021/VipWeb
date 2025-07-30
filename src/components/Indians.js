@@ -18,7 +18,7 @@ function Indian() {
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "Desi49 SxyPrn & BF Sex Videos | IndianGaySite & Milfnut on VipMilfNut";
+        document.title = "VipMilfNut Desi49 SxyPrn | IndianGaySite & Milfnut";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -101,30 +101,29 @@ function Indian() {
     return (
         <>
             <Helmet>
-                <title>Desi49 SxyPrn & BF Sex Videos | IndianGaySite & milfnut on VipMilfNut</title>
+                <title>VipMilfNut Desi49 SxyPrn & BF Sex Videos | IndianGaySite & milfnut on VipMilfNut</title>
                 <link rel="canonical" href="https://vipmilfnut.com/indian" />
-                <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="description" content="desi 52 com desi 49 com dehati sex dasi sex blueflim boyfriendtv com bollywood sex bf sexy indiangaysite sxyprn bf hindi video bf hindi movie banglaxx | VipMilfNut" />
                 <meta name="robots" content="index, follow" />
             </Helmet>
 
             <Sidebar onSearch={setSearchTerm} />
             <Slider onCategorySelect={setSelectedCategory} />
-
+            <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>VipMilfNut indian sex Videos</h1>
             <div style={{ width: "95%", margin: "auto" }}>
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     {indians.map((post, index) => (
                         <div className="col" key={post._id}>
-                            <Link onClick={(e) => handleCardClick(post._id, post.views)} to={`/video/${post._id}-${slugifyTitle(post.titel)}`} style={{ textDecoration: "none" }}>
+                            <Link onClick={(e) => handleCardClick(post._id, post.views)} to={`/video/${post._id}`} style={{ textDecoration: "none" }}>
                                 <div className="card">
                                     <img loading="lazy" style={{ height: "250px" }} src={post.imageUrl} className="card-img-top" alt={post.altKeywords?.trim() || post.titel} />
                                     <div className="card-body">
                                         <div>
                                             <p><i className="bi bi-hand-thumbs-up-fill"></i> {Math.min(Math.round((post.views / 200) * 100), 100)}%</p>
                                             
-                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}K+..</p>
+                                            <p><i className="bi bi-eye-fill"></i> {post.views || 2}</p>
                                             <p><i className="bi bi-clock-fill"></i> {post.minutes}</p>
                                         </div>
                                         {index === 0 ? <h1 className="card-title">{post.titel}</h1> : <h2 className="card-title">{post.titel}</h2>}
@@ -136,12 +135,45 @@ function Indian() {
                 </div>
 
                 <div style={{ marginTop: "20px", textAlign: "center" }}>
-                    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ marginRight: "10px" }}>Previous</button>
-                    {[...Array(totalPages)].map((_, i) => (
-                        <button key={i + 1} className={`btn btn-dark ${currentPage === i + 1 ? "active" : ""}`} onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
-                    ))}
-                    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>Next</button>
-                </div>
+    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} style={{ marginRight: "10px" }}>
+        Previous
+    </button>
+
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+        .filter((page) => {
+            return (
+                page === 1 || // always show first page
+                page === totalPages || // always show last page
+                (page >= currentPage - 1 && page <= currentPage + 1) // show around current
+            );
+        })
+        .reduce((acc, page, index, array) => {
+            if (index > 0 && page - array[index - 1] > 1) {
+                acc.push("ellipsis"); // inject ellipsis
+            }
+            acc.push(page);
+            return acc;
+        }, [])
+        .map((page, index) => {
+            if (page === "ellipsis") {
+                return <span key={`ellipsis-${index}`} className="btn btn-dark disabled">...</span>;
+            }
+            return (
+                <button style={{margin:"10px"}}
+                    key={page}
+                    className={`btn btn-dark ${currentPage === page ? "active" : ""}`}
+                    onClick={() => handlePageChange(page)}
+                >
+                    {page}
+                </button>
+            );
+        })}
+
+    <button className="btn btn-dark" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} style={{ marginLeft: "10px" }}>
+        Next
+    </button>
+</div>
+
             </div>
 
             <Footer/>

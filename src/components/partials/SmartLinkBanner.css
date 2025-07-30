@@ -1,0 +1,35 @@
+.smartlink-banner-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+}
+
+.smartlink-banner {
+  background-image: url("https://cdn.jsdelivr.net/gh/wdsrf/assets@main/dating-banner.jpg");
+  /* fallback color */
+  background-color: #ea3366;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100%;
+  max-width: 728px;
+  height: 90px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.smartlink-banner:hover {
+  transform: scale(1.03);
+}
+
+.smartlink-text {
+  color: #ffffff;
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.6);
+}

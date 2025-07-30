@@ -6,6 +6,7 @@ import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
 import Footer from "../partials/Footer";
+import SmartLinkBanner from "../partials/SmartLinkBanner";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -30,7 +31,7 @@ function SmallTits() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Small Tits sex Videos page ${currentPage} on VipMilfNut - 4K Pornstar 3pornstar`;
+        document.title = `VipMilfNut Small Tits sex Videos page ${currentPage} - 4K Pornstar 3pornstar`;
         const metaDescContent = "Explore a collection of premium SmallTits videos. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
@@ -112,20 +113,22 @@ function SmallTits() {
     return (
         <>
             <Helmet>
-                <title>Small Tits Videos on VipMilfNut - 4K Pornstar 3pornstar</title>
+                <title>VipMilfNut Small Tits Videos - 4K Pornstar 3pornstar</title>
                 <link rel="canonical" href={`https://vipmilfnut.com/category/small-tits/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
                 <meta name="description" content="Explore a collection of premium SmallTits videos. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Small Tits - SmallTits Videos</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>VipMilfNut Small Tits - SmallTits Videos</h1>
+                
+                <SmartLinkBanner />
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                 <div className="row row-cols-2 row-cols-md-3 g-2">
                                    {postData.map((post) => (
                                        <div className="col" key={post._id}>
-                                           <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
+                                           <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}`}>
                                                <div className="card">
                                                    <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
                                                    <div className="card-body p-2">

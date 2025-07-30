@@ -6,6 +6,7 @@ import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
 import Footer from "../partials/Footer";
+import SmartLinkBanner from "../partials/SmartLinkBanner";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -30,7 +31,7 @@ function Boobs() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Boobs Pressing page ${currentPage} Videos on VipMilfNut – Watch HD clips now`;
+        document.title = `VipMilfNut Boobs Pressing page ${currentPage} Videos – Watch HD clips now`;
         const metaDescContent = "Explore a collection of premium boobs pressing videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
@@ -112,7 +113,7 @@ function Boobs() {
     return (
         <>
             <Helmet>
-                <title>Boobs Pressing Videos on VipMilfNut – Watch HD clips now</title>
+                <title>VipMilfNut Boobs Pressing Videos – Watch HD clips now</title>
                 <link rel="canonical" href={`https://vipmilfnut.com/category/boobs-pressing/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
                 <meta name="description" content="Explore a collection of premium boobs pressing videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
                 <meta name="robots" content="index, follow" />
@@ -120,13 +121,14 @@ function Boobs() {
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>boobs pressing - Big Tits Videos</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>VipMilfNut boobs pressing - Big Tits Videos</h1>
+                <SmartLinkBanner />
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                  <div className="row row-cols-2 row-cols-md-3 g-2">
                                     {postData.map((post) => (
                                         <div className="col" key={post._id}>
-                                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
+                                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}`}>
                                                 <div className="card">
                                                     <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
                                                     <div className="card-body p-2">

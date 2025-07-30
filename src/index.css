@@ -22,3 +22,10 @@ a{
     color: black;
     border: none;
 }
+
+.network-logos{
+    border-radius: 60%;
+    width: 40%;
+    padding: 26px 20px;
+    background-color: #a1a1a1;
+}

@@ -6,6 +6,7 @@ import Slider from "../partials/Slider";
 import PaginationComponent from '../partials/PaginationComponent';
 import './category.css'
 import Footer from "../partials/Footer";
+import SmartLinkBanner from "../partials/SmartLinkBanner";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -30,7 +31,7 @@ function Scout69() {
         }, [currentPage, navigate]);
 
     useEffect(() => {
-        document.title = `Scout69 Videos page ${currentPage} on VipMilfNut - bad wap wwwxxx xvedeo`;
+        document.title = `VipMilfNut Scout69 Videos page ${currentPage} - bad wap wwwxxx xvedeo`;
         const metaDescContent = "Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences.";
 
         const metaDesc = document.querySelector("meta[name='description']");
@@ -111,20 +112,22 @@ function Scout69() {
     return (
         <>
             <Helmet>
-                <title>Scout69 Videos on VipMilfNut - bad wap wwwxxx xvedeo</title>
+                <title>VipMilfNut Scout69 Videos - bad wap wwwxxx xvedeo</title>
                 <link rel="canonical" href={`https://vipmilfnut.com/category/scout69/${currentPage === 1 ? '' : currentPage}`} /> {/* Dynamic canonical URL */}
                 <meta name="description" content="Explore a collection of premium Scout69 Big boobs big dick videos on VipMilfNut. Enjoy handpicked, high-quality content filtered for your preferences." />
             </Helmet>
             <Sidebar onSearch={handleSearch} />
             <Slider />
             <div style={{ width: "95%", margin: "auto" }}>
-                <h1>Scout69 - Big boobs big dick Videos</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>VipMilfNut Scout69 - Big boobs big dick Videos</h1>
+               
+                <SmartLinkBanner />
                 {loading && <p>Loading...</p>}
                 {error && <p style={{ color: "red" }}>{error}</p>}
                  <div className="row row-cols-2 row-cols-md-3 g-2">
                                     {postData.map((post) => (
                                         <div className="col" key={post._id}>
-                                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}-${slugifyTitle(post.titel)}`}>
+                                            <Link onClick={(e) => handleCardClick(post._id, post.views)} style={{ textDecoration: "none" }} to={`/video/${post._id}`}>
                                                 <div className="card">
                                                     <img style={{ height: "250px" }} src={post.imageUrl} className="card-img-top card-img" alt={post.altKeywords?.trim() || post.titel} />
                                                     <div className="card-body p-2">

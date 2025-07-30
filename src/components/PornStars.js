@@ -14,12 +14,12 @@ function PornStars() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
-        const [selectedCategory, setSelectedCategory] = useState(""); // For category selection
+        const [setSelectedCategory] = useState(""); // For category selection
     
     const itemsPerPage = 16;
 
     useEffect(() => {
-        document.title = "Adult Actress 3Pornstar 4K Pornstar Black Pornstars | VipMilfNut";
+        document.title = "VipMilfNut Adult Actress 3Pornstar 4K Pornstar Black Pornstars";
 
         const metaDesc = document.querySelector("meta[name='description']");
         if (metaDesc) {
@@ -79,9 +79,8 @@ function PornStars() {
     return (
         <>
             <Helmet>
-                <title>Adult Actress 3Pornstar 4K Pornstar Black Pornstars | VipMilfNut</title>
+                <title>VipMilfNut Adult Actress 3Pornstar 4K Pornstar Black Pornstars | VipMilfNut</title>
                 <link rel="canonical" href="https://vipmilfnut.com/Pornstars" />
-                <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta name="description" content="A list of top-rated adult actresses and pornstars, including black pornstars and 4K-rated performers." />
                 <meta name="robots" content="index, follow" />
             </Helmet>

@@ -9,7 +9,7 @@ const apiUrl = process.env.REACT_APP_API_URL;
 function StarsVideo() {
     const { name } = useParams(); // Get pornstar name from the route
     const [results, setResults] = useState([]);
-    const [randomImage, setRandomImage] = useState("");
+    const [setRandomImage] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +56,7 @@ function StarsVideo() {
         if (!name) return;
         const formattedName = name.replace(/-/g, " ");
     
-        document.title = `${formattedName} xvids porno missax trisha paytas porn`;
+        document.title = `VipMilfNut ${formattedName} xvids porno missax trisha paytas porn`;
         
         const metaDesc = document.querySelector("meta[name='description']");
         const descriptionContent = `sexy movie super movie ${formattedName}. chinese family sex huge tits Porn Videos big natural boobs download vporn sex videos`;
@@ -140,9 +140,8 @@ function StarsVideo() {
     return (
         <>
             <Helmet>
-                <title>{name.replace(/-/g, " ")} xvids porno missax trisha paytas porn</title>
+                <title>VipMilfNut - {name.replace(/-/g, " ")} xvids porno missax trisha paytas porn</title>
                 <link rel="canonical" href={`https://vipmilfnut.com/pornstar/${name}`} />
-                <link rel="icon" href="/favicon.ico?v=2" type="image/x-icon" />
                 <meta
                     name="description"
                     content={`sexy movie super movie ${name.replace(
@@ -156,13 +155,13 @@ function StarsVideo() {
             <Sidebar onSearch={(query) => setSearch(query)} />
 
             <div className="stars-videos">
-                <h1>Videos Featuring {name.replace(/-/g, " ")}</h1>
+                <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px", textTransform:"capitalize"}}>{name.replace(/-/g, " ")} All sex Videos On VipMilfNut</h1>
 
                 <div className="row row-cols-1 row-cols-md-4 g-4 mt-0 m-auto">
                     {results.length > 0 ? (
                         results.map((video, index) => (
                             <div className="col" key={video._id} ref={index === results.length - 1 ? lastVideoRef : null}>
-                                <Link  onClick={() => handleCardClick(video._id, video.views)} to={`/video/${video._id}-${slugifyTitle(video.titel)}`} style={{ textDecoration: "none" }}>
+                                <Link  onClick={() => handleCardClick(video._id, video.views)} to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
                                     <div className="card">
                                         <img
                                             loading="lazy"

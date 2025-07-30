@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Tabs, Tab } from "@mui/material";
 
 const categories = [
+   
     "chochox",
    "scout69",
    "comxxx",
