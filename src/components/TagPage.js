@@ -64,6 +64,8 @@ function TagPage() {
     setLoading(true);
     setError(null);
     try {
+      // Filter posts by tag using search parameter
+      // Backend should filter posts where tags array contains the decoded tag
       const response = await fetch(
         `${apiUrl}/getpostdata?page=${pageNumber}&limit=${itemsPerPage}&search=${encodeURIComponent(decodedTag)}`,
         { mode: "cors" }
