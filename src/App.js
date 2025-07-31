@@ -32,13 +32,14 @@ import Chochox from './components/Category/Chochox';
 import Sex18 from './components/Category/Sex18';
 import Aunt from './components/Category/Aunt';
 import Fullporner from './components/Category/Fullporner';
+import TagPage from './components/TagPage';
 
 function App() {
     return (
         <Router>
             <Routes>
             <Route path='/:page' element={<Home />} />
-            <Route path='/' element={<Home />} />
+            <Route path='/' element={<Home />}/>
             <Route path='/video/:id' element={<Video />} />
                 <Route path='/pornstar/:name' element={<StarsVideo />} />
                 <Route path='/indian' element={<Indian />} />
@@ -102,6 +103,10 @@ function App() {
                 
                 <Route path='/category/small-tits' element={<SmallTits />} />
                 <Route path='/category/small-tits/:page' element={<SmallTits />} />
+
+                {/* Tag based routes */}
+                <Route path='/tag/:tag' element={<TagPage />} />
+                <Route path='/tag/:tag/:page' element={<TagPage />} />
 
 
                 {/* Catch-all route for unmatched URLs */}

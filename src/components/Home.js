@@ -9,6 +9,9 @@ import PaginationComponent from '../components/partials/PaginationComponent'; //
 import Footer from "./partials/Footer";
 import "./Video/Video.css";
 import SmartLinkBanner from "./partials/SmartLinkBanner";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import "./TagGrid.css";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -38,6 +41,57 @@ function Home() {
     const [search, setSearch] = useState(""); 
     const [selectedCategory, setSelectedCategory] = useState(""); 
     const itemsPerPage = 16;
+
+    // List of tags to display
+    const tagsList = [
+        'Caught', 'Close Up', 'Redhead', 'BBW', 'Wife', 'Japanese', 'Yoga', 'Spanking',
+        'Ladyboy', 'FFM', 'Tattoo', 'Skinny', 'Cumshot', 'Cameltoe', 'Korean', 'Russian',
+        'Legs', 'Webcam', 'Pussy', 'Footjob', 'College', 'Slut', 'Orgasm', 'Perfect',
+        'Cum In Pussy', 'Panties', 'Sport', 'Cowgirl', 'Natural Tits', 'Pretty', 'Doggystyle',
+        'Maid', 'Housewife', 'Curvy', 'Deepthroat', 'Surprise', 'Party', 'BBC',
+        'Shower','Screaming','Jeans','Handjob','Teacher','Stuck','Babysitter','Masturbation','Girlfriend','Big Tits','Kissing','Saggy Tits','White','Beautiful','Teen','Chinese','Pregnant','Glasses','Twins','Short Hair','Swinger','Stockings','Bathroom','Indian','Wedding','Cheerleader','office','babe'
+    ];
+
+    // Helper to slugify tags for URL
+    const slugifyTag = (tag) => tag.toLowerCase().replace(/\s+/g, "-");
+
+    // state to hold preview images for each tag
+    const [tagImages, setTagImages] = useState({});
+    const [tagLoaded, setTagLoaded] = useState({});
+    const showPosts = false; // toggle: if true old post list renders
+
+    useEffect(() => {
+        fetchTagImages();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const fetchTagImages = async () => {
+        try {
+            const promises = tagsList.map(async (tg) => {
+                try {
+                    const res = await fetch(`${apiUrl}/getpostdata?page=1&limit=5&search=${encodeURIComponent(tg)}`, { mode: "cors" });
+                    if (!res.ok) return [tg, null];
+                    const data = await res.json();
+                    if (!data.records || data.records.length === 0) return [tg, null];
+                    const validRec = data.records.find(rec => rec.imageUrl);
+                    return [tg, validRec ? validRec.imageUrl : null];
+                } catch (e) {
+                    return [tg, null];
+                }
+            });
+            const results = await Promise.all(promises);
+            const imgMap = {};
+            results.forEach(([tg, url]) => { imgMap[tg] = url; });
+            setTagImages(imgMap);
+        } catch (err) {
+            console.error("Error fetching tag images", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchTagImages();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
    
 
@@ -151,65 +205,38 @@ function Home() {
             </Helmet>
 
             <Sidebar onSearch={(query) => setSearch(query)} />
-            <Slider onCategorySelect={(category) => setSelectedCategory(category)} />
             
-            <h1 style={{fontSize:"18px", textAlign:"center", marginTop:"10px"}}>Watch All VipMilfNut Videos – Latest & Trending Updates</h1>
 
-            <div style={{ width: "95%", margin: "auto" }}>
-                {loading && <p>Loading...</p>}
-                {error && <p style={{ color: "red" }}>{error}</p>}
-
-                <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {postData.map((post, idx) => (
-                        <React.Fragment key={idx}>
-                            <div className="col">
-                                <Link onClick={(e) => handleCardClick(post._id, post.views)}
-                                    to={`/video/${post._id}`}
-                                    style={{ textDecoration: "none" }}
-                                >
-                                    <div className="card">
-                                        <img
-                                            loading="lazy"
-                                            style={{ height: "250px" }}
-                                            src={post.imageUrl}
-                                            className="card-img-top"
-                                            alt={post.altKeywords?.trim() || post.titel}
-                                        />
-                                        <div className="card-body">
-                                            <div>
-                                                <p>
-                                                    <i className="bi bi-hand-thumbs-up-fill"></i>{" "}
-                                                    {Math.min(Math.round((post.views / 200) * 100), 100)}%
-                                                </p>
-                                                <p>
-                                                    <i className="bi bi-clock-fill"></i> {post.minutes}
-                                                </p>
-                                                <p>
-                                                    <i className="bi bi-eye-fill"></i> {post.views || 2}
-                                                </p>
-                                            </div>
-                                            <h2 className="card-title">{post.titel}</h2>
-                                        </div>
+            {/* Tags List */}
+            <Grid style={{marginTop:"20px"}} container spacing={{ xs: 0, sm: 2 }} className="tag-container" sx={{ px: { xs: 0, sm: 2 }, py: 1 }}>
+                {tagsList.map((tag) => (
+                    <Grid item xs={6} sm={4} md={3} key={tag} sx={{ px: { xs: 0.5, sm: 1 } }}>
+                        <Link to={`/tag/${slugifyTag(tag)}`} style={{ textDecoration: "none", color: "inherit" }}>
+                            <Box className="tag-box" sx={{ borderRadius: 0, overflow: 'hidden' }}>
+                                {tagImages[tag] && (
+                                    <img
+                                        loading="lazy"
+                                        
+                                        className="tag-image"
+                                        src={tagImages[tag]}
+                                        alt={tag}
+                                        onLoad={() => setTagLoaded(prev => ({ ...prev, [tag]: true }))}
+                                        style={{ opacity: tagLoaded[tag] ? 1 : 0, transition: 'opacity 0.3s ease' }}
+                                    />
+                                )}
+                                {!tagLoaded[tag] && (
+                                    <div className="tag-placeholder">
+                                        <span>Loading...</span>
                                     </div>
-                                </Link>
-                            </div>
-                           
-                                    {((idx + 1) % 2 === 0) && (
-                                <div className="col" key={`ad-${idx}`}>
-                                    <SmartLinkBanner />
-                                </div>
-                            )}
-                        </React.Fragment>
-                    ))}
-                </div>
-
-                {/* Reusable Pagination Component */}
-                <PaginationComponent
-                    count={totalPages}
-                    page={currentPage}
-                    onPageChange={handlePageChange}
-                />
-            </div>
+                                )}
+                                <span className="tag-overlay">{tag}</span>
+                            </Box>
+                        </Link>
+                    </Grid>
+                ))}
+            </Grid>
+            
+          
 
             <Footer/>
         </>
