@@ -12,16 +12,18 @@ const apiUrl = process.env.REACT_APP_API_URL;
 
 function TagPage() {
   const { tag, page } = useParams();
-  const currentPage = parseInt(page) || 1;
+  const urlPage = parseInt(page) || 1;
+  const [currentPage, setCurrentPage] = useState(urlPage);
 
   // Convert slug back to readable tag (e.g., "cum-in-pussy" => "cum in pussy")
-  const decodedTag = decodeURIComponent(tag || "").replace(/-/g, " ");
+  const urlTag = (tag || "").toLowerCase();
 
   const [postData, setPostData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 16;
+  const [allFilteredRecords, setAllFilteredRecords] = useState([]);
 
   const navigate = useNavigate();
 
@@ -32,11 +34,20 @@ function TagPage() {
     }
   }, [currentPage, navigate, tag]);
 
+  // Sync currentPage with URL param
+  useEffect(() => {
+    setCurrentPage(urlPage);
+  }, [urlPage]);
+
   // Update page metadata
   useEffect(() => {
-    document.title = `VipMilfNut ${decodedTag} videos page ${currentPage}`;
+    // SEO optimized title (around 56 characters)
+    const displayTag = urlTag.replace(/-/g, ' '); // Convert dashes to spaces
+    const capitalizedTag = displayTag.charAt(0).toUpperCase() + displayTag.slice(1);
+    document.title = `⬤ Full ${capitalizedTag} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`;
 
-    const metaDescContent = `Watch premium ${decodedTag} videos on VipMilfNut. Enjoy high-quality content filtered for your preferences.`;
+    // SEO optimized description (around 119 characters)
+    const metaDescContent = `${capitalizedTag} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`;
 
     const metaDesc = document.querySelector("meta[name='description']");
     if (metaDesc) {
@@ -48,7 +59,7 @@ function TagPage() {
       document.head.appendChild(newMeta);
     }
 
-    const canonicalUrl = `https://vipmilfnut.com/tag/${tag}/${currentPage === 1 ? "" : currentPage}`;
+    const canonicalUrl = `https://vipmilfnut.com/tag/${tag}`;
     const canonicalLink = document.querySelector("link[rel='canonical']");
     if (canonicalLink) {
       canonicalLink.setAttribute("href", canonicalUrl);
@@ -58,22 +69,59 @@ function TagPage() {
       newCanonical.href = canonicalUrl;
       document.head.appendChild(newCanonical);
     }
-  }, [decodedTag, currentPage, tag]);
+  }, [urlTag, currentPage, tag]);
 
-  const fetchData = async (pageNumber = 1) => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Filter posts by tag using search parameter
-      // Backend should filter posts where tags array contains the decoded tag
-      const response = await fetch(
-        `${apiUrl}/getpostdata?page=${pageNumber}&limit=${itemsPerPage}&search=${encodeURIComponent(decodedTag)}`,
-        { mode: "cors" }
+      // Fetch all pages to get complete dataset
+      let allRecords = [];
+      let currentPageNum = 1;
+      let hasMoreData = true;
+      
+      while (hasMoreData) {
+        const response = await fetch(
+          `${apiUrl}/getpostdata?page=${currentPageNum}&limit=1000`,
+          { mode: "cors" }
+        );
+        if (!response.ok) throw new Error("Failed to fetch data");
+        const data = await response.json();
+        
+        if (data.records && data.records.length > 0) {
+          allRecords = [...allRecords, ...data.records];
+          currentPageNum++;
+          // Stop if we've fetched all pages
+          if (data.records.length < 1000 || currentPageNum > 20) {
+            hasMoreData = false;
+          }
+        } else {
+          hasMoreData = false;
+        }
+      }
+      
+      // console.log(`Total records fetched: ${allRecords.length}`);
+      
+      // Filter posts where tags array includes the decodedTag (case-insensitive, space/hyphen tolerant)
+      const normalizeTag = (tag) =>
+        tag && tag.trim().toLowerCase().replace(/\s+/g, "-");
+
+      const filteredRecords = allRecords.filter(
+        post =>
+          Array.isArray(post.tags) &&
+          post.tags.some(
+            t => normalizeTag(t) === urlTag
+          )
       );
-      if (!response.ok) throw new Error("Failed to fetch data");
-      const data = await response.json();
-      setPostData(data.records);
-      setTotalPages(data.totalPages);
+      
+      // console.log(`Filtered records for tag "${urlTag}": ${filteredRecords.length}`);
+      
+      setAllFilteredRecords(filteredRecords);
+      // Pagination logic
+      const totalFiltered = filteredRecords.length;
+      const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+      setPostData(paginatedRecords);
+      setTotalPages(Math.max(1, Math.ceil(totalFiltered / itemsPerPage)));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -82,10 +130,11 @@ function TagPage() {
   };
 
   useEffect(() => {
-    fetchData(currentPage);
-  }, [currentPage, decodedTag]);
+    fetchData();
+  }, [urlTag, currentPage]);
 
   const handlePageChange = (event, value) => {
+    setCurrentPage(value);
     navigate(`/tag/${tag}/${value}`);
     window.scrollTo(0, 0);
   };
@@ -115,26 +164,25 @@ function TagPage() {
   return (
     <>
       <Helmet>
-        <title>{`VipMilfNut ${decodedTag} videos`}</title>
+        <title>{`⬤ Free ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & XXX Movies ⬤ VipMilfNut`}</title>
         <link
           rel="canonical"
-          href={`https://vipmilfnut.com/tag/${tag}/${currentPage === 1 ? "" : currentPage}`}
+          href={`https://vipmilfnut.com/tag/${tag}`}
         />
         <meta
           name="description"
-          content={`Watch premium ${decodedTag} videos on VipMilfNut.`}
+          content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot Content ☛ Enjoy NOW!`}
         />
       </Helmet>
       <Sidebar onSearch={() => {}} />
-      <Slider />
       <div style={{ width: "95%", margin: "auto" }}>
         <h1
-          style={{ fontSize: "18px", textAlign: "center", marginTop: "10px" }}
+          style={{ fontSize: "18px", textAlign: "center", marginTop: "10px", textTransform:"capitalize"}}
         >
-          {decodedTag} Videos
+          {urlTag.replace(/-/g, ' ')} full sex videos
         </h1>
 
-        <SmartLinkBanner />
+       
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -165,7 +213,7 @@ function TagPage() {
                     </h2>
                     <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
                       <p>
-                        <i className="bi bi-eye-fill"></i> {post.views || 2}K+
+                        <i className="bi bi-eye-fill"></i> {post.views || 2}
                       </p>
                       <p>
                         <i className="bi bi-clock-fill"></i> {post.minutes}

@@ -4,6 +4,8 @@
     --text-light: #e4e4e4;
     --text-muted: #bdbdbd;
     --accent: #00cccc;
+    --footer-pink: #e91e63;
+    --footer-pink-dark: #c2185b;
 
     /* Fonts */
     --font-heading: 'Bodoni Moda', serif;
@@ -30,6 +32,125 @@ body {
     overflow-x: hidden;
     font-family: var(--font-body), sans-serif;
 }
+
+/* Categories and Pornstars Section */
+.categories-pornstars-section {
+    background-color: white;
+    padding: var(--spacing-lg) 0;
+    width: 100%;
+}
+
+.categories-section,
+.pornstars-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+.categories-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.section-title {
+    color: black;
+    font-size: 1.8rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    font-family: var(--font-heading), serif;
+}
+
+.tags-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.tag-button {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: black;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.tag-button:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    color: black;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Loading state */
+.tags-loading {
+    text-align: center;
+    color: black;
+    font-size: 1rem;
+    padding: var(--spacing-lg);
+    font-style: italic;
+}
+
+/* More tags button */
+.more-tags-container {
+    text-align: center;
+    margin-top: var(--spacing-md);
+}
+
+.more-tags-button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #555;
+    white-space: nowrap;
+}
+
+.more-tags-button:hover {
+    background-color: #555;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-to-top:hover {
+    background-color: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
 .footer-title-wrapper {
     margin-top: var(--spacing-lg);
     width: 100%;
@@ -99,5 +220,26 @@ body {
     }
     .footer-title-container {
         width: 90%;
+    }
+    
+    .tags-grid {
+        gap: 6px;
+    }
+    
+    .tag-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .scroll-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 18px;
     }
 }
