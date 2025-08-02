@@ -172,15 +172,66 @@ exports.rvdata = async (req, res) => {
 
 exports.getpostdata = async (req, res) => {
   try {
-    const { search = "", page = 1, limit = 16 } = req.query;
+    const { search = "", page = 1, limit = 16, category = "" } = req.query;
 
-    // MongoDB query to filter data
-    const query = {
-      $or: [
-        { videoNo: { $regex: search, $options: "i" } },
-        { titel: { $regex: search, $options: "i" } },
-      ],
-    };
+    // console.log('🔍 Search API called with:', { search, page, limit, category });
+
+    let query = {};
+    
+    // Handle category filter
+    if (category && category.trim()) {
+      query.Category = { $regex: category, $options: "i" };
+    }
+
+    // Handle search functionality
+    if (search && search.trim()) {
+      const searchTerm = search.trim();
+      console.log('🎯 Processing search term:', searchTerm);
+      
+      // Check if this is a title fallback search (prefixed with 'title:')
+      if (searchTerm.startsWith('title:')) {
+        const titleSearch = searchTerm.replace('title:', '').trim();
+        console.log('📝 Title search detected:', titleSearch);
+        
+        query.$and = [
+          query.Category ? { Category: query.Category } : {},
+          {
+            $or: [
+              { titel: { $regex: titleSearch, $options: "i" } },
+              { videoNo: { $regex: titleSearch, $options: "i" } },
+              { desc: { $regex: titleSearch, $options: "i" } }
+            ]
+          }
+        ].filter(obj => Object.keys(obj).length > 0);
+      } else {
+        // Enhanced search: tags, star names, and title
+        console.log('🏷️ Enhanced search (tags/stars/title):', searchTerm);
+        
+        // Create search conditions for tags, star names, and title
+        const searchConditions = [
+          // Search in tags array (case-insensitive)
+          { tags: { $regex: searchTerm, $options: "i" } },
+          // Search in star names array (case-insensitive) 
+          { name: { $regex: searchTerm, $options: "i" } },
+          // Fallback to title and video number
+          { titel: { $regex: searchTerm, $options: "i" } },
+          { videoNo: { $regex: searchTerm, $options: "i" } },
+          // Also search in description
+          { desc: { $regex: searchTerm, $options: "i" } }
+        ];
+        
+        if (query.Category) {
+          query.$and = [
+            { Category: query.Category },
+            { $or: searchConditions }
+          ];
+        } else {
+          query.$or = searchConditions;
+        }
+      }
+    }
+
+    console.log('📊 Final MongoDB query:', JSON.stringify(query, null, 2));
 
     // Pagination logic
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -193,6 +244,24 @@ exports.getpostdata = async (req, res) => {
 
     // Get the total count for pagination metadata
     const totalRecords = await Data.countDocuments(query);
+    
+    console.log('✅ Search results:', {
+      searchTerm: search,
+      totalRecords,
+      recordsReturned: records.length,
+      totalPages: Math.ceil(totalRecords / limit),
+      currentPage: parseInt(page)
+    });
+    
+    // Log sample results for debugging
+    if (search && records.length > 0) {
+      console.log('📋 Sample results:', records.slice(0, 2).map(record => ({
+        title: record.titel,
+        tags: record.tags,
+        stars: record.name,
+        category: record.Category
+      })));
+    }
 
     res.json({
       totalRecords,
@@ -201,7 +270,7 @@ exports.getpostdata = async (req, res) => {
       records,
     });
   } catch (error) {
-    console.log("Error in getpostdata API:", error);
+    console.log("❌ Error in getpostdata API:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
