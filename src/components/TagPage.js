@@ -41,9 +41,13 @@ function TagPage() {
 
   // Update page metadata
   useEffect(() => {
-    document.title = `VipMilfNut ${urlTag} videos page ${currentPage}`;
+    // SEO optimized title (around 56 characters)
+    const displayTag = urlTag.replace(/-/g, ' '); // Convert dashes to spaces
+    const capitalizedTag = displayTag.charAt(0).toUpperCase() + displayTag.slice(1);
+    document.title = `⬤ Full ${capitalizedTag} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`;
 
-    const metaDescContent = `Watch premium ${urlTag} videos on VipMilfNut. Enjoy high-quality content filtered for your preferences.`;
+    // SEO optimized description (around 119 characters)
+    const metaDescContent = `${capitalizedTag} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`;
 
     const metaDesc = document.querySelector("meta[name='description']");
     if (metaDesc) {
@@ -55,7 +59,7 @@ function TagPage() {
       document.head.appendChild(newMeta);
     }
 
-    const canonicalUrl = `https://vipmilfnut.com/tag/${tag}/${currentPage === 1 ? "" : currentPage}`;
+    const canonicalUrl = `https://vipmilfnut.com/tag/${tag}`;
     const canonicalLink = document.querySelector("link[rel='canonical']");
     if (canonicalLink) {
       canonicalLink.setAttribute("href", canonicalUrl);
@@ -96,7 +100,7 @@ function TagPage() {
         }
       }
       
-      console.log(`Total records fetched: ${allRecords.length}`);
+      // console.log(`Total records fetched: ${allRecords.length}`);
       
       // Filter posts where tags array includes the decodedTag (case-insensitive, space/hyphen tolerant)
       const normalizeTag = (tag) =>
@@ -110,7 +114,7 @@ function TagPage() {
           )
       );
       
-      console.log(`Filtered records for tag "${urlTag}": ${filteredRecords.length}`);
+      // console.log(`Filtered records for tag "${urlTag}": ${filteredRecords.length}`);
       
       setAllFilteredRecords(filteredRecords);
       // Pagination logic
@@ -160,26 +164,25 @@ function TagPage() {
   return (
     <>
       <Helmet>
-        <title>{`VipMilfNut ${urlTag} videos`}</title>
+        <title>{`⬤ Free ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & XXX Movies ⬤ VipMilfNut`}</title>
         <link
           rel="canonical"
-          href={`https://vipmilfnut.com/tag/${tag}/${currentPage === 1 ? "" : currentPage}`}
+          href={`https://vipmilfnut.com/tag/${tag}`}
         />
         <meta
           name="description"
-          content={`Watch premium ${urlTag} videos on VipMilfNut.`}
+          content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot Content ☛ Enjoy NOW!`}
         />
       </Helmet>
       <Sidebar onSearch={() => {}} />
-      <Slider />
       <div style={{ width: "95%", margin: "auto" }}>
         <h1
-          style={{ fontSize: "18px", textAlign: "center", marginTop: "10px" }}
+          style={{ fontSize: "18px", textAlign: "center", marginTop: "10px", textTransform:"capitalize"}}
         >
-          {urlTag} Videos
+          {urlTag.replace(/-/g, ' ')} full sex videos
         </h1>
 
-        <SmartLinkBanner />
+       
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -210,7 +213,7 @@ function TagPage() {
                     </h2>
                     <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
                       <p>
-                        <i className="bi bi-eye-fill"></i> {post.views || 2}K+
+                        <i className="bi bi-eye-fill"></i> {post.views || 2}
                       </p>
                       <p>
                         <i className="bi bi-clock-fill"></i> {post.minutes}

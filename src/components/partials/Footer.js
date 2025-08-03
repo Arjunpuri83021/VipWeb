@@ -97,10 +97,10 @@ const Footer = () => {
                 {displayedTags.map((tag, index) => (
                   <Link 
                     key={index} 
-                    to={`/${tag}`} 
+                    to={`/tag/${tag}`} 
                     className="tag-button"
                   >
-                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    {tag.replace(/-/g, ' ').charAt(0).toUpperCase() + tag.replace(/-/g, ' ').slice(1)}
                   </Link>
                 ))}
                 {topTags.length > 30 && (
@@ -160,7 +160,6 @@ const Footer = () => {
       </div>
 
       <footer className="footer">
-      <h1 style={{textAlign:"center", fontSize:"15px", color:"white", marginBottom:"30px"}}>For Promation you can connect with us on - "vipmilfnut991@gmail.com"</h1>
       <p style={{textAlign:"center", fontSize:"15px", color:"#908989", width:"90%", margin:"auto"}}>
  If you're someone who enjoys real, unfiltered adult content, you'll feel right at home here. We've got a solid mix of desi and international videos from trusted names like <strong>Badwap</strong>, <strong>WowUncut</strong>, and <strong>SpanBank</strong>. Whether you're into amateur clips, spicy Indian aunty scenes, or full-on professional shoots, there's something for every mood. And if you're a fan of mature action, don't miss out on what <strong>MilfNut</strong> and <strong>MilfNuts</strong> bring to the table — real women, real passion, no scripts. Fresh videos drop regularly, so there's always something new to check out.
 </p>

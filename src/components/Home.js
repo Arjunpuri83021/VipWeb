@@ -42,15 +42,10 @@ function Home() {
     const [selectedCategory, setSelectedCategory] = useState(""); 
     const itemsPerPage = 16;
 
-    // List of tags to display
-    const tagsList = [
-        'Caught', 'Close Up', 'Redhead', 'BBW', 'Wife', 'Japanese', 'Yoga', 'Spanking',
-        'Ladyboy', 'FFM', 'Tattoo', 'Skinny', 'Cumshot', 'Cameltoe', 'Korean', 'Russian',
-        'Legs', 'Webcam', 'Pussy', 'Footjob', 'College', 'Slut', 'Orgasm', 'Perfect',
-        'Cum In Pussy', 'Panties', 'Sport', 'Cowgirl', 'Natural Tits', 'Pretty', 'Doggystyle',
-        'Maid', 'Housewife', 'Curvy', 'Deepthroat', 'Surprise', 'Party', 'BBC',
-        'Shower','Screaming','Jeans','Handjob','Teacher','Stuck','Babysitter','Masturbation','Girlfriend','Big Tits','Kissing','Saggy Tits','White','Beautiful','Teen','Chinese','Pregnant','Glasses','Twins','Short Hair','Swinger','Stockings','Bathroom','Indian','Wedding','Cheerleader','office','babe'
-    ];
+    // Dynamic tag states
+    const [allTags, setAllTags] = useState([]); // All available tags from API
+    const [displayTags, setDisplayTags] = useState([]); // Currently displayed 64 tags
+    const [refreshInterval, setRefreshInterval] = useState(null);
 
     // Helper to slugify tags for URL
     const slugifyTag = (tag) => tag.toLowerCase().replace(/\s+/g, "-");
@@ -60,12 +55,119 @@ function Home() {
     const [tagLoaded, setTagLoaded] = useState({});
     const showPosts = false; // toggle: if true old post list renders
 
+    // Function to get random 64 tags from all available tags
+    const getRandomTags = (tags, count = 64) => {
+        if (tags.length <= count) return tags;
+        const shuffled = [...tags].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    };
+
+    // Function to fetch all unique tags from the API
+    const fetchAllTags = async () => {
+        try {
+            const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: "cors" });
+            if (!response.ok) return;
+            const data = await response.json();
+            const allRecords = data.records || [];
+            
+            // Extract all unique tags from all posts
+            const uniqueTags = new Set();
+            allRecords.forEach(post => {
+                if (Array.isArray(post.tags)) {
+                    post.tags.forEach(tag => {
+                        if (tag && tag.trim()) {
+                            uniqueTags.add(tag.trim());
+                        }
+                    });
+                }
+            });
+            
+            const tagsArray = Array.from(uniqueTags);
+            console.log(`Total unique tags found: ${tagsArray.length}`);
+            
+            setAllTags(tagsArray);
+            
+            // Check if we have saved tags and timestamp in localStorage
+            const savedTagsData = localStorage.getItem('vipmilfnut_display_tags');
+            const now = Date.now();
+            
+            if (savedTagsData) {
+                const { tags, timestamp } = JSON.parse(savedTagsData);
+                const timeDiff = now - timestamp;
+                const fiveMinutes = 5 * 60 * 1000;
+                
+                // If less than 5 minutes have passed, use saved tags
+                if (timeDiff < fiveMinutes && tags && tags.length > 0) {
+                    console.log('Using saved tags from localStorage');
+                    setDisplayTags(tags);
+                    return tags;
+                }
+            }
+            
+            // Generate new random tags and save to localStorage
+            const randomTags = getRandomTags(tagsArray, 64);
+            localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
+                tags: randomTags,
+                timestamp: now
+            }));
+            console.log('Generated new random tags and saved to localStorage');
+            setDisplayTags(randomTags);
+            
+            return randomTags;
+        } catch (err) {
+            console.error("Error fetching all tags:", err);
+            return [];
+        }
+    };
+
+    // Function to refresh tags with new random selection
+    const refreshTags = () => {
+        if (allTags.length > 0) {
+            const newRandomTags = getRandomTags(allTags, 64);
+            const now = Date.now();
+            
+            // Save new tags to localStorage with current timestamp
+            localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
+                tags: newRandomTags,
+                timestamp: now
+            }));
+            
+            setDisplayTags(newRandomTags);
+            console.log('Tags refreshed with new random selection and saved to localStorage');
+            // Fetch images for new tags
+            fetchTagImages(newRandomTags);
+        }
+    };
+
+    // Initial setup and interval management
     useEffect(() => {
-        fetchTagImages();
+        // Fetch all tags and set up initial display
+        fetchAllTags().then((initialTags) => {
+            if (initialTags && initialTags.length > 0) {
+                fetchTagImages(initialTags);
+            }
+        });
+
+        // Set up 5-minute interval for refreshing tags
+        const interval = setInterval(() => {
+            refreshTags();
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+        setRefreshInterval(interval);
+
+        // Cleanup interval on component unmount
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fetchTagImages = async () => {
+    const fetchTagImages = async (tagsToFetch = null) => {
+        const targetTags = tagsToFetch || displayTags;
+        if (targetTags.length === 0) return;
+        
         try {
             // Fetch all posts first, then filter by tags
             const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: "cors" });
@@ -77,7 +179,7 @@ function Home() {
             const normalizeTag = (tag) =>
                 tag && tag.trim().toLowerCase().replace(/\s+/g, "-");
 
-            const promises = tagsList.map(async (tg) => {
+            const promises = targetTags.map(async (tg) => {
                 try {
                     // Filter records that have this tag in their tags array
                     const matchingRecords = allRecords.filter(post =>
@@ -150,21 +252,68 @@ function Home() {
             .replace(/[^a-z0-9-]/g, "");
     };
 
-    // Fetch data for the current page
+    // Fetch data for the current page with enhanced search handling
     const fetchData = async (page = 1, category = "", searchQuery = "") => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(
-                `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}&search=${searchQuery}`,
-                { mode: "cors" }
-            );
+            let apiEndpoint;
+            let searchParam = "";
+            
+            // Check if this is a title fallback search
+            if (searchQuery.startsWith('title:')) {
+                // Remove 'title:' prefix and search by title
+                searchParam = searchQuery.replace('title:', '');
+                apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}&search=${searchParam}`;
+                console.log('🔍 Searching by title (fallback):', searchParam);
+                console.log('📡 API Endpoint:', apiEndpoint);
+            } else if (searchQuery) {
+                // Regular tag/star name search
+                searchParam = searchQuery;
+                apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}&search=${searchParam}`;
+                console.log('🏷️ Searching by tag/star:', searchParam);
+                console.log('📡 API Endpoint:', apiEndpoint);
+            } else {
+                // No search query
+                apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}`;
+                console.log('📋 Loading all posts (no search)');
+            }
+            
+            const response = await fetch(apiEndpoint, { mode: "cors" });
             if (!response.ok) {
-                throw new Error("Failed to fetch data");
+                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
             }
             const data = await response.json();
+            
+            // Detailed debugging
+            console.log('📊 API Response:', {
+                totalRecords: data.totalRecords,
+                totalPages: data.totalPages,
+                currentPage: data.currentPage,
+                recordsCount: data.records?.length || 0
+            });
+            
+            if (searchQuery && data.records?.length > 0) {
+                console.log('✅ Sample search results:', data.records.slice(0, 2).map(record => ({
+                    title: record.titel,
+                    tags: record.tags,
+                    stars: record.name
+                })));
+            } else if (searchQuery) {
+                console.log('❌ No results found for search:', searchParam);
+                console.log('💡 This might mean:');
+                console.log('   - The backend search doesn\'t search in tags/name fields');
+                console.log('   - The search term doesn\'t match any content');
+                console.log('   - There\'s a case sensitivity issue');
+            }
+            
             setPostData(data.records);
             setTotalPages(data.totalPages);
+            
+            // Log search results for debugging
+            if (searchQuery) {
+                console.log(`🎯 Final results for "${searchParam}": ${data.records?.length || 0} videos found`);
+            }
         } catch (error) {
             setError(error.message);
         } finally {
@@ -223,9 +372,9 @@ function Home() {
             <Sidebar onSearch={(query) => setSearch(query)} />
             
 
-            {/* Tags List */}
+            {/* Dynamic Tags List - Refreshes every 5 minutes */}
             <Grid style={{marginTop:"20px"}} container spacing={{ xs: 0, sm: 2 }} className="tag-container" sx={{ px: { xs: 0, sm: 2 }, py: 1 }}>
-                {tagsList.map((tag) => (
+                {displayTags.length > 0 ? displayTags.map((tag) => (
                     <Grid item xs={6} sm={4} md={3} key={tag} sx={{ px: { xs: 0.5, sm: 1 } }}>
                         <Link to={`/tag/${slugifyTag(tag)}`} style={{ textDecoration: "none", color: "inherit" }}>
                             <Box className="tag-box" sx={{ borderRadius: 0, overflow: 'hidden' }}>
@@ -249,7 +398,13 @@ function Home() {
                             </Box>
                         </Link>
                     </Grid>
-                ))}
+                )) : (
+                    <Grid item xs={12}>
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                            Loading Best category for you...
+                        </div>
+                    </Grid>
+                )}
             </Grid>
             
           

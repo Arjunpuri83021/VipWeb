@@ -30,6 +30,11 @@ function Video() {
             .replace(/\s+/g, "-") // Replace spaces with hyphens
             .replace(/[^a-z0-9-]/g, ""); // Remove special characters
     };
+    
+    // Helper function to convert dashes to spaces for display
+    const displayText = (text) => {
+        return text.replace(/-/g, ' ');
+    };
 
     const fetchPostData = async (search = "", page = 1, limit = 16) => {
         try {
@@ -71,7 +76,44 @@ function Video() {
         }
 
         setVideoData(data);
-        fetchPostData(data.titel, 1);
+        
+        // Update URL to include video title after ID
+        if (data.titel) {
+            const slugifiedTitle = slugifyTitle(data.titel);
+            const newUrl = `/video/${numericId}-${slugifiedTitle}`;
+            // Only update if the current URL doesn't already have the title
+            if (window.location.pathname !== newUrl) {
+                window.history.replaceState(null, '', newUrl);
+            }
+        }
+        
+        // Fetch related videos based on both tags and star names
+        let searchQuery = [];
+        
+        // Add tags to search query
+        if (data.tags && Array.isArray(data.tags) && data.tags.length > 0) {
+            searchQuery = [...searchQuery, ...data.tags];
+        }
+        
+        // Add star names to search query (clean up hyphens and format)
+        if (data.name && Array.isArray(data.name) && data.name.length > 0) {
+            const cleanedNames = data.name.map(name => 
+                name.replace(/-/g, ' ').trim() // Replace hyphens with spaces
+            );
+            searchQuery = [...searchQuery, ...cleanedNames];
+        }
+        
+        // Create final query string or fallback to title
+        const finalQuery = searchQuery.length > 0 
+            ? searchQuery.join(' ') 
+            : data.titel; // Fallback to title if no tags or names
+            
+        // Debug: Log the search query to console
+        console.log('Related videos search query:', finalQuery);
+        console.log('Video data tags:', data.tags);
+        console.log('Video data names:', data.name);
+            
+        fetchPostData(finalQuery, 1);
     } catch (error) {
         console.error("Error fetching video details:", error);
         navigate("/notfound", { replace: true }); // Redirect in case of error
@@ -81,7 +123,28 @@ function Video() {
     }, [numericId]);
 
     const loadMorePosts = () => {
-        fetchPostData(videoData.titel, currentPage + 1);
+        // Use both tags and star names for loading more posts
+        let searchQuery = [];
+        
+        // Add tags to search query
+        if (videoData.tags && Array.isArray(videoData.tags) && videoData.tags.length > 0) {
+            searchQuery = [...searchQuery, ...videoData.tags];
+        }
+        
+        // Add star names to search query (clean up hyphens and format)
+        if (videoData.name && Array.isArray(videoData.name) && videoData.name.length > 0) {
+            const cleanedNames = videoData.name.map(name => 
+                name.replace(/-/g, ' ').trim() // Replace hyphens with spaces
+            );
+            searchQuery = [...searchQuery, ...cleanedNames];
+        }
+        
+        // Create final query string or fallback to title
+        const finalQuery = searchQuery.length > 0 
+            ? searchQuery.join(' ') 
+            : videoData.titel; // Fallback to title if no tags or names
+            
+        fetchPostData(finalQuery, currentPage + 1);
     };
 
     const toggleDescription = () => {
@@ -220,6 +283,52 @@ function Video() {
                 )}
             </div>
 
+            {/* Video Tags Section */}
+            {videoData.tags && Array.isArray(videoData.tags) && videoData.tags.length > 0 && (
+                <div className="video-tags-section" style={{ margin: '20px 0', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                    <h4 style={{ marginBottom: '15px', color: '#333', fontSize: '18px' }}>
+                        <i className="bi bi-tags-fill"></i> Tags
+                    </h4>
+                    <div className="tags-container" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {videoData.tags.map((tag, index) => {
+                            const slugifiedTag = tag.toLowerCase().replace(/\s+/g, "-");
+                            return (
+                                <Link 
+                                    key={index} 
+                                    to={`/tag/${slugifiedTag}`}
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    <span 
+                                        className="video-tag"
+                                        style={{
+                                            display: 'inline-block',
+                                            padding: '6px 12px',
+                                            backgroundColor: '#6c757d',
+                                            color: 'white',
+                                            borderRadius: '20px',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                            transition: 'all 0.3s ease',
+                                            cursor: 'pointer',
+                                            border: 'none'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.backgroundColor = '#5a6268';
+                                            e.target.style.transform = 'translateY(-2px)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.backgroundColor = '#6c757d';
+                                            e.target.style.transform = 'translateY(0)';
+                                        }}
+                                    >
+                                        #{displayText(tag)}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             <div className="related-posts">
                 <h3 className="mt-4">Related Videos</h3>
@@ -240,7 +349,30 @@ function Video() {
                                             src={post.imageUrl}
                                             className="card-img-top"
                                             alt={post.altKeywords?.trim() || post.titel}
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                            }}
                                         />
+                                        <div 
+                                            style={{
+                                                display: 'none',
+                                                height: '250px',
+                                                backgroundColor: '#f8f9fa',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                flexDirection: 'column',
+                                                border: '2px dashed #dee2e6',
+                                                color: '#6c757d',
+                                                textAlign: 'center',
+                                                padding: '20px'
+                                            }}
+                                        >
+                                            <i className="bi bi-image" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                                            <p style={{ margin: '0', fontSize: '14px', fontWeight: '500' }}>
+                                               Image not found
+                                            </p>
+                                        </div>
                                         <div className="card-body">
                                             <div>
                                                 <p>
@@ -251,7 +383,7 @@ function Video() {
                                                     <i className="bi bi-clock-fill"></i> {post.minutes}
                                                 </p>
                                                 <p>
-                                                    <i className="bi bi-eye-fill"></i> {post.views || 2}K+ ..
+                                                    <i className="bi bi-eye-fill"></i> {post.views || 2}
                                                 </p>
                                             </div>
                                             <h2 className="card-title">{post.titel}</h2>
@@ -259,11 +391,7 @@ function Video() {
                                     </div>
                                 </Link>
                             </div>
-                            {((idx + 1) % 2 === 0) && (
-                                <div className="col" key={`ad-${idx}`}>
-                                    <SmartLinkBanner />
-                                </div>
-                            )}
+                            
 
                             </React.Fragment>
                     ))}

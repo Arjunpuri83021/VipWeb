@@ -180,7 +180,7 @@ function StarsVideo() {
                                                     <i className="bi bi-clock-fill"></i> {video.minutes}
                                                 </p>
                                                 <p>
-                                                    <i className="bi bi-eye-fill"></i> {video.views || 2}K+ ..
+                                                    <i className="bi bi-eye-fill"></i> {video.views || 2}
                                                 </p>
                                             </div>
                                             <h2 className="card-title">{video.titel}</h2>
