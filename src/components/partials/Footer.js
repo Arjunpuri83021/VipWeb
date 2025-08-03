@@ -8,71 +8,244 @@ const Footer = () => {
   const [showAllTags, setShowAllTags] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Dynamic tag states for random refresh functionality
+  const [allTags, setAllTags] = useState([]); // All available tags from API
+  const [displayTags, setDisplayTags] = useState([]); // Currently displayed tags
+  const [refreshInterval, setRefreshInterval] = useState(null);
+
+  // Pornstar states for random refresh functionality
+  const [allPornstars, setAllPornstars] = useState([]); // All available pornstars from API
+  const [displayPornstars, setDisplayPornstars] = useState([]); // Currently displayed pornstars
+  const [pornstarsLoading, setPornstarsLoading] = useState(true);
+
   useEffect(() => {
     window.scrollTo(0, 0); // Scroll to the top on route change
   }, [location.pathname]);
 
-  // Fetch top tags from API
-  useEffect(() => {
-    const fetchTopTags = async () => {
-      try {
-        setLoading(true);
-        // Fetch multiple pages to get a good sample of tags
-        const promises = [];
-        for (let page = 1; page <= 10; page++) {
-          promises.push(
-            fetch(`${process.env.REACT_APP_API_URL}/getpostdata?page=${page}&limit=50`, {
-              mode: "cors"
-            }).then(res => res.json())
-          );
+  // Helper to slugify tags for URL
+  const slugifyTag = (tag) => tag.toLowerCase().replace(/\s+/g, "-");
+
+  // Function to get random tags from all available tags
+  const getRandomTags = (tags, count = 30) => {
+    if (tags.length <= count) return tags;
+    const shuffled = [...tags].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  // Function to get random pornstars from all available pornstars
+  const getRandomPornstars = (pornstars, count = 30) => {
+    if (pornstars.length <= count) return pornstars;
+    const shuffled = [...pornstars].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  };
+
+  // Function to fetch all unique pornstars from the API
+  const fetchAllPornstars = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/getpostdata?page=1&limit=1000`, { mode: "cors" });
+      
+      if (!response.ok) return;
+      const data = await response.json();
+      
+      const allRecords = data.records || [];
+      
+      // Extract all unique pornstar names from all posts
+      const uniquePornstars = new Set();
+      allRecords.forEach((post, index) => {
+          if (Array.isArray(post.name)) {
+          post.name.forEach(name => {
+            if (name && name.trim()) {
+              uniquePornstars.add(name.trim());
+            }
+          });
+        } else if (post.name && typeof post.name === 'string') {
+          uniquePornstars.add(post.name.trim());
         }
+      });
+      
+      const pornstarsArray = Array.from(uniquePornstars);
+      
+      setAllPornstars(pornstarsArray);
+      
+      // Check if we have saved pornstars and timestamp in localStorage
+      const savedPornstarsData = localStorage.getItem('vipmilfnut_footer_display_pornstars');
+      const now = Date.now();
+      
+      if (savedPornstarsData) {
+        const { pornstars, timestamp } = JSON.parse(savedPornstarsData);
+        const timeDiff = now - timestamp;
+        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
         
-        const results = await Promise.all(promises);
-        const allRecords = results.flatMap(result => result.records || []);
+        // If less than 10 minutes has passed, use saved pornstars
+        if (timeDiff < tenMinutes && pornstars && pornstars.length > 0) {
+          setDisplayPornstars(pornstars);
+          return pornstars;
+        }
+      }
+      
+      // Generate new random pornstars and save to localStorage
+      const randomPornstars = getRandomPornstars(pornstarsArray, 30);
+      localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
+        pornstars: randomPornstars,
+        timestamp: now
+      }));
+      setDisplayPornstars(randomPornstars);
+      
+      return randomPornstars;
+    } catch (err) {
+      // Fallback to default pornstars if API fails
+      const fallbackPornstars = [
+        'Sunny Leone', 'Mia Khalifa', 'Angela White', 'Mia Malkova', 'Johnny Sins',
+        'Reagan Foxx', 'Ava Addams', 'Brandi Love', 'Cory Chase', 'Lena Paul',
+        'Melody Marks', 'Keisha Grey', 'Sophia Leone', 'Bridgette B', 'Valentina Nappi',
+        'Blake Blossom', 'Dani Daniels', 'Natasha Nice', 'Ariella Ferrera', 'Danny D',
+        'Jordi El Nino Polla', 'Alyx Star', 'Mariska X', 'Yasmina Khan', 'Niks Indian',
+        'Riley Reid', 'Abella Danger', 'Adriana Chechik', 'Kenzie Reeves', 'Autumn Falls'
+      ];
+      setDisplayPornstars(fallbackPornstars);
+      return fallbackPornstars;
+    }
+  };
+
+  // Function to refresh pornstars with new random selection
+  const refreshPornstars = () => {
+    if (allPornstars.length > 0) {
+      const newRandomPornstars = getRandomPornstars(allPornstars, 30);
+      const now = Date.now();
+      
+      // Save new pornstars to localStorage with current timestamp
+      localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
+        pornstars: newRandomPornstars,
+        timestamp: now
+      }));
+      
+      setDisplayPornstars(newRandomPornstars);
+    }
+  };
+
+  // Function to fetch all unique tags from the API
+  const fetchAllTags = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/getpostdata?page=1&limit=1000`, { mode: "cors" });
+      
+      if (!response.ok) return;
+      const data = await response.json();
+      
+      const allRecords = data.records || [];
+      
+      // Extract all unique tags from all posts
+      const uniqueTags = new Set();
+      allRecords.forEach((post, index) => {
+        if (Array.isArray(post.tags)) {
+          post.tags.forEach(tag => {
+            if (tag && tag.trim()) {
+              uniqueTags.add(tag.trim());
+            }
+          });
+        }
+      });
+      
+      const tagsArray = Array.from(uniqueTags);
+      
+      setAllTags(tagsArray);
+      
+      // Check if we have saved tags and timestamp in localStorage
+      const savedTagsData = localStorage.getItem('vipmilfnut_footer_display_tags');
+      const now = Date.now();
+      
+      if (savedTagsData) {
+        const { tags, timestamp } = JSON.parse(savedTagsData);
+        const timeDiff = now - timestamp;
+        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
         
-        // Count tag occurrences
-        const tagCount = {};
-        allRecords.forEach(record => {
-          if (record.tags && Array.isArray(record.tags)) {
-            record.tags.forEach(tag => {
-              if (tag && tag.trim()) {
-                const cleanTag = tag.trim().toLowerCase();
-                tagCount[cleanTag] = (tagCount[cleanTag] || 0) + 1;
-              }
-            });
-          }
-        });
-        
-        // Sort by count and get top tags
-        const sortedTags = Object.entries(tagCount)
-          .sort((a, b) => b[1] - a[1])
-          .map(([tag]) => tag)
-          .slice(0, 50); // Get top 50 for "More" functionality
-        
-        setTopTags(sortedTags);
-      } catch (error) {
-        console.error('Error fetching tags:', error);
-        // Fallback to default categories if API fails
-        setTopTags([
-          'hardcore', 'milf', 'big-tits', 'big-boobs', 'small-tits', 
-          'big-ass', 'threesum', 'white', 'black', 'asian', 'latina',
-          'blonde', 'brunette', 'redhead', 'teen', 'mature', 'amateur',
-          'professional', 'lesbian', 'gay', 'straight', 'anal', 'oral',
-          'vaginal', 'group', 'solo', 'couple', 'gangbang', 'creampie'
-        ]);
-      } finally {
-        setLoading(false);
+        // If less than 10 minutes has passed, use saved tags
+        if (timeDiff < tenMinutes && tags && tags.length > 0) {
+          setTopTags(tags);
+          setDisplayTags(tags);
+          return tags;
+        }
+      }
+      
+      // Generate new random tags and save to localStorage
+      const randomTags = getRandomTags(tagsArray, 30);
+      localStorage.setItem('vipmilfnut_footer_display_tags', JSON.stringify({
+        tags: randomTags,
+        timestamp: now
+      }));
+      setTopTags(randomTags);
+      setDisplayTags(randomTags);
+      
+      return randomTags;
+    } catch (err) {
+      // Fallback to default categories if API fails
+      const fallbackTags = [
+        'hardcore', 'milf', 'big-tits', 'big-boobs', 'small-tits', 
+        'big-ass', 'threesum', 'white', 'black', 'asian', 'latina',
+        'blonde', 'brunette', 'redhead', 'teen', 'mature', 'amateur',
+        'professional', 'lesbian', 'gay', 'straight', 'anal', 'oral',
+        'vaginal', 'group', 'solo', 'couple', 'gangbang', 'creampie'
+      ];
+      setTopTags(fallbackTags);
+      setDisplayTags(fallbackTags);
+      return fallbackTags;
+    }
+  };
+
+  // Function to refresh tags with new random selection
+  const refreshTags = () => {
+    if (allTags.length > 0) {
+      const newRandomTags = getRandomTags(allTags, 30);
+      const now = Date.now();
+      
+      // Save new tags to localStorage with current timestamp
+      localStorage.setItem('vipmilfnut_footer_display_tags', JSON.stringify({
+        tags: newRandomTags,
+        timestamp: now
+      }));
+      
+      setTopTags(newRandomTags);
+      setDisplayTags(newRandomTags);
+    }
+  };
+
+  // Initial setup and interval management
+  useEffect(() => {
+    // Fetch all tags and pornstars and set up initial display
+    Promise.all([
+      fetchAllTags().then((initialTags) => {
+        if (initialTags && initialTags.length > 0) {
+          setLoading(false);
+        }
+      }),
+      fetchAllPornstars().then((initialPornstars) => {
+        if (initialPornstars && initialPornstars.length > 0) {
+          setPornstarsLoading(false);
+        }
+      })
+    ]);
+
+    // Set up 10-minute interval for refreshing tags and pornstars
+    const interval = setInterval(() => {
+      refreshTags();
+      refreshPornstars();
+    }, 10 * 60 * 1000); // 10 minutes in milliseconds
+
+    setRefreshInterval(interval);
+
+    // Cleanup interval on component unmount
+    return () => {
+      if (interval) {
+        clearInterval(interval);
       }
     };
-
-    fetchTopTags();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const displayedTags = showAllTags ? topTags : topTags.slice(0, 30);
+  const displayedTags = showAllTags ? topTags : displayTags.slice(0, 30);
 
   return (
     <div>
@@ -103,14 +276,7 @@ const Footer = () => {
                     {tag.replace(/-/g, ' ').charAt(0).toUpperCase() + tag.replace(/-/g, ' ').slice(1)}
                   </Link>
                 ))}
-                {topTags.length > 30 && (
-                  <button 
-                    className="more-tags-button"
-                    onClick={() => setShowAllTags(!showAllTags)}
-                  >
-                    {showAllTags ? 'Show Less' : 'Show More'}
-                  </button>
-                )}
+               
               </div>
             </>
           )}
@@ -118,44 +284,23 @@ const Footer = () => {
 
         <div className="pornstars-section">
           <h2 className="section-title">Hottest Pornstars</h2>
-          <div className="tags-grid">
-            <Link to="/pornstar/sunny-leone" className="tag-button">Sunny Leone</Link>
-            <Link to="/pornstar/mia-khalifa" className="tag-button">Mia Khalifa</Link>
-            <Link to="/pornstar/angela-white" className="tag-button">Angela White</Link>
-            <Link to="/pornstar/mia-malkova" className="tag-button">Mia Malkova</Link>
-            <Link to="/pornstar/johnny-sins" className="tag-button">Johnny Sins</Link>            
-            <Link to="/pornstar/reagan-foxx" className="tag-button">Reagan Foxx</Link>
-            <Link to="/pornstar/ava-addams" className="tag-button">Ava Addams</Link>
-            <Link to="/pornstar/brandi-love" className="tag-button">Brandi Love</Link>
-            <Link to="/pornstar/cory-chase" className="tag-button">Cory Chase</Link>
-            <Link to="/pornstar/lena-paul" className="tag-button">Lena Paul</Link>
-            <Link to="/pornstar/melody-marks" className="tag-button">Melody Marks</Link>
-            <Link to="/pornstar/keisha-grey" className="tag-button">Keisha Grey</Link>
-            <Link to="/pornstar/sophia-leone" className="tag-button">Sophia Leone</Link>
-            <Link to="/pornstar/bridgette-b" className="tag-button">Bridgette B</Link>
-            <Link to="/pornstar/valentina-nappi" className="tag-button">Valentina Nappi</Link>
-            <Link to="/pornstar/blake-blossom" className="tag-button">Blake Blossom</Link>
-            <Link to="/pornstar/dani-daniels" className="tag-button">Dani Daniels</Link>
-            <Link to="/pornstar/natasha-nice" className="tag-button">Natasha Nice</Link>
-            <Link to="/pornstar/ariella-ferrera" className="tag-button">Ariella Ferrera</Link>
-            <Link to="/pornstar/danny-d" className="tag-button">Danny D</Link>
-            <Link to="/pornstar/jordi-el-nino-polla" className="tag-button">Jordi El Nino Polla</Link>
-            <Link to="/pornstar/alyx-star" className="tag-button">Alyx Star</Link>
-            <Link to="/pornstar/mariska-x" className="tag-button">Mariska X</Link>
-            <Link to="/pornstar/yasmina-khan" className="tag-button">Yasmina Khan</Link>
-            <Link to="/pornstar/niks-indian" className="tag-button">Niks Indian</Link>
-            <Link to="/pornstar/riley-reid" className="tag-button">Riley Reid</Link>
-            <Link to="/pornstar/abella-danger" className="tag-button">Abella Danger</Link>
-            <Link to="/pornstar/adriana-chechik" className="tag-button">Adriana Chechik</Link>
-            <Link to="/pornstar/kenzie-reeves" className="tag-button">Kenzie Reeves</Link>
-            <Link to="/pornstar/autumn-falls" className="tag-button">Autumn Falls</Link>
-            <Link to="/pornstar/emily-willis" className="tag-button">Emily Willis</Link>
-            <Link to="/pornstar/kenna-james" className="tag-button">Kenna James</Link>
-            <Link to="/pornstar/kenzie-anne" className="tag-button">Kenzie Anne</Link>
-            <Link to="/pornstar/kenzie-madison" className="tag-button">Kenzie Madison</Link>
-            <Link to="/pornstar/kenzie-taylor" className="tag-button">Kenzie Taylor</Link>
-        
-          </div>
+          {pornstarsLoading ? (
+            <div className="tags-loading">Loading pornstars...</div>
+          ) : (
+            <>
+              <div className="tags-grid">
+                {displayPornstars.map((pornstar, index) => (
+                  <Link 
+                    key={index} 
+                    to={`/pornstar/${slugifyTag(pornstar)}`} 
+                    className="tag-button"
+                  >
+                    {pornstar}
+                  </Link>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
