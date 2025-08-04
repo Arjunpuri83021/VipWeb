@@ -16,6 +16,14 @@ function slugify(input) {
     .replace(/\s+/g, '-');
 }
 
+function escapeXml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
 
 exports.createAdmin = async(req,res)=>{
@@ -122,6 +130,20 @@ exports.data = async (req, res) => {
     await record.save();
 
     console.log(record);
+    
+    // Auto-generate sitemap after adding new data
+    console.log('🔄 Auto-generating sitemap immediately...');
+    try {
+      const result = await autoGenerateSitemap();
+      if (result) {
+        console.log('✅ Sitemap auto-generation completed successfully');
+      } else {
+        console.log('❌ Sitemap auto-generation failed');
+      }
+    } catch (error) {
+      console.error('❌ Error in auto-generating sitemap:', error);
+    }
+    
     res.status(201).json(record);
   } catch (error) {
     console.error("Error in data post API:", error.message);
@@ -148,7 +170,7 @@ exports.rvdata = async (req, res) => {
       imageUrl,
       altKeywords,
       name: slugifiedNames, // Use the slugified array
-      tags: updatedTags,
+      tags: slugifiedTags,
       videoNo,
       views,
       link,
@@ -163,6 +185,20 @@ exports.rvdata = async (req, res) => {
     await record.save();
 
     console.log(record);
+    
+    // Auto-generate sitemap after adding new data
+    console.log('🔄 Auto-generating sitemap immediately...');
+    try {
+      const result = await autoGenerateSitemap();
+      if (result) {
+        console.log('✅ Sitemap auto-generation completed successfully');
+      } else {
+        console.log('❌ Sitemap auto-generation failed');
+      }
+    } catch (error) {
+      console.error('❌ Error in auto-generating sitemap:', error);
+    }
+    
     res.status(201).json(record);
   } catch (error) {
     console.error("Error in data post API:", error.message);
@@ -773,6 +809,19 @@ exports.updatepost = async (req, res) => {
       return res.status(404).json({ error: 'Post not found' });
     }
 
+    // Auto-generate sitemap after updating data
+    console.log('🔄 Auto-generating sitemap after update...');
+    try {
+      const result = await autoGenerateSitemap();
+      if (result) {
+        console.log('✅ Sitemap auto-generation completed successfully after update');
+      } else {
+        console.log('❌ Sitemap auto-generation failed after update');
+      }
+    } catch (error) {
+      console.error('❌ Error in auto-generating sitemap after update:', error);
+    }
+
     res.json(updatedRecord);
   } catch (error) {
     console.error("Error in update post API:", error.message);
@@ -821,6 +870,19 @@ exports.rvupdatepost = async (req, res) => {
 
     if (!updatedRecord) {
       return res.status(404).json({ error: 'Post not found' });
+    }
+
+    // Auto-generate sitemap after updating data
+    console.log('🔄 Auto-generating sitemap after rvupdate...');
+    try {
+      const result = await autoGenerateSitemap();
+      if (result) {
+        console.log('✅ Sitemap auto-generation completed successfully after rvupdate');
+      } else {
+        console.log('❌ Sitemap auto-generation failed after rvupdate');
+      }
+    } catch (error) {
+      console.error('❌ Error in auto-generating sitemap after rvupdate:', error);
     }
 
     res.json(updatedRecord);
@@ -1241,3 +1303,513 @@ exports.deleteWebsite = async(req,res)=>{
     data:record
   })
 }
+
+exports.generateSitemap = async (req, res) => {
+  try {
+    console.log('🚀 Starting automatic sitemap generation...');
+    
+    // Fetch all posts
+    const allRecords = await Data.find({}).sort({ createdAt: -1 });
+    console.log(`📊 Total records found: ${allRecords.length}`);
+
+    // Extract unique tags
+    const tagSet = new Set();
+    allRecords.forEach(post => {
+      if (Array.isArray(post.tags)) {
+        post.tags.forEach(tag => {
+          if (tag && tag.trim()) {
+            tagSet.add(tag); // Already slugified in database
+          }
+        });
+      }
+    });
+    const tags = Array.from(tagSet);
+    console.log(`🏷️ Unique tags found: ${tags.length}`);
+
+    // Extract unique pornstar names
+    const pornstarSet = new Set();
+    allRecords.forEach(post => {
+      if (Array.isArray(post.name)) {
+        post.name.forEach(star => {
+          if (star && star.trim()) {
+            pornstarSet.add(star); // Already slugified in database
+          }
+        });
+      } else if (typeof post.name === 'string' && post.name.trim()) {
+        pornstarSet.add(post.name);
+      }
+    });
+    const pornstars = Array.from(pornstarSet);
+    console.log(`⭐ Unique pornstars found: ${pornstars.length}`);
+
+    // Static pages
+    const staticUrls = [
+      '',
+      'indian',
+      'muslim',
+      'top-videos',
+      'new-content',
+      'most-liked',
+      'pornstars',
+      'our-network',
+      'category/scout69',
+      'category/comxxx',
+      'category/badwap',
+      'category/chochox',
+      'category/sex18',
+      'category/aunt-sex',
+      'category/fullporner',
+      'category/lesbify',
+      'category/milfnut',
+      'category/sex-sister',
+      'category/desi49',
+      'category/dehati-sex',
+      'category/boobs-pressing',
+      'category/blueflim',
+      'category/famili-sex-com',
+      'category/teen-sex',
+      'category/small-tits',
+    ];
+
+    let urls = [];
+
+    // Static pages
+    staticUrls.forEach(path => {
+      urls.push(`<url><loc>https://vipmilfnut.com/${path}</loc><lastmod>${new Date().toISOString().split('T')[0]}</lastmod></url>`);
+    });
+
+    // Tag pages
+    tags.forEach(tag => {
+      urls.push(`<url><loc>https://vipmilfnut.com/tag/${escapeXml(tag)}</loc><lastmod>${new Date().toISOString().split('T')[0]}</lastmod></url>`);
+    });
+
+    // Pornstar pages
+    pornstars.forEach(star => {
+      urls.push(`<url><loc>https://vipmilfnut.com/pornstar/${escapeXml(star)}</loc><lastmod>${new Date().toISOString().split('T')[0]}</lastmod></url>`);
+    });
+
+    // Video URLs (limit to first 5000 for performance)
+    const videoUrls = allRecords.slice(0, 5000).map(post => {
+      const slugifiedTitle = post.titel ? slugify(post.titel) : "";
+      return `<url><loc>https://vipmilfnut.com/video/${post._id}${slugifiedTitle ? `-${slugifiedTitle}` : ''}</loc><lastmod>${new Date().toISOString().split('T')[0]}</lastmod></url>`;
+    }).join('\n');
+
+    const totalUrls = urls.length + allRecords.slice(0, 5000).length;
+    console.log(`📈 Total URLs in sitemap: ${totalUrls}`);
+
+    // Generate final XML
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n${videoUrls}\n</urlset>`;
+
+    // Save sitemap to public folder
+    const fs = require('fs');
+    const path = require('path');
+    const sitemapPath = path.join(__dirname, '../public/sitemap.xml');
+    
+    fs.writeFileSync(sitemapPath, sitemap, 'utf8');
+    console.log(`✅ Sitemap saved to: ${sitemapPath}`);
+    
+    // Also copy to frontend public folder
+    const frontendSitemapPath = path.join(__dirname, '../../vipmilfnut/public/sitemap.xml');
+    try {
+      fs.writeFileSync(frontendSitemapPath, sitemap, 'utf8');
+      console.log(`✅ Sitemap also copied to frontend: ${frontendSitemapPath}`);
+    } catch (error) {
+      console.log('⚠️ Could not copy to frontend (development only):', error.message);
+    }
+
+    res.json({
+      success: true,
+      message: 'Sitemap generated successfully',
+      stats: {
+        totalRecords: allRecords.length,
+        uniqueTags: tags.length,
+        uniquePornstars: pornstars.length,
+        totalUrls: totalUrls,
+        sitemapPath: sitemapPath
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating sitemap:", error);
+    res.status(500).json({ error: "Failed to generate sitemap" });
+  }
+};
+
+// Auto-generate sitemap after adding new data (using new structure)
+const autoGenerateSitemap = async () => {
+  try {
+    console.log('🔄 Auto-generating all sitemaps after data update...');
+    console.log('📅 Timestamp:', new Date().toISOString());
+    
+    // Create a mock request and response object for the sitemap functions
+    const mockReq = {};
+    const mockRes = {
+      json: (data) => {
+        if (data.success) {
+          console.log(`✅ ${data.message}`);
+        } else {
+          console.log(`❌ Sitemap generation failed:`, data);
+        }
+      }
+    };
+    
+    // Generate all sitemaps (excluding videos as per user request)
+    console.log('📄 Generating static sitemap...');
+    await exports.generateStaticSitemap(mockReq, mockRes);
+    
+    console.log('🏷️ Generating tags sitemap...');
+    await exports.generateTagsSitemap(mockReq, mockRes);
+    
+    console.log('⭐ Generating pornstars sitemap...');
+    await exports.generatePornstarsSitemap(mockReq, mockRes);
+    
+    // await exports.generateVideosSitemap(mockReq, mockRes); // Removed as per user request
+    
+    console.log('📋 Generating sitemap index...');
+    await exports.generateSitemapIndex(mockReq, mockRes);
+    
+    console.log('✅ All sitemaps auto-generated successfully');
+    return true;
+
+  } catch (error) {
+    console.error("❌ Error in auto-generating sitemaps:", error);
+    console.error("❌ Error stack:", error.stack);
+    return false;
+  }
+};
+
+// Generate main sitemap index (like JennyMovies)
+exports.generateSitemapIndex = async (req, res) => {
+  try {
+    console.log('🚀 Generating sitemap index...');
+    
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = 'https://vipmilfnut.com';
+    
+    const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${baseUrl}/sitemap-static.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-tags.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-pornstars.xml</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Save main sitemap index
+    const sitemapIndexPath = path.join(__dirname, '../public/sitemap.xml');
+    fs.writeFileSync(sitemapIndexPath, sitemapIndex, 'utf8');
+    
+    // Copy to frontend
+    const frontendSitemapPath = path.join(__dirname, '../../vipmilfnut/public/sitemap.xml');
+    fs.writeFileSync(frontendSitemapPath, sitemapIndex, 'utf8');
+    
+    console.log('✅ Sitemap index generated successfully');
+    
+    res.json({
+      success: true,
+      message: 'Sitemap index generated successfully',
+      sitemaps: [
+        'sitemap-static.xml',
+        'sitemap-tags.xml', 
+        'sitemap-pornstars.xml'
+      ]
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating sitemap index:", error);
+    res.status(500).json({ error: "Failed to generate sitemap index" });
+  }
+};
+
+// Generate static pages sitemap
+exports.generateStaticSitemap = async (req, res) => {
+  try {
+    console.log('🚀 Generating static sitemap...');
+    
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = 'https://vipmilfnut.com';
+    
+    const staticPages = [
+      '', 'indian', 'muslim', 'top-videos', 'new-content', 'most-liked', 'pornstars', 'our-network',
+      'category/scout69', 'category/comxxx', 'category/badwap', 'category/chochox', 'category/sex18',
+      'category/aunt-sex', 'category/fullporner', 'category/lesbify', 'category/milfnut',
+      'category/sex-sister', 'category/desi49', 'category/dehati-sex', 'category/boobs-pressing',
+      'category/blueflim', 'category/famili-sex-com', 'category/teen-sex', 'category/small-tits',
+    ];
+
+    const staticUrls = staticPages.map(page => 
+      `  <url>
+    <loc>${baseUrl}/${page}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`
+    ).join('\n');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${staticUrls}
+</urlset>`;
+
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Save static sitemap
+    const staticSitemapPath = path.join(__dirname, '../public/sitemap-static.xml');
+    fs.writeFileSync(staticSitemapPath, sitemap, 'utf8');
+    
+    // Copy to frontend
+    const frontendStaticPath = path.join(__dirname, '../../vipmilfnut/public/sitemap-static.xml');
+    fs.writeFileSync(frontendStaticPath, sitemap, 'utf8');
+    
+    console.log(`✅ Static sitemap generated with ${staticPages.length} pages`);
+    
+    res.json({
+      success: true,
+      message: 'Static sitemap generated successfully',
+      pages: staticPages.length
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating static sitemap:", error);
+    res.status(500).json({ error: "Failed to generate static sitemap" });
+  }
+};
+
+// Generate tags sitemap (dynamic)
+exports.generateTagsSitemap = async (req, res) => {
+  try {
+    console.log('🚀 Generating tags sitemap...');
+    
+    // Get records from both Data and RvData models
+    const allDataRecords = await Data.find({}).sort({ createdAt: -1 });
+    const allRvDataRecords = await RvData.find({}).sort({ createdAt: -1 });
+    const tagSet = new Set();
+    
+    // Process Data records
+    allDataRecords.forEach(post => {
+      if (Array.isArray(post.tags)) {
+        post.tags.forEach(tag => {
+          if (tag && tag.trim()) tagSet.add(tag);
+        });
+      }
+    });
+    
+    // Process RvData records
+    allRvDataRecords.forEach(post => {
+      if (Array.isArray(post.tags)) {
+        post.tags.forEach(tag => {
+          if (tag && tag.trim()) tagSet.add(tag);
+        });
+      }
+    });
+
+    const tags = Array.from(tagSet);
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = 'https://vipmilfnut.com';
+
+    const tagUrls = tags.map(tag => 
+      `  <url>
+    <loc>${baseUrl}/tag/${escapeXml(tag)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`
+    ).join('\n');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${tagUrls}
+</urlset>`;
+
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Save tags sitemap
+    const tagsSitemapPath = path.join(__dirname, '../public/sitemap-tags.xml');
+    fs.writeFileSync(tagsSitemapPath, sitemap, 'utf8');
+    
+    // Copy to frontend
+    const frontendTagsPath = path.join(__dirname, '../../vipmilfnut/public/sitemap-tags.xml');
+    fs.writeFileSync(frontendTagsPath, sitemap, 'utf8');
+    
+    console.log(`✅ Tags sitemap generated with ${tags.length} tags`);
+    
+    res.json({
+      success: true,
+      message: 'Tags sitemap generated successfully',
+      tags: tags.length
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating tags sitemap:", error);
+    res.status(500).json({ error: "Failed to generate tags sitemap" });
+  }
+};
+
+// Generate pornstars sitemap (dynamic)
+exports.generatePornstarsSitemap = async (req, res) => {
+  try {
+    console.log('🚀 Generating pornstars sitemap...');
+    
+    // Get records from both Data and RvData models
+    const allDataRecords = await Data.find({}).sort({ createdAt: -1 });
+    const allRvDataRecords = await RvData.find({}).sort({ createdAt: -1 });
+    const pornstarSet = new Set();
+    
+    // Process Data records
+    allDataRecords.forEach(post => {
+      if (Array.isArray(post.name)) {
+        post.name.forEach(star => {
+          if (star && star.trim()) pornstarSet.add(star);
+        });
+      }
+    });
+    
+    // Process RvData records
+    allRvDataRecords.forEach(post => {
+      if (Array.isArray(post.name)) {
+        post.name.forEach(star => {
+          if (star && star.trim()) pornstarSet.add(star);
+        });
+      }
+    });
+
+    const pornstars = Array.from(pornstarSet);
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = 'https://vipmilfnut.com';
+
+    const pornstarUrls = pornstars.map(star => 
+      `  <url>
+    <loc>${baseUrl}/pornstar/${escapeXml(star)}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`
+    ).join('\n');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pornstarUrls}
+</urlset>`;
+
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Save pornstars sitemap
+    const pornstarsSitemapPath = path.join(__dirname, '../public/sitemap-pornstars.xml');
+    fs.writeFileSync(pornstarsSitemapPath, sitemap, 'utf8');
+    
+    // Copy to frontend
+    const frontendPornstarsPath = path.join(__dirname, '../../vipmilfnut/public/sitemap-pornstars.xml');
+    fs.writeFileSync(frontendPornstarsPath, sitemap, 'utf8');
+    
+    console.log(`✅ Pornstars sitemap generated with ${pornstars.length} pornstars`);
+    
+    res.json({
+      success: true,
+      message: 'Pornstars sitemap generated successfully',
+      pornstars: pornstars.length
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating pornstars sitemap:", error);
+    res.status(500).json({ error: "Failed to generate pornstars sitemap" });
+  }
+};
+
+// Generate videos sitemap
+exports.generateVideosSitemap = async (req, res) => {
+  try {
+    console.log('🚀 Generating videos sitemap...');
+    
+    // Get records from both Data and RvData models
+    const allDataRecords = await Data.find({}).sort({ createdAt: -1 }).limit(2500);
+    const allRvDataRecords = await RvData.find({}).sort({ createdAt: -1 }).limit(2500);
+    const allRecords = [...allDataRecords, ...allRvDataRecords];
+    const today = new Date().toISOString().split('T')[0];
+    const baseUrl = 'https://vipmilfnut.com';
+
+    const videoUrls = allRecords.map(post => {
+      const slugifiedTitle = post.titel ? slugify(post.titel) : "";
+      return `  <url>
+    <loc>${baseUrl}/video/${post._id}${slugifiedTitle ? `-${escapeXml(slugifiedTitle)}` : ''}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+    }).join('\n');
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${videoUrls}
+</urlset>`;
+
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Save videos sitemap
+    const videosSitemapPath = path.join(__dirname, '../public/sitemap-videos.xml');
+    fs.writeFileSync(videosSitemapPath, sitemap, 'utf8');
+    
+    // Copy to frontend
+    const frontendVideosPath = path.join(__dirname, '../../vipmilfnut/public/sitemap-videos.xml');
+    fs.writeFileSync(frontendVideosPath, sitemap, 'utf8');
+    
+    console.log(`✅ Videos sitemap generated with ${allRecords.length} videos`);
+    
+    res.json({
+      success: true,
+      message: 'Videos sitemap generated successfully',
+      videos: allRecords.length
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating videos sitemap:", error);
+    res.status(500).json({ error: "Failed to generate videos sitemap" });
+  }
+};
+
+// Generate all sitemaps at once
+exports.generateAllSitemaps = async (req, res) => {
+  try {
+    console.log('🚀 Generating all sitemaps...');
+    
+    // Generate all individual sitemaps
+    await exports.generateStaticSitemap(req, res);
+    await exports.generateTagsSitemap(req, res);
+    await exports.generatePornstarsSitemap(req, res);
+    await exports.generateVideosSitemap(req, res);
+    
+    // Generate main sitemap index
+    await exports.generateSitemapIndex(req, res);
+    
+    console.log('✅ All sitemaps generated successfully');
+    
+    res.json({
+      success: true,
+      message: 'All sitemaps generated successfully',
+      sitemaps: [
+        'sitemap.xml (index)',
+        'sitemap-static.xml',
+        'sitemap-tags.xml',
+        'sitemap-pornstars.xml',
+        'sitemap-videos.xml'
+      ]
+    });
+
+  } catch (error) {
+    console.error("❌ Error generating all sitemaps:", error);
+    res.status(500).json({ error: "Failed to generate all sitemaps" });
+  }
+};

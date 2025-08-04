@@ -152,4 +152,13 @@ router.patch('/toggle-active/:id',cAPi.toggleActive)
 
 router.get('/search',cAPi.search)
 
+// Sitemap generation endpoints (like JennyMovies structure)
+router.get('/generate-sitemap', cAPi.generateSitemap);
+router.get('/generate-all-sitemaps', cAPi.generateAllSitemaps);
+router.get('/generate-sitemap-index', cAPi.generateSitemapIndex);
+router.get('/generate-static-sitemap', cAPi.generateStaticSitemap);
+router.get('/generate-tags-sitemap', cAPi.generateTagsSitemap);
+router.get('/generate-pornstars-sitemap', cAPi.generatePornstarsSitemap);
+router.get('/generate-videos-sitemap', cAPi.generateVideosSitemap);
+
 module.exports = router;

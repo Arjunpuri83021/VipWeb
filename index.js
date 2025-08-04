@@ -37,6 +37,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve all sitemap files (like JennyMovies)
+app.use('/sitemap.xml', express.static(path.join(__dirname, 'public/sitemap.xml')));
+app.use('/sitemap-static.xml', express.static(path.join(__dirname, 'public/sitemap-static.xml')));
+app.use('/sitemap-tags.xml', express.static(path.join(__dirname, 'public/sitemap-tags.xml')));
+app.use('/sitemap-pornstars.xml', express.static(path.join(__dirname, 'public/sitemap-pornstars.xml')));
+app.use('/sitemap-videos.xml', express.static(path.join(__dirname, 'public/sitemap-videos.xml')));
 
 // Middleware to parse JSON and URL-encoded data
 app.use(express.urlencoded({ extended: false }));
