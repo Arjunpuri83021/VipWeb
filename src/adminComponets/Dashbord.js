@@ -4,15 +4,8 @@ import AdminNav from "./AdminNav";
 const apiUrl = process.env.REACT_APP_API_URL;
 
 function Dashboard() {
-  // Predefined tags
-  const suggestedTags = [
-    'Caught', 'Close Up', 'Redhead', 'BBW', 'Wife', 'Japanese', 'Yoga', 'Spanking',
-    'Ladyboy', 'FFM', 'Tattoo', 'Skinny', 'Cumshot', 'Cameltoe', 'Korean', 'Russian',
-    'Legs', 'Webcam', 'Pussy', 'Footjob', 'College', 'Slut', 'Orgasm', 'Perfect',
-    'Cum In Pussy', 'Panties', 'Sport', 'Cowgirl', 'Natural Tits', 'Pretty', 'Doggystyle',
-    'Maid', 'Housewife', 'Curvy', 'Deepthroat', 'Surprise', 'Redhead', 'Party', 'BBC',
-    'Doggystyle','Shower','Screaming','Jeans','Handjob','Teacher','Stuck','Babysitter','Masturbation','Girlfriend','Big Tits','Kissing','Panties','Saggy Tits','White','Beautiful','Teen','Chinese','Pregnant','Perfect','Glasses','Twins','Short Hair','Swinger','Stockings','Bathroom','Indian','Wedding','BBC','Cheerleader','office','babe'
-  ];
+  // Dynamic suggested tags from API
+  const [suggestedTags, setSuggestedTags] = useState([]);
 
   const [imageUrl, setImgUrl] = useState('');
   const [altKeywords, setAltKeywords] = useState('');
@@ -93,9 +86,60 @@ function Dashboard() {
       });
   };
 
+  // Function to fetch all unique tags from API
+  const fetchSuggestedTags = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: 'cors' });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      const allRecords = data.records || [];
+      
+      // Extract all unique tags from all posts
+      const uniqueTags = new Set();
+      const tagMap = new Map(); // To store original case versions
+      
+      allRecords.forEach(post => {
+        if (Array.isArray(post.tags)) {
+          post.tags.forEach(tag => {
+            if (tag && tag.trim()) {
+              const trimmedTag = tag.trim();
+              const normalizedTag = trimmedTag.toLowerCase();
+              
+              // Only add if we haven't seen this normalized version
+              if (!uniqueTags.has(normalizedTag)) {
+                uniqueTags.add(normalizedTag);
+                tagMap.set(normalizedTag, trimmedTag); // Store original case
+              }
+            }
+          });
+        }
+      });
+      
+      // Convert back to array using original case versions and sort alphabetically
+      const tagsArray = Array.from(uniqueTags)
+        .map(normalizedTag => tagMap.get(normalizedTag))
+        .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      
+      console.log(`Total unique tags found: ${tagsArray.length}`);
+      setSuggestedTags(tagsArray);
+      
+    } catch (error) {
+      console.error('Error fetching suggested tags:', error);
+      // Fallback to empty array if API fails
+      setSuggestedTags([]);
+    }
+  };
+
   useEffect(() => {
     fetchPostData(currentPage, searchQuery); // Fetch data on mount and whenever currentPage or searchQuery changes
   }, [currentPage, searchQuery]);
+
+  // Fetch suggested tags on component mount
+  useEffect(() => {
+    fetchSuggestedTags();
+  }, []);
 
   const handleDelete = (id) => {
     fetch(`${apiUrl}/deletepost/${id}`, { method: "DELETE" })
