@@ -18,12 +18,17 @@ function TagPage() {
   // Convert slug back to readable tag (e.g., "cum-in-pussy" => "cum in pussy")
   const urlTag = (tag || "").toLowerCase();
 
+  console.log('TagPage: Current tag from URL:', tag);
+  console.log('TagPage: urlTag (normalized):', urlTag);
+  console.log('TagPage: Passing to Footer:', urlTag);
+
   const [postData, setPostData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 16;
   const [allFilteredRecords, setAllFilteredRecords] = useState([]);
+  const [uniqueTagsFromPage, setUniqueTagsFromPage] = useState([]); // Store unique tags from current page
 
   const navigate = useNavigate();
 
@@ -235,6 +240,20 @@ function TagPage() {
       const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
       setPostData(paginatedRecords);
       setTotalPages(Math.max(1, Math.ceil(totalFiltered / itemsPerPage)));
+
+      // Extract unique tags from the current page's posts
+      const uniqueTags = new Set();
+      paginatedRecords.forEach(post => {
+        if (Array.isArray(post.tags)) {
+          post.tags.forEach(tag => {
+            uniqueTags.add(normalizeTag(tag));
+          });
+        }
+      });
+      const uniqueTagsArray = Array.from(uniqueTags);
+      console.log('TagPage: Unique tags from current page:', uniqueTagsArray);
+      setUniqueTagsFromPage(uniqueTagsArray);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -438,7 +457,7 @@ function TagPage() {
         </div>
 
       </div>
-      <Footer />
+      <Footer pageTags={uniqueTagsFromPage} />
     </>
   );
 }
