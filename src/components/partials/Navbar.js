@@ -206,6 +206,8 @@ const Sidebar = ({ onSearch }) => {
         }
     };
 
+
+
     const menuItems = [
         { name: "Home", icon: "🏠", path: "/" },
         { name: "Models", icon: "👩‍🦰", path: "/Pornstars" },
@@ -397,6 +399,7 @@ const Sidebar = ({ onSearch }) => {
                     </div>
                     {/* Profile Icon */}
                     
+
                     
                    
 

@@ -1,6 +1,12 @@
 User-agent: *
-Disallow: 
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
 
 Allow: /
 
+# Sitemap
 Sitemap: https://vipmilfnut.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1

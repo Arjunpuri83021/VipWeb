@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import "./Video.css";
 import Sidebar from "../partials/Navbar";
+import Footer from "../partials/Footer";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -196,6 +197,70 @@ function StarsVideo() {
 
                 {isLoading && <div className="text-center">Loading...</div>}
             </div>
+
+            {/* Pornstar Bio Section */}
+            <div style={{ margin: "20px 0", padding: "20px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
+                <h2 style={{ fontSize: "18px", marginBottom: "15px", color: "#333", borderBottom: "2px solid #007bff", paddingBottom: "5px" }}>
+                    About {name ? name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'This Pornstar'}
+                </h2>
+                <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#555", marginBottom: "15px" }}>
+                    {name ? name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'This pornstar'} is one of the most popular adult performers featured on VipMilfNut. 
+                    Known for incredible performances and stunning looks, {name ? name.replace(/-/g, ' ') : 'this performer'} has captivated audiences worldwide with 
+                    passionate scenes and professional adult entertainment. Watch exclusive {name ? name.replace(/-/g, ' ') : 'pornstar'} videos in HD quality.
+                </p>
+                
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "15px", marginTop: "15px" }}>
+                    <div style={{ padding: "10px", backgroundColor: "white", borderRadius: "5px", border: "1px solid #ddd" }}>
+                        <h4 style={{ fontSize: "14px", color: "#007bff", marginBottom: "5px" }}>🎬 Career Highlights</h4>
+                        <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Professional adult performer with multiple award nominations and fan favorite status</p>
+                    </div>
+                    <div style={{ padding: "10px", backgroundColor: "white", borderRadius: "5px", border: "1px solid #ddd" }}>
+                        <h4 style={{ fontSize: "14px", color: "#007bff", marginBottom: "5px" }}>⭐ Performance Style</h4>
+                        <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Known for passionate performances, versatile scenes, and authentic chemistry with co-stars</p>
+                    </div>
+                    <div style={{ padding: "10px", backgroundColor: "white", borderRadius: "5px", border: "1px solid #ddd" }}>
+                        <h4 style={{ fontSize: "14px", color: "#007bff", marginBottom: "5px" }}>🔥 Popular Categories</h4>
+                        <p style={{ fontSize: "12px", color: "#666", margin: 0 }}>Featured in various adult categories including hardcore, romantic, and specialty scenes</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Video Stats & Info */}
+            <div style={{ margin: "20px 0", padding: "15px", backgroundColor: "#fff3cd", borderRadius: "8px", border: "1px solid #ffeaa7" }}>
+                <h3 style={{ fontSize: "16px", marginBottom: "10px", color: "#856404" }}>📊 {name ? name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Pornstar'} Video Collection Stats</h3>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
+                    <div style={{ textAlign: "center" }}>
+                        <strong style={{ display: "block", fontSize: "18px", color: "#d63384" }}>{results.length}+</strong>
+                        <span style={{ fontSize: "12px", color: "#856404" }}>HD Videos</span>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                        <strong style={{ display: "block", fontSize: "18px", color: "#d63384" }}>100%</strong>
+                        <span style={{ fontSize: "12px", color: "#856404" }}>Free Access</span>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                        <strong style={{ display: "block", fontSize: "18px", color: "#d63384" }}>4K</strong>
+                        <span style={{ fontSize: "12px", color: "#856404" }}>Quality</span>
+                    </div>
+                    <div style={{ textAlign: "center" }}>
+                        <strong style={{ display: "block", fontSize: "18px", color: "#d63384" }}>24/7</strong>
+                        <span style={{ fontSize: "12px", color: "#856404" }}>Streaming</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Why Watch Section */}
+            <div style={{ margin: "20px 0", padding: "15px", backgroundColor: "#e7f3ff", borderRadius: "8px", border: "1px solid #b3d9ff" }}>
+                <h3 style={{ fontSize: "16px", marginBottom: "15px", color: "#0056b3" }}>🌟 Why Watch {name ? name.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'This Pornstar'}?</h3>
+                <ul style={{ paddingLeft: "20px", margin: 0 }}>
+                    <li style={{ fontSize: "13px", color: "#0056b3", marginBottom: "8px" }}>Exclusive HD content featuring {name ? name.replace(/-/g, ' ') : 'top performer'} in premium adult scenes</li>
+                    <li style={{ fontSize: "13px", color: "#0056b3", marginBottom: "8px" }}>Professional cinematography and high production values</li>
+                    <li style={{ fontSize: "13px", color: "#0056b3", marginBottom: "8px" }}>Regular updates with latest {name ? name.replace(/-/g, ' ') : 'pornstar'} releases</li>
+                    <li style={{ fontSize: "13px", color: "#0056b3", marginBottom: "8px" }}>Mobile-friendly streaming with fast loading times</li>
+                    <li style={{ fontSize: "13px", color: "#0056b3" }}>No registration required - instant access to all content</li>
+                </ul>
+            </div>
+
+            <Footer />
         </>
     );
 }

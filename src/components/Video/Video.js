@@ -153,51 +153,30 @@ function Video() {
 
     const titleText = `${videoData?.titel || ""}`;
     const truncatedTitle = titleText.length > 60 ? titleText.slice(0, 57) + "..." : titleText;
+
     useEffect(() => {
-        document.title = videoData?.titel || "New sex videos";
-    
-        const setOrCreateMeta = (attrName, attrValue, content) => {
-            let element = document.querySelector(`[${attrName}='${attrValue}']`);
-            if (element) {
-                element.setAttribute("content", content);
-            } else {
-                element = document.createElement("meta");
-                element.setAttribute(attrName, attrValue);
-                element.setAttribute("content", content);
-                document.head.appendChild(element);
+        document.title = videoData?.titel ? `${videoData.titel} | VipMilfNut` : "VipMilfNut";
+
+        // Override robots meta tag to noindex for video pages
+        const existingRobotsTag = document.querySelector('meta[name="robots"]');
+        if (existingRobotsTag) {
+            existingRobotsTag.setAttribute('content', 'noindex, nofollow');
+        } else {
+            // Create new robots meta tag if it doesn't exist
+            const robotsTag = document.createElement('meta');
+            robotsTag.name = 'robots';
+            robotsTag.content = 'noindex, nofollow';
+            document.head.appendChild(robotsTag);
+        }
+
+        // Cleanup function to restore original robots tag when component unmounts
+        return () => {
+            const robotsTag = document.querySelector('meta[name="robots"]');
+            if (robotsTag) {
+                robotsTag.setAttribute('content', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
             }
         };
-    
-        setOrCreateMeta("name", "description", videoData.desc || "New sex videos on comxxx");
-    
-        // Open Graph meta tags
-        setOrCreateMeta("property", "og:type", "video.other");
-        setOrCreateMeta("property", "og:title", videoData.titel || "New sex videos");
-        setOrCreateMeta("property", "og:description", videoData.desc || "New sex videos on comxxx");
-        setOrCreateMeta("property", "og:image", videoData.imageUrl || "https://vipmilfnut.com/default.jpg");
-        setOrCreateMeta("property", "og:url", `https://vipmilfnut.com/video/${numericId}`);
-        setOrCreateMeta("property", "og:site_name", "VipMilfNut");
-    
-        // Twitter Card meta tags
-        setOrCreateMeta("name", "twitter:card", "summary_large_image");
-        setOrCreateMeta("name", "twitter:title", videoData.titel || "New sex videos");
-        setOrCreateMeta("name", "twitter:description", videoData.desc || "New sex videos on comxxx");
-        setOrCreateMeta("name", "twitter:image", videoData.imageUrl || "https://vipmilfnut.com/default.jpg");
-    
-        // Canonical link
-        const canonicalHref = `https://vipmilfnut.com/video/${numericId}`;
-        const canonicalLink = document.querySelector("link[rel='canonical']");
-        if (canonicalLink) {
-            canonicalLink.setAttribute("href", canonicalHref);
-        } else {
-            const newCanonical = document.createElement("link");
-            newCanonical.rel = "canonical";
-            newCanonical.href = canonicalHref;
-            document.head.appendChild(newCanonical);
-        }
-    }, [videoData, numericId]);
-    
-
+    }, [videoData]);
 
     const handleCardClick = async (id, currentViews) => {
         try {
@@ -224,20 +203,7 @@ function Video() {
     return (
         <>
             <Helmet>
-                
-                <meta name="robots" content="index, follow" />
-                <meta property="og:type" content="video.other" />
-    <meta property="og:title" content={videoData?.titel || "New sex videos"} />
-    <meta property="og:description" content={videoData?.desc || "New sex videos on comxxx"} />
-    <meta property="og:image" content={videoData?.imageUrl} />
-    <meta property="og:url" content={`https://vipmilfnut.com/video/${numericId}`} />
-    <meta property="og:site_name" content="VipMilfNut" />
-
-    {/* Twitter Card */}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={videoData?.titel || "New sex videos"} />
-    <meta name="twitter:description" content={videoData?.desc || "New sex videos on comxxx"} />
-    <meta name="twitter:image" content={videoData?.imageUrl} />
+                <title>{videoData?.titel ? `${videoData.titel} | VipMilfNut` : "VipMilfNut"}</title>
             </Helmet>
 
             <Sidebar onSearch={(query) => setSearch(query)} />
