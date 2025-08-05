@@ -161,4 +161,20 @@ router.get('/generate-tags-sitemap', cAPi.generateTagsSitemap);
 router.get('/generate-pornstars-sitemap', cAPi.generatePornstarsSitemap);
 router.get('/generate-videos-sitemap', cAPi.generateVideosSitemap);
 
+// ============= PERFORMANCE OPTIMIZED ROUTES =============
+// New optimized endpoints for better performance
+router.get('/tags', cAPi.getAllTags);                    // Get all unique tags
+router.get('/tags/random', cAPi.getRandomTags);          // Get random tags for Home page
+router.get('/tags/:tagName/posts', cAPi.getPostsByTag);  // Get posts by tag with pagination
+router.post('/tags/images', cAPi.getTagImages);          // Get images for multiple tags
+router.get('/tags/:tagName/metadata', cAPi.getTagMetadata); // Get tag metadata (unique tags & pornstars)
+
+// Optimized pornstar endpoints
+router.get('/pornstars', cAPi.getAllPornstars);          // Get all unique pornstars with pagination
+router.post('/pornstars/images', cAPi.getPornstarImages); // Get images for multiple pornstars
+
+// Optimized footer endpoints
+router.get('/footer/tags', cAPi.getFooterTags);          // Get random tags for footer
+router.get('/footer/pornstars', cAPi.getFooterPornstars); // Get random pornstars for footer
+
 module.exports = router;

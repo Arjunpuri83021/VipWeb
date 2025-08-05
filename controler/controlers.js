@@ -1783,33 +1783,709 @@ ${videoUrls}
 // Generate all sitemaps at once
 exports.generateAllSitemaps = async (req, res) => {
   try {
-    console.log('🚀 Generating all sitemaps...');
+    console.log('🚀 Starting generation of all sitemaps...');
     
-    // Generate all individual sitemaps
-    await exports.generateStaticSitemap(req, res);
-    await exports.generateTagsSitemap(req, res);
-    await exports.generatePornstarsSitemap(req, res);
-    await exports.generateVideosSitemap(req, res);
+    // Generate all sitemaps
+    await generateSitemapIndex();
+    await generateStaticSitemap();
+    await generateTagsSitemap();
+    await generatePornstarsSitemap();
+    await generateVideosSitemap();
     
-    // Generate main sitemap index
-    await exports.generateSitemapIndex(req, res);
-    
-    console.log('✅ All sitemaps generated successfully');
+    console.log('✅ All sitemaps generated successfully!');
     
     res.json({
       success: true,
       message: 'All sitemaps generated successfully',
       sitemaps: [
-        'sitemap.xml (index)',
-        'sitemap-static.xml',
+        'sitemap-index.xml',
+        'sitemap-static.xml', 
         'sitemap-tags.xml',
         'sitemap-pornstars.xml',
         'sitemap-videos.xml'
-      ]
+      ],
+      timestamp: new Date().toISOString()
     });
-
+    
   } catch (error) {
-    console.error("❌ Error generating all sitemaps:", error);
-    res.status(500).json({ error: "Failed to generate all sitemaps" });
+    console.error('❌ Error generating all sitemaps:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error generating sitemaps',
+      error: error.message
+    });
+  }
+};
+
+// ============= PERFORMANCE OPTIMIZED ENDPOINTS =============
+
+// Get all unique tags (optimized for Home page)
+exports.getAllTags = async (req, res) => {
+  try {
+    console.log('🏷️ Fetching all unique tags...');
+    
+    // Use MongoDB aggregation to get unique tags efficiently
+    const uniqueTags = await Data.aggregate([
+      { $unwind: '$tags' },
+      { $match: { tags: { $exists: true, $ne: null, $ne: '' } } },
+      { $group: { _id: '$tags' } },
+      { $project: { _id: 0, tag: '$_id' } },
+      { $sort: { tag: 1 } }
+    ]);
+    
+    const tagsArray = uniqueTags.map(item => item.tag.trim()).filter(tag => tag);
+    
+    console.log(`✅ Found ${tagsArray.length} unique tags`);
+    
+    res.json({
+      success: true,
+      totalTags: tagsArray.length,
+      tags: tagsArray
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching unique tags:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching tags',
+      error: error.message
+    });
+  }
+};
+
+// Get random tags (optimized for Home page)
+exports.getRandomTags = async (req, res) => {
+  try {
+    const { count = 64 } = req.query;
+    const tagCount = parseInt(count);
+    
+    console.log(`🎲 Fetching ${tagCount} random tags...`);
+    
+    // Use MongoDB aggregation to get random tags efficiently
+    const randomTags = await Data.aggregate([
+      { $unwind: '$tags' },
+      { $match: { tags: { $exists: true, $ne: null, $ne: '' } } },
+      { $group: { _id: '$tags' } },
+      { $sample: { size: tagCount } },
+      { $project: { _id: 0, tag: '$_id' } }
+    ]);
+    
+    const tagsArray = randomTags.map(item => item.tag.trim()).filter(tag => tag);
+    
+    console.log(`✅ Generated ${tagsArray.length} random tags`);
+    
+    res.json({
+      success: true,
+      count: tagsArray.length,
+      tags: tagsArray
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching random tags:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching random tags',
+      error: error.message
+    });
+  }
+};
+
+// Get posts by specific tag with pagination (optimized for Tag pages)
+exports.getPostsByTag = async (req, res) => {
+  try {
+    const { tagName } = req.params;
+    const { page = 1, limit = 16 } = req.query;
+    
+    if (!tagName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tag name is required'
+      });
+    }
+    
+    console.log(`🏷️ Fetching posts for tag: "${tagName}", page: ${page}, limit: ${limit}`);
+    
+    // Normalize tag for search (handle both "cum in pussy" and "cum-in-pussy" formats)
+    const normalizedTag = tagName.toLowerCase().trim();
+    const spaceTag = normalizedTag.replace(/-/g, ' ');
+    const hyphenTag = normalizedTag.replace(/\s+/g, '-');
+    
+    // Create regex patterns for flexible tag matching
+    const tagRegexPatterns = [
+      new RegExp(`^${escapeRegex(normalizedTag)}$`, 'i'),
+      new RegExp(`^${escapeRegex(spaceTag)}$`, 'i'),
+      new RegExp(`^${escapeRegex(hyphenTag)}$`, 'i')
+    ];
+    
+    // Build query to match any of the tag patterns
+    const query = {
+      tags: {
+        $in: tagRegexPatterns
+      }
+    };
+    
+    // Pagination logic
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Fetch posts with tag filter, sorting, and pagination
+    const [posts, totalCount] = await Promise.all([
+      Data.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      Data.countDocuments(query)
+    ]);
+    
+    const totalPages = Math.ceil(totalCount / parseInt(limit));
+    
+    console.log(`✅ Found ${posts.length} posts for tag "${tagName}" (${totalCount} total, page ${page}/${totalPages})`);
+    
+    res.json({
+      success: true,
+      tag: tagName,
+      totalRecords: totalCount,
+      totalPages,
+      currentPage: parseInt(page),
+      records: posts
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching posts by tag:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching posts by tag',
+      error: error.message
+    });
+  }
+};
+
+// Get tag images (optimized for Home page tag grid)
+exports.getTagImages = async (req, res) => {
+  try {
+    const { tags } = req.body; // Expecting array of tag names
+    
+    if (!Array.isArray(tags) || tags.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tags array is required'
+      });
+    }
+    
+    console.log(`🖼️ Fetching images for ${tags.length} tags...`);
+    
+    const tagImages = {};
+    const usedImageUrls = new Set();
+    
+    // Process tags in parallel for better performance
+    await Promise.all(tags.map(async (tag) => {
+      try {
+        const normalizedTag = tag.toLowerCase().trim();
+        const spaceTag = normalizedTag.replace(/-/g, ' ');
+        const hyphenTag = normalizedTag.replace(/\s+/g, '-');
+        
+        // Create regex patterns for flexible tag matching
+        const tagRegexPatterns = [
+          new RegExp(`^${escapeRegex(normalizedTag)}$`, 'i'),
+          new RegExp(`^${escapeRegex(spaceTag)}$`, 'i'),
+          new RegExp(`^${escapeRegex(hyphenTag)}$`, 'i')
+        ];
+        
+        // Find posts with this tag that have images
+        const postsWithImages = await Data.find({
+          tags: { $in: tagRegexPatterns },
+          imageUrl: { $exists: true, $ne: null, $ne: '' }
+        })
+        .sort({ createdAt: -1 })
+        .limit(10) // Get top 10 recent posts with images
+        .select('imageUrl');
+        
+        // Find first unused image or fallback to first image
+        let selectedImage = null;
+        for (const post of postsWithImages) {
+          if (!usedImageUrls.has(post.imageUrl)) {
+            selectedImage = post.imageUrl;
+            usedImageUrls.add(post.imageUrl);
+            break;
+          }
+        }
+        
+        // If no unique image found, use first available
+        if (!selectedImage && postsWithImages.length > 0) {
+          selectedImage = postsWithImages[0].imageUrl;
+        }
+        
+        tagImages[tag] = selectedImage;
+        
+      } catch (err) {
+        console.error(`Error fetching image for tag "${tag}":`, err);
+        tagImages[tag] = null;
+      }
+    }));
+    
+    const successCount = Object.values(tagImages).filter(img => img !== null).length;
+    console.log(`✅ Fetched images for ${successCount}/${tags.length} tags`);
+    
+    res.json({
+      success: true,
+      tagImages,
+      stats: {
+        requested: tags.length,
+        found: successCount,
+        uniqueImages: usedImageUrls.size
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching tag images:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching tag images',
+      error: error.message
+    });
+  }
+};
+
+// Get unique tags and pornstars from a specific tag's posts (for Tag page metadata)
+exports.getTagMetadata = async (req, res) => {
+  try {
+    const { tagName } = req.params;
+    
+    if (!tagName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tag name is required'
+      });
+    }
+    
+    console.log(`📊 Fetching metadata for tag: "${tagName}"`);
+    
+    const normalizedTag = tagName.toLowerCase().trim();
+    const spaceTag = normalizedTag.replace(/-/g, ' ');
+    const hyphenTag = normalizedTag.replace(/\s+/g, '-');
+    
+    const tagRegexPatterns = [
+      new RegExp(`^${escapeRegex(normalizedTag)}$`, 'i'),
+      new RegExp(`^${escapeRegex(spaceTag)}$`, 'i'),
+      new RegExp(`^${escapeRegex(hyphenTag)}$`, 'i')
+    ];
+    
+    // Use aggregation to get unique tags and pornstars efficiently
+    const [uniqueTagsResult, uniquePornstarsResult] = await Promise.all([
+      // Get unique tags from posts with this tag
+      Data.aggregate([
+        { $match: { tags: { $in: tagRegexPatterns } } },
+        { $unwind: '$tags' },
+        { $group: { _id: '$tags' } },
+        { $project: { _id: 0, tag: '$_id' } }
+      ]),
+      
+      // Get unique pornstars from posts with this tag
+      Data.aggregate([
+        { $match: { tags: { $in: tagRegexPatterns } } },
+        { $unwind: '$name' },
+        { $match: { name: { $exists: true, $ne: null, $ne: '' } } },
+        { $group: { _id: '$name' } },
+        { $project: { _id: 0, name: '$_id' } }
+      ])
+    ]);
+    
+    const uniqueTags = uniqueTagsResult.map(item => item.tag.trim().toLowerCase().replace(/\s+/g, '-')).filter(tag => tag);
+    const uniquePornstars = uniquePornstarsResult.map(item => item.name.trim()).filter(name => name);
+    
+    console.log(`✅ Found ${uniqueTags.length} unique tags and ${uniquePornstars.length} unique pornstars for tag "${tagName}"`);
+    
+    res.json({
+      success: true,
+      tag: tagName,
+      uniqueTags,
+      uniquePornstars,
+      stats: {
+        tagsCount: uniqueTags.length,
+        pornstarsCount: uniquePornstars.length
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fetching tag metadata:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching tag metadata',
+      error: error.message
+    });
+  }
+};
+
+// Helper function to escape regex special characters
+function escapeRegex(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ============= PORNSTAR OPTIMIZED ENDPOINTS =============
+
+// Get all unique pornstar names with pagination (optimized for Pornstars page)
+exports.getAllPornstars = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 30;
+    const letter = req.query.letter; // Optional letter filter (A-Z)
+    const search = req.query.search; // Optional search filter
+    
+    console.log(`🌟 getAllPornstars: page=${page}, limit=${limit}, letter=${letter}, search=${search}`);
+    
+    // Build aggregation pipeline to get unique pornstar names
+    const pipeline = [
+      {
+        $unwind: "$name" // Unwind the name array
+      },
+      {
+        $match: {
+          name: { $exists: true, $ne: null, $ne: "" }
+        }
+      }
+    ];
+    
+    // Add letter filter if provided
+    if (letter && letter.length === 1) {
+      pipeline.push({
+        $match: {
+          name: { $regex: `^${escapeRegex(letter)}`, $options: 'i' }
+        }
+      });
+    }
+    
+    // Add search filter if provided
+    if (search && search.trim()) {
+      pipeline.push({
+        $match: {
+          name: { $regex: escapeRegex(search.trim()), $options: 'i' }
+        }
+      });
+    }
+    
+    // Group by name to get unique values and count
+    pipeline.push(
+      {
+        $group: {
+          _id: { $toLower: "$name" },
+          originalName: { $first: "$name" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { originalName: 1 } // Sort alphabetically
+      }
+    );
+    
+    // Get total count for pagination
+    const totalPipeline = [...pipeline, { $count: "total" }];
+    const totalResult = await Data.aggregate(totalPipeline);
+    const totalCount = totalResult.length > 0 ? totalResult[0].total : 0;
+    const totalPages = Math.ceil(totalCount / limit);
+    
+    // Add pagination
+    pipeline.push(
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    );
+    
+    const result = await Data.aggregate(pipeline);
+    
+    const pornstars = result.map(item => ({
+      name: item.originalName,
+      count: item.count
+    }));
+    
+    console.log(`✅ getAllPornstars: Found ${pornstars.length} pornstars for page ${page}/${totalPages}`);
+    
+    res.json({
+      success: true,
+      pornstars,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNext: page < totalPages,
+        hasPrev: page > 1
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in getAllPornstars:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching pornstars',
+      error: error.message
+    });
+  }
+};
+
+// Get random images for pornstars (optimized for Pornstars page)
+exports.getPornstarImages = async (req, res) => {
+  try {
+    const { names } = req.body; // Array of pornstar names
+    
+    if (!names || !Array.isArray(names) || names.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Names array is required'
+      });
+    }
+    
+    console.log(`🖼️ getPornstarImages: Fetching images for ${names.length} pornstars`);
+    
+    const images = {};
+    
+    // Use Promise.all to fetch images for all pornstars in parallel
+    await Promise.all(names.map(async (name) => {
+      try {
+        // Find a random post for this pornstar
+        const posts = await Data.aggregate([
+          {
+            $match: {
+              name: { $in: [name] },
+              imageUrl: { $exists: true, $ne: null, $ne: "" }
+            }
+          },
+          { $sample: { size: 1 } }, // Get one random post
+          {
+            $project: {
+              imageUrl: 1,
+              title: 1,
+              slug: 1
+            }
+          }
+        ]);
+        
+        if (posts.length > 0) {
+          images[name] = {
+            image: posts[0].imageUrl,
+            title: posts[0].title,
+            slug: posts[0].slug
+          };
+        }
+      } catch (err) {
+        console.error(`Error fetching image for ${name}:`, err);
+      }
+    }));
+    
+    console.log(`✅ getPornstarImages: Found images for ${Object.keys(images).length}/${names.length} pornstars`);
+    
+    res.json({
+      success: true,
+      images
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in getPornstarImages:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching pornstar images',
+      error: error.message
+    });
+  }
+};
+
+// ============= FOOTER OPTIMIZED ENDPOINTS =============
+
+// Get random tags for footer (optimized)
+exports.getFooterTags = async (req, res) => {
+  try {
+    const count = parseInt(req.query.count) || 30;
+    const selectedTag = req.query.selectedTag;
+    const pageTags = req.query.pageTags ? req.query.pageTags.split(',') : null;
+    
+    console.log(`🏷️ getFooterTags: count=${count}, selectedTag=${selectedTag}, pageTags=${pageTags?.length || 0}`);
+    
+    // If pageTags are provided, return them
+    if (pageTags && pageTags.length > 0) {
+      console.log('✅ getFooterTags: Using provided page tags');
+      return res.json({
+        success: true,
+        tags: pageTags,
+        source: 'pageTags'
+      });
+    }
+    
+    // If selectedTag is provided, return it
+    if (selectedTag && selectedTag.trim()) {
+      console.log('✅ getFooterTags: Using selected tag');
+      return res.json({
+        success: true,
+        tags: [selectedTag.trim()],
+        source: 'selectedTag'
+      });
+    }
+    
+    // Get random tags using aggregation pipeline
+    const pipeline = [
+      {
+        $unwind: "$tags" // Unwind the tags array
+      },
+      {
+        $match: {
+          tags: { $exists: true, $ne: null, $ne: "" }
+        }
+      },
+      {
+        $group: {
+          _id: { $toLower: "$tags" },
+          originalTag: { $first: "$tags" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sample: { size: count } // Get random tags
+      },
+      {
+        $sort: { originalTag: 1 } // Sort alphabetically
+      }
+    ];
+    
+    const result = await Data.aggregate(pipeline);
+    const tags = result.map(item => item.originalTag);
+    
+    console.log(`✅ getFooterTags: Found ${tags.length} random tags`);
+    
+    res.json({
+      success: true,
+      tags,
+      source: 'random'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in getFooterTags:', error);
+    
+    // Fallback tags
+    const fallbackTags = [
+      'hardcore', 'milf', 'big-tits', 'big-boobs', 'small-tits', 
+      'big-ass', 'threesum', 'white', 'black', 'asian', 'latina',
+      'blonde', 'brunette', 'redhead', 'teen', 'mature', 'amateur',
+      'professional', 'lesbian', 'gay', 'straight', 'anal', 'oral',
+      'vaginal', 'group', 'solo', 'couple', 'gangbang', 'creampie'
+    ];
+    
+    res.json({
+      success: true,
+      tags: fallbackTags.slice(0, parseInt(req.query.count) || 30),
+      source: 'fallback'
+    });
+  }
+};
+
+// Get random pornstars for footer (optimized)
+exports.getFooterPornstars = async (req, res) => {
+  try {
+    const count = parseInt(req.query.count) || 32;
+    const tagPornstars = req.query.tagPornstars ? req.query.tagPornstars.split(',') : null;
+    
+    console.log(`👥 getFooterPornstars: count=${count}, tagPornstars=${tagPornstars?.length || 0}`);
+    
+    // Static pornstars that must always be included
+    const staticPornstars = [
+      'Niks Indian', 'Sunny Leone', 'Mia Khalifa', 'Dani Daniels', 'Sophia Leone',
+      'Yasmina Khan', 'Alex Star', 'Blake Blossom', 'Reagan Foxx', 'Valentina Nappi', 'Natasha Nice'
+    ];
+    
+    // If tag-specific pornstars are provided, use them
+    if (tagPornstars && tagPornstars.length > 0) {
+      console.log('✅ getFooterPornstars: Using tag-specific pornstars');
+      
+      // Filter out static pornstars from tag-specific pool to avoid duplicates
+      const availableTagPornstars = tagPornstars.filter(star => 
+        !staticPornstars.some(staticStar => 
+          staticStar.toLowerCase().replace(/\s+/g, '') === star.toLowerCase().replace(/[\s-]+/g, '')
+        )
+      );
+      
+      // Limit to maximum 46 total pornstars (including static ones)
+      const maxTotal = 46;
+      const maxTagSpecific = maxTotal - staticPornstars.length; // 46 - 11 = 35
+      
+      // Take only the required number of tag-specific pornstars
+      const limitedTagPornstars = availableTagPornstars.slice(0, maxTagSpecific);
+      
+      // Combine static and limited tag-specific pornstars
+      const allPornstars = [...staticPornstars, ...limitedTagPornstars];
+      
+      // Shuffle the combined array
+      const shuffledPornstars = allPornstars.sort(() => 0.5 - Math.random());
+      
+      console.log(`✅ getFooterPornstars: Limited to ${shuffledPornstars.length} pornstars (${staticPornstars.length} static + ${limitedTagPornstars.length} tag-specific, max 46)`);
+      
+      return res.json({
+        success: true,
+        pornstars: shuffledPornstars,
+        source: 'tagSpecific'
+      });
+    }
+    
+    // Get random pornstars using aggregation pipeline
+    const pipeline = [
+      {
+        $unwind: "$name" // Unwind the name array
+      },
+      {
+        $match: {
+          name: { $exists: true, $ne: null, $ne: "" }
+        }
+      },
+      {
+        $group: {
+          _id: { $toLower: "$name" },
+          originalName: { $first: "$name" },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sample: { size: count + 20 } // Get more than needed to filter out static ones
+      }
+    ];
+    
+    const result = await Data.aggregate(pipeline);
+    const allPornstars = result.map(item => item.originalName);
+    
+    // Filter out static pornstars from the random pool to avoid duplicates
+    const availableForRandom = allPornstars.filter(star => 
+      !staticPornstars.some(staticStar => 
+        staticStar.toLowerCase().replace(/\s+/g, '') === star.toLowerCase().replace(/[\s-]+/g, '')
+      )
+    );
+    
+    // Get required number of random pornstars
+    const randomCount = count - staticPornstars.length;
+    const randomPornstars = availableForRandom.slice(0, randomCount);
+    
+    // Combine static and random pornstars
+    const finalPornstars = [...staticPornstars, ...randomPornstars];
+    
+    // Shuffle the combined array
+    const shuffledPornstars = finalPornstars.sort(() => 0.5 - Math.random());
+    
+    console.log(`✅ getFooterPornstars: Found ${shuffledPornstars.length} pornstars (${staticPornstars.length} static + ${randomPornstars.length} random)`);
+    
+    res.json({
+      success: true,
+      pornstars: shuffledPornstars,
+      source: 'random'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error in getFooterPornstars:', error);
+    
+    // Fallback pornstars
+    const fallbackPornstars = [
+      'Sunny Leone', 'Mia Khalifa', 'Angela White', 'Mia Malkova', 'Johnny Sins',
+      'Reagan Foxx', 'Ava Addams', 'Brandi Love', 'Cory Chase', 'Lena Paul',
+      'Melody Marks', 'Keisha Grey', 'Sophia Leone', 'Bridgette B', 'Valentina Nappi',
+      'Blake Blossom', 'Dani Daniels', 'Natasha Nice', 'Ariella Ferrera', 'Danny D',
+      'Jordi El Nino Polla', 'Alyx Star', 'Mariska X', 'Yasmina Khan', 'Niks Indian',
+      'Riley Reid', 'Abella Danger', 'Adriana Chechik', 'Kenzie Reeves', 'Autumn Falls'
+    ];
+    
+    res.json({
+      success: true,
+      pornstars: fallbackPornstars.slice(0, parseInt(req.query.count) || 32),
+      source: 'fallback'
+    });
   }
 };
