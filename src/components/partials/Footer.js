@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './footer.css';
 
-const Footer = () => {
+const Footer = ({ selectedTag = null, pageTags = null }) => {
   const location = useLocation();
   const [topTags, setTopTags] = useState([]);
   const [showAllTags, setShowAllTags] = useState(false);
@@ -149,6 +149,24 @@ const Footer = () => {
       
       setAllTags(tagsArray);
       
+      // If pageTags is provided, use those tags from the current page
+      if (pageTags && pageTags.length > 0) {
+        console.log('Footer: Using page tags:', pageTags);
+        setTopTags(pageTags);
+        setDisplayTags(pageTags);
+        return pageTags;
+      }
+      
+      // If selectedTag is provided, use it instead of random tags
+      if (selectedTag && selectedTag.trim()) {
+        console.log('Footer: Using selected tag:', selectedTag);
+        setTopTags([selectedTag]);
+        setDisplayTags([selectedTag]);
+        return [selectedTag];
+      }
+      
+      console.log('Footer: Using random tags (no selectedTag or pageTags provided)');
+      
       // Check if we have saved tags and timestamp in localStorage
       const savedTagsData = localStorage.getItem('vipmilfnut_footer_display_tags');
       const now = Date.now();
@@ -224,22 +242,25 @@ const Footer = () => {
       })
     ]);
 
-    // Set up 10-minute interval for refreshing tags and pornstars
-    const interval = setInterval(() => {
-      refreshTags();
-      refreshPornstars();
-    }, 10 * 60 * 1000); // 10 minutes in milliseconds
+    // Only set up interval if no selectedTag or pageTags are provided (i.e., on home page)
+    if ((!selectedTag || !selectedTag.trim()) && (!pageTags || pageTags.length === 0)) {
+      // Set up 10-minute interval for refreshing tags and pornstars
+      const interval = setInterval(() => {
+        refreshTags();
+        refreshPornstars();
+      }, 10 * 60 * 1000); // 10 minutes in milliseconds
 
-    setRefreshInterval(interval);
+      setRefreshInterval(interval);
 
-    // Cleanup interval on component unmount
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
+      // Cleanup interval on component unmount
+      return () => {
+        if (interval) {
+          clearInterval(interval);
+        }
+      };
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedTag, pageTags]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -261,7 +282,11 @@ const Footer = () => {
       {/* New Categories and Pornstars Section */}
       <div className="categories-pornstars-section">
         <div className="categories-section">
-          <h2 className="section-title">Best Porn Categories</h2>
+          <h2 className="section-title">
+            {pageTags && pageTags.length > 0 ? `Tags from this page (${pageTags.length})` : 
+             selectedTag ? `Related to ${selectedTag.replace(/-/g, ' ').charAt(0).toUpperCase() + selectedTag.replace(/-/g, ' ').slice(1)}` : 
+             "Best Porn Categories"}
+          </h2>
           {loading ? (
             <div className="tags-loading">Loading categories...</div>
           ) : (
