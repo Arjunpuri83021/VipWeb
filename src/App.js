@@ -38,6 +38,7 @@ function App() {
     return (
         <Router>
             <Routes>
+            <Route path='/:page' element={<Home />} />
             <Route path='/' element={<Home />}/>
             <Route path='/video/:id' element={<Video />} />
                 <Route path='/pornstar/:name' element={<StarsVideo />} />
@@ -47,7 +48,6 @@ function App() {
                 <Route path='/new-content' element={<NewContent />} />
                 <Route path='/most-liked' element={<MostLiked />} />
                 <Route path='/pornstars' element={<PornStars />} />
-                <Route path='/pornstars/:page' element={<PornStars />} />
                 <Route path='/our-network' element={<Network/>} />
                 
                 <Route path='/category/scout69' element={<Scout69 />} />
@@ -108,8 +108,6 @@ function App() {
                 <Route path='/tag/:tag' element={<TagPage />} />
                 <Route path='/tag/:tag/:page' element={<TagPage />} />
 
-                {/* Generic page route for Home pagination - must be last before catch-all */}
-                <Route path='/:page' element={<Home />} />
 
                 {/* Catch-all route for unmatched URLs */}
                 <Route path='*' element={<NotFound />} />

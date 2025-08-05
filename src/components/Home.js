@@ -71,40 +71,10 @@ function Home() {
         return shuffled.slice(0, count);
     };
 
-    // Function to fetch all unique tags from the API
-    const fetchAllTags = async () => {
+    // Function to fetch random tags from optimized API
+    const fetchRandomTags = async () => {
         try {
-            const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: "cors" });
-            if (!response.ok) return;
-            const data = await response.json();
-            const allRecords = data.records || [];
-            
-            // Extract all unique tags from all posts
-            const uniqueTags = new Set();
-            const tagMap = new Map(); // To store original case versions
-            
-            allRecords.forEach(post => {
-                if (Array.isArray(post.tags)) {
-                    post.tags.forEach(tag => {
-                        if (tag && tag.trim()) {
-                            const trimmedTag = tag.trim();
-                            const normalizedTag = trimmedTag.toLowerCase();
-                            
-                            // Only add if we haven't seen this normalized version
-                            if (!uniqueTags.has(normalizedTag)) {
-                                uniqueTags.add(normalizedTag);
-                                tagMap.set(normalizedTag, trimmedTag); // Store original case
-                            }
-                        }
-                    });
-                }
-            });
-            
-            // Convert back to array using original case versions
-            const tagsArray = Array.from(uniqueTags).map(normalizedTag => tagMap.get(normalizedTag));
-            console.log(`Total unique tags found: ${tagsArray.length}`);
-            
-            setAllTags(tagsArray);
+            console.log('🚀 Fetching random tags from optimized API...');
             
             // Check if we have saved tags and timestamp in localStorage
             const savedTagsData = localStorage.getItem('vipmilfnut_display_tags');
@@ -117,7 +87,7 @@ function Home() {
                 
                 // If less than 10 minutes have passed, use saved tags and images
                 if (timeDiff < tenMinutes && tags && tags.length > 0) {
-                    console.log('Using saved tags and images from localStorage');
+                    console.log('✅ Using saved tags and images from localStorage');
                     setDisplayTags(tags);
                     if (images) {
                         setTagImages(images);
@@ -126,74 +96,93 @@ function Home() {
                 }
             }
             
-            // Generate new random tags and save to localStorage
-            const randomTags = getRandomTags(tagsArray, 64);
+            // Fetch random tags from optimized endpoint
+            const response = await fetch(`${apiUrl}/tags/random?count=64`, { mode: "cors" });
+            if (!response.ok) {
+                console.error('Failed to fetch random tags');
+                return [];
+            }
+            
+            const data = await response.json();
+            if (!data.success || !Array.isArray(data.tags)) {
+                console.error('Invalid response format from tags API');
+                return [];
+            }
+            
+            const randomTags = data.tags;
+            console.log(`✅ Fetched ${randomTags.length} random tags from server`);
+            
+            // Save to localStorage
             localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
                 tags: randomTags,
                 timestamp: now,
                 images: {} // Will be populated when images are fetched
             }));
-            console.log('Generated new random tags and saved to localStorage');
-            setDisplayTags(randomTags);
             
+            setDisplayTags(randomTags);
             return randomTags;
+            
         } catch (err) {
-            console.error("Error fetching all tags:", err);
+            console.error("❌ Error fetching random tags:", err);
             return [];
         }
     };
 
     // Function to refresh tags with new random selection
     const refreshTags = async () => {
-        if (allTags.length > 0) {
-            const newRandomTags = getRandomTags(allTags, 64);
+        try {
+            console.log('🔄 Refreshing tags with new random selection...');
+            
+            // Fetch new random tags from API
+            const response = await fetch(`${apiUrl}/tags/random?count=64`, { mode: "cors" });
+            if (!response.ok) {
+                console.error('Failed to refresh tags');
+                return;
+            }
+            
+            const data = await response.json();
+            if (!data.success || !Array.isArray(data.tags)) {
+                console.error('Invalid response format from tags refresh API');
+                return;
+            }
+            
+            const newRandomTags = data.tags;
             const now = Date.now();
             
-            setDisplayTags(newRandomTags);
-            console.log('Tags refreshed with new random selection');
-            
-            // Fetch images for new tags and save everything to localStorage
+            // Fetch images for new tags
             const newImages = await fetchTagImages(newRandomTags);
             
-            // Save new tags and images to localStorage with current timestamp
+            // Update localStorage with new tags and images
             localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
                 tags: newRandomTags,
                 timestamp: now,
                 images: newImages || {}
             }));
             
-            console.log('Tags and images refreshed and saved to localStorage');
+            setDisplayTags(newRandomTags);
+            console.log('✅ Tags refreshed with new random selection');
+        } catch (err) {
+            console.error('❌ Error refreshing tags:', err);
         }
     };
 
     // Initial setup and interval management
     useEffect(() => {
         // Fetch all tags and set up initial display
-        fetchAllTags().then(async (initialTags) => {
+        fetchRandomTags().then((initialTags) => {
             if (initialTags && initialTags.length > 0) {
-                // Check if we already have saved images from localStorage
+                // Check if images are already cached
                 const savedTagsData = localStorage.getItem('vipmilfnut_display_tags');
                 if (savedTagsData) {
                     const { images } = JSON.parse(savedTagsData);
                     if (images && Object.keys(images).length > 0) {
-                        // Images already loaded from localStorage, no need to fetch again
+                        console.log('Images already cached, skipping fetch');
                         return;
                     }
                 }
                 
-                // Fetch images and save to localStorage
-                const newImages = await fetchTagImages(initialTags);
-                const now = Date.now();
-                
-                // Update localStorage with images
-                const currentSavedData = localStorage.getItem('vipmilfnut_display_tags');
-                if (currentSavedData) {
-                    const currentData = JSON.parse(currentSavedData);
-                    localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
-                        ...currentData,
-                        images: newImages || {}
-                    }));
-                }
+                // Fetch images for the initial tags
+                fetchTagImages(initialTags);
             }
         });
 
@@ -218,77 +207,40 @@ function Home() {
         if (targetTags.length === 0) return;
         
         try {
-            // Fetch all posts first, then filter by tags
-            const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: "cors" });
-            if (!response.ok) return;
-            const data = await response.json();
-            const allRecords = data.records || [];
-
-            // Helper function to normalize tags (same as TagPage)
-            const normalizeTag = (tag) =>
-                tag && tag.trim().toLowerCase().replace(/\s+/g, "-");
-
-            // Track used image URLs to avoid duplicates
-            const usedImageUrls = new Set();
-            const imgMap = {};
+            console.log(`🖼️ Fetching images for ${targetTags.length} tags using optimized API...`);
             
-            // Process tags sequentially to ensure unique images
-            for (const tg of targetTags) {
-                try {
-                    // Filter records that have this tag in their tags array
-                    const matchingRecords = allRecords.filter(post =>
-                        Array.isArray(post.tags) &&
-                        post.tags.some(tag => normalizeTag(tag) === normalizeTag(tg))
-                    );
-                    
-                    if (matchingRecords.length === 0) {
-                        imgMap[tg] = null;
-                        continue;
-                    }
-                    
-                    // Get all records with valid images for this tag
-                    const allValidRecords = matchingRecords.filter(rec => rec.imageUrl);
-                    
-                    if (allValidRecords.length === 0) {
-                        imgMap[tg] = null;
-                        continue;
-                    }
-                    
-                    // Try to find the first unused image
-                    let selectedRecord = null;
-                    
-                    // First, try to get the first image (index 0) if it's not used
-                    if (allValidRecords.length > 0 && !usedImageUrls.has(allValidRecords[0].imageUrl)) {
-                        selectedRecord = allValidRecords[0];
-                    } else {
-                        // If first image is already used, find the next available image
-                        selectedRecord = allValidRecords.find(rec => !usedImageUrls.has(rec.imageUrl));
-                        
-                        // If no unique image found, use the first image as fallback
-                        if (!selectedRecord) {
-                            selectedRecord = allValidRecords[0];
-                        }
-                    }
-                    
-                    if (selectedRecord) {
-                        imgMap[tg] = selectedRecord.imageUrl;
-                        usedImageUrls.add(selectedRecord.imageUrl);
-                    } else {
-                        imgMap[tg] = null;
-                    }
-                    
-                } catch (e) {
-                    imgMap[tg] = null;
-                }
+            // Use optimized tag images API
+            const response = await fetch(`${apiUrl}/tags/images`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tags: targetTags }),
+                mode: "cors"
+            });
+            
+            if (!response.ok) {
+                console.error('Failed to fetch tag images');
+                return {};
             }
             
+            const data = await response.json();
+            if (!data.success || !data.tagImages) {
+                console.error('Invalid response format from tag images API');
+                return {};
+            }
+            
+            const imgMap = data.tagImages;
+            const successCount = Object.values(imgMap).filter(img => img !== null).length;
+            
             setTagImages(imgMap);
-            console.log(`Fetched images for ${targetTags.length} tags, ${usedImageUrls.size} unique images used`);
+            console.log(`✅ Fetched images for ${successCount}/${targetTags.length} tags using optimized API`);
             
             // Return the image map for use in refreshTags
             return imgMap;
         } catch (err) {
-            console.error("Error fetching tag images", err);
+            console.error("❌ Error fetching tag images:", err);
+            return {};
         }
     };
 
@@ -300,7 +252,7 @@ function Home() {
    
 
     useEffect(() => {
-        document.title = `VipMilfNut WowUncut XXXHD Videos SpanBank Page ${currentPage}`;
+        document.title = `VipMilfNut Free XXXHD Adult Content Videos And Free Porn Videos`;
     
         // Update meta description
         const metaDesc = document.querySelector("meta[name='description']");
@@ -441,13 +393,67 @@ function Home() {
     return (
         <>
             <Helmet>
-                <title>VipMilfNut</title>
+                <title>VipMilfNut Free XXXHD Adult Content Videos And Free Porn Videos</title>
+                {/* SEO structured data */}
+                <script type="application/ld+json">
+                    {JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "WebSite",
+                        "name": "VipMilfNut",
+                        "url": "https://vipmilfnut.com",
+                        "description": "Premium adult entertainment platform with high-quality videos",
+                        "potentialAction": {
+                            "@type": "SearchAction",
+                            "target": "https://vipmilfnut.com/search?q={search_term_string}",
+                            "query-input": "required name=search_term_string"
+                        }
+                    })}
+                </script>
             </Helmet>
 
             <Sidebar onSearch={(query) => setSearch(query)} />
             
+            {/* SEO-friendly main content */}
+            <main role="main">
+                {/* Breadcrumbs for SEO */}
+                <nav aria-label="Breadcrumb" style={{
+                    
+                    backgroundColor: '#fff',
+                    borderBottom: '1px solid #eee'
+                }}>
+                    <ol style={{
+                        listStyle: 'none',
+                        padding: 0,
+                        margin: 0,
+                        display: 'flex',
+                        fontSize: '14px'
+                    }}>
+                       
+                        {currentPage > 1 && (
+                            <>
+                                <li style={{ margin: '0 8px', color: '#666' }}>›</li>
+                                <li style={{ color: '#666' }}>Page {currentPage}</li>
+                            </>
+                        )}
+                    </ol>
+                </nav>
 
-            {/* Dynamic Tags List - Refreshes every 5 minutes */}
+               
+                {/* Categories section */}
+                <section aria-label="Popular Categories" style={{
+                    padding: '20px 0'
+                }}>
+                    <h1 style={{
+                        fontSize: '20px',
+                        fontWeight: '600',
+                        color: '#333',
+                        textAlign: 'center',
+                        margin: '0 0 20px 0'
+                    }}>
+                        Browse Popular Porn Categories
+                    </h1>
+
+            {/* Dynamic Tags List - Refreshes every 10 minutes */}
             <Grid style={{marginTop:"20px"}} container spacing={{ xs: 0, sm: 2 }} className="tag-container" sx={{ px: { xs: 0, sm: 2 }, py: 1 }}>
                 {displayTags.length > 0 ? displayTags.map((tag) => (
                     <Grid item xs={6} sm={4} md={3} key={tag} sx={{ px: { xs: 0.5, sm: 1 } }}>
@@ -481,7 +487,10 @@ function Home() {
                     </Grid>
                 )}
             </Grid>
-            
+                </section>
+
+                
+            </main>
           
 
             <Footer/>

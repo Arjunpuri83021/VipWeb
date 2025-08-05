@@ -27,70 +27,76 @@ const Sidebar = ({ onSearch }) => {
         setIsSearchOpen(!isSearchOpen); // Toggle search bar visibility
     };
 
-    // Fetch all tags and star names for suggestions
+    // Fetch all tags and star names for suggestions (OPTIMIZED)
     useEffect(() => {
         const fetchSuggestionData = async () => {
             try {
-                // Increase limit to get more records and catch more star names
-            const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=2000`, { mode: "cors" });
-                if (!response.ok) return;
-                const data = await response.json();
-                const allRecords = data.records || [];
+                console.log('🚀 Navbar: Fetching optimized search suggestions...');
                 
-                // Extract unique tags
-                const uniqueTags = new Set();
-                const uniqueStars = new Set();
+                // Fetch tags and stars in parallel using optimized APIs
+                const [tagsResponse, starsResponse] = await Promise.all([
+                    fetch(`${apiUrl}/tags?limit=500`, { mode: "cors" }),
+                    fetch(`${apiUrl}/pornstars?limit=500`, { mode: "cors" })
+                ]);
                 
-                allRecords.forEach(post => {
-                    // Extract tags
-                    if (Array.isArray(post.tags)) {
-                        post.tags.forEach(tag => {
-                            if (tag && tag.trim()) {
-                                uniqueTags.add(tag.trim());
-                            }
-                        });
+                let tagsArray = [];
+                let starsArray = [];
+                
+                // Process tags response
+                if (tagsResponse.ok) {
+                    const tagsData = await tagsResponse.json();
+                    if (tagsData.success && tagsData.tags) {
+                        tagsArray = tagsData.tags;
                     }
-                    
-                    // Extract star names
-                    if (Array.isArray(post.name)) {
-                        post.name.forEach(name => {
-                            if (name && name.trim()) {
-                                // Keep star names as stored in database (with hyphens)
-                                // But also add cleaned version for better user experience
-                                uniqueStars.add(name.trim());
-                                // Also add cleaned version for display
-                                const cleanName = name.replace(/-/g, ' ').trim();
+                }
+                
+                // Process stars response
+                if (starsResponse.ok) {
+                    const starsData = await starsResponse.json();
+                    if (starsData.success && starsData.pornstars) {
+                        // Extract star names and add both original and cleaned versions
+                        const uniqueStars = new Set();
+                        starsData.pornstars.forEach(star => {
+                            if (star.name && star.name.trim()) {
+                                // Keep star names as stored in database
+                                uniqueStars.add(star.name.trim());
+                                // Also add cleaned version for better user experience
+                                const cleanName = star.name.replace(/-/g, ' ').trim();
                                 uniqueStars.add(cleanName);
                             }
                         });
+                        starsArray = Array.from(uniqueStars);
                     }
-                });
-                
-                const tagsArray = Array.from(uniqueTags);
-                const starsArray = Array.from(uniqueStars);
+                }
                 
                 setAllTags(tagsArray);
                 setAllStars(starsArray);
                 
                 // Debug logging to see what we extracted
-                console.log('🏷️ Total unique tags extracted:', tagsArray.length);
-                console.log('⭐ Total unique stars extracted:', starsArray.length);
+                console.log('✅ Navbar: Search suggestions loaded');
+                console.log('🏷️ Total unique tags:', tagsArray.length);
+                console.log('⭐ Total unique stars:', starsArray.length);
                 console.log('🔍 Sample tags:', tagsArray.slice(0, 10));
                 console.log('🔍 Sample stars:', starsArray.slice(0, 10));
                 
-                // Check specifically for "dani daniels" variations
-                const daniVariations = starsArray.filter(star => 
-                    star.toLowerCase().includes('dani')
-                );
-                console.log('🔎 Dani variations found:', daniVariations);
-                
-                // Check if "dani-daniels" exists
-                const hasDaniDaniels = starsArray.some(star => 
-                    star.toLowerCase().includes('dani') && star.toLowerCase().includes('daniel')
-                );
-                console.log('❓ Has Dani Daniels variations:', hasDaniDaniels);
             } catch (err) {
-                console.error("Error fetching suggestion data:", err);
+                console.error("❌ Navbar: Error fetching suggestion data:", err);
+                
+                // Fallback to basic suggestions if API fails
+                const fallbackTags = [
+                    'hardcore', 'milf', 'big-tits', 'big-boobs', 'small-tits',
+                    'big-ass', 'threesum', 'white', 'black', 'asian', 'latina',
+                    'blonde', 'brunette', 'redhead', 'teen', 'mature', 'amateur'
+                ];
+                
+                const fallbackStars = [
+                    'Sunny Leone', 'Mia Khalifa', 'Angela White', 'Mia Malkova',
+                    'Reagan Foxx', 'Ava Addams', 'Brandi Love', 'Cory Chase',
+                    'Lena Paul', 'Dani Daniels', 'Natasha Nice', 'Blake Blossom'
+                ];
+                
+                setAllTags(fallbackTags);
+                setAllStars(fallbackStars);
             }
         };
         

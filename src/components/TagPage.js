@@ -29,6 +29,7 @@ function TagPage() {
   const itemsPerPage = 16;
   const [allFilteredRecords, setAllFilteredRecords] = useState([]);
   const [uniqueTagsFromPage, setUniqueTagsFromPage] = useState([]); // Store unique tags from current page
+  const [tagSpecificPornstars, setTagSpecificPornstars] = useState([]); // Store unique pornstars from this tag
 
   const navigate = useNavigate();
 
@@ -193,71 +194,67 @@ function TagPage() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch all pages to get complete dataset
-      let allRecords = [];
-      let currentPageNum = 1;
-      let hasMoreData = true;
+      console.log(`🚀 TagPage: Fetching optimized data for tag "${urlTag}", page ${currentPage}`);
       
-      while (hasMoreData) {
-        const response = await fetch(
-          `${apiUrl}/getpostdata?page=${currentPageNum}&limit=1000`,
-          { mode: "cors" }
-        );
-        if (!response.ok) throw new Error("Failed to fetch data");
-        const data = await response.json();
-        
-        if (data.records && data.records.length > 0) {
-          allRecords = [...allRecords, ...data.records];
-          currentPageNum++;
-          // Stop if we've fetched all pages
-          if (data.records.length < 1000 || currentPageNum > 20) {
-            hasMoreData = false;
-          }
-        } else {
-          hasMoreData = false;
-        }
-      }
-      
-      // console.log(`Total records fetched: ${allRecords.length}`);
-      
-      // Filter posts where tags array includes the decodedTag (case-insensitive, space/hyphen tolerant)
-      const normalizeTag = (tag) =>
-        tag && tag.trim().toLowerCase().replace(/\s+/g, "-");
-
-      const filteredRecords = allRecords.filter(
-        post =>
-          Array.isArray(post.tags) &&
-          post.tags.some(
-            t => normalizeTag(t) === urlTag
-          )
+      // Use optimized API endpoint for posts by tag
+      const response = await fetch(
+        `${apiUrl}/tags/${encodeURIComponent(urlTag)}/posts?page=${currentPage}&limit=${itemsPerPage}`,
+        { mode: "cors" }
       );
       
-      // console.log(`Filtered records for tag "${urlTag}": ${filteredRecords.length}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch posts for tag: ${response.status}`);
+      }
       
-      setAllFilteredRecords(filteredRecords);
-      // Pagination logic
-      const totalFiltered = filteredRecords.length;
-      const paginatedRecords = filteredRecords.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-      setPostData(paginatedRecords);
-      setTotalPages(Math.max(1, Math.ceil(totalFiltered / itemsPerPage)));
-
-      // Extract unique tags from the current page's posts
-      const uniqueTags = new Set();
-      paginatedRecords.forEach(post => {
-        if (Array.isArray(post.tags)) {
-          post.tags.forEach(tag => {
-            uniqueTags.add(normalizeTag(tag));
-          });
-        }
-      });
-      const uniqueTagsArray = Array.from(uniqueTags);
-      console.log('TagPage: Unique tags from current page:', uniqueTagsArray);
-      setUniqueTagsFromPage(uniqueTagsArray);
-
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to fetch tag posts');
+      }
+      
+      console.log(`✅ TagPage: Found ${data.records.length} posts for tag "${urlTag}" (${data.totalRecords} total, page ${data.currentPage}/${data.totalPages})`);
+      
+      // Set the fetched data
+      setPostData(data.records || []);
+      setTotalPages(data.totalPages || 1);
+      
+      // Fetch metadata (unique tags and pornstars) separately for better performance
+      fetchTagMetadata();
+      
     } catch (err) {
+      console.error('❌ TagPage: Error fetching data:', err);
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Separate function to fetch tag metadata (unique tags and pornstars)
+  const fetchTagMetadata = async () => {
+    try {
+      console.log(`📊 TagPage: Fetching metadata for tag "${urlTag}"`);
+      
+      const response = await fetch(
+        `${apiUrl}/tags/${encodeURIComponent(urlTag)}/metadata`,
+        { mode: "cors" }
+      );
+      
+      if (!response.ok) {
+        console.warn('Failed to fetch tag metadata, using fallback');
+        return;
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setUniqueTagsFromPage(data.uniqueTags || []);
+        setTagSpecificPornstars(data.uniquePornstars || []);
+        console.log(`✅ TagPage: Found ${data.uniqueTags?.length || 0} unique tags and ${data.uniquePornstars?.length || 0} unique pornstars`);
+      }
+      
+    } catch (err) {
+      console.warn('TagPage: Error fetching metadata:', err);
+      // Metadata fetch failure is not critical, continue without it
     }
   };
 
@@ -376,7 +373,7 @@ function TagPage() {
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <div className="row row-cols-2 row-cols-md-3 g-2">
+        <div className="row row-cols-1 row-cols-md-3 g-2">
           {postData.map((post) => (
             <div className="col" key={post._id}>
               <Link
@@ -457,7 +454,7 @@ function TagPage() {
         </div>
 
       </div>
-      <Footer pageTags={uniqueTagsFromPage} />
+      <Footer pageTags={uniqueTagsFromPage} tagPornstars={tagSpecificPornstars} />
     </>
   );
 }

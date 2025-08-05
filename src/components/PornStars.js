@@ -72,79 +72,58 @@ function PornStars() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Function to fetch all unique pornstars with pagination
+    // Function to fetch all unique pornstars with pagination (OPTIMIZED)
     const fetchAllStars = async () => {
         try {
-            console.log('Fetching stars for page:', currentPage);
+            console.log('🚀 Fetching stars for page:', currentPage, 'with letter filter:', selectedLetter);
             setLoading(true);
             setError(null);
             
-            // Fetch all posts to extract unique pornstar names
-            const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, {
+            // Build query parameters
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: itemsPerPage
+            });
+            
+            // Add letter filter if selected
+            if (selectedLetter) {
+                params.append('letter', selectedLetter);
+            }
+            
+            // Add search filter if exists
+            if (search && search.trim()) {
+                params.append('search', search.trim());
+            }
+            
+            // Use the new optimized API endpoint
+            const response = await fetch(`${apiUrl}/pornstars?${params}`, {
                 mode: "cors"
             });
             
             if (!response.ok) {
-                throw new Error("Failed to fetch data");
+                throw new Error("Failed to fetch pornstars");
             }
             
             const data = await response.json();
-            const allRecords = data.records || [];
             
-            // Extract all unique pornstar names
-            const uniqueNames = new Set();
-            const nameMap = new Map(); // To store original case versions
-            
-            allRecords.forEach(post => {
-                if (Array.isArray(post.name)) {
-                    post.name.forEach(name => {
-                        if (name && name.trim()) {
-                            const trimmedName = name.trim();
-                            const normalizedName = trimmedName.toLowerCase();
-                            
-                            if (!uniqueNames.has(normalizedName)) {
-                                uniqueNames.add(normalizedName);
-                                nameMap.set(normalizedName, trimmedName);
-                            }
-                        }
-                    });
-                }
-            });
-            
-            // Convert to array and sort alphabetically
-            let starsArray = Array.from(uniqueNames)
-                .map(normalizedName => ({ name: nameMap.get(normalizedName) }))
-                .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-            
-            // Apply letter filter if selected
-            if (selectedLetter) {
-                starsArray = starsArray.filter(star => 
-                    star.name.toLowerCase().startsWith(selectedLetter.toLowerCase())
-                );
-                console.log(`Filtered ${starsArray.length} stars starting with '${selectedLetter}'`);
+            if (!data.success) {
+                throw new Error(data.message || "Failed to fetch pornstars");
             }
             
-            setFilteredStars(starsArray); // Store filtered results
+            const { pornstars, pagination } = data;
             
-            // Calculate pagination
-            const totalStars = starsArray.length;
-            const calculatedTotalPages = Math.ceil(totalStars / itemsPerPage);
-            console.log('Total stars:', totalStars, 'Total pages:', calculatedTotalPages, 'Current page:', currentPage);
-            setTotalPages(calculatedTotalPages);
+            console.log(`✅ Fetched ${pornstars.length} stars for page ${pagination.currentPage}/${pagination.totalPages}`);
             
-            // Get stars for current page
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const currentPageStars = starsArray.slice(startIndex, endIndex);
-            console.log('Stars for page', currentPage, ':', currentPageStars.length, 'stars');
+            // Set the data
+            setStars(pornstars);
+            setTotalPages(pagination.totalPages);
+            setFilteredStars(pornstars); // For consistency with existing code
             
-            setStars(currentPageStars);
-            
-            // Fetch random images for current page stars
-            await fetchStarImages(currentPageStars, allRecords);
+            // Fetch images for current page stars
+            await fetchStarImages(pornstars);
             
         } catch (error) {
-            console.error('Error in fetchAllStars:', error);
+            console.error('❌ Error in fetchAllStars:', error);
             setError(error.message);
             
         } finally {
@@ -152,8 +131,8 @@ function PornStars() {
         }
     };
     
-    // Function to fetch random images for pornstars
-    const fetchStarImages = async (starsToFetch, allRecords = null) => {
+    // Function to fetch random images for pornstars (OPTIMIZED)
+    const fetchStarImages = async (starsToFetch) => {
         try {
             // Check localStorage for cached images
             const savedImagesData = localStorage.getItem('vipmilfnut_star_images');
@@ -167,7 +146,7 @@ function PornStars() {
                 
                 // If less than 10 minutes have passed, use saved images
                 if (timeDiff < tenMinutes && images && Object.keys(images).length > 0) {
-                    console.log('Using saved star images from localStorage');
+                    console.log('🖼️ Using saved star images from localStorage');
                     existingImages = images;
                     
                     // Check if we have images for all current stars
@@ -178,49 +157,63 @@ function PornStars() {
                         setStarImages(existingImages);
                         return;
                     } else {
-                        console.log('Some images missing, fetching for:', missingImages.length, 'stars');
+                        console.log(`🔄 Some images missing, fetching for: ${missingImages.length} stars`);
                         // Set existing images first to prevent blinking
                         setStarImages(existingImages);
                     }
                 } else {
-                    console.log('Cache expired or empty, fetching fresh images');
+                    console.log('⏰ Cache expired or empty, fetching fresh images');
                 }
             }
             
-            // Fetch fresh data if not provided
-            let records = allRecords;
-            if (!records) {
-                const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=1000`, { mode: "cors" });
-                if (!response.ok) return;
-                const data = await response.json();
-                records = data.records || [];
+            // Only fetch images for stars that don't have cached images
+            const starsNeedingImages = starsToFetch.filter(star => !existingImages[star.name]);
+            
+            if (starsNeedingImages.length === 0) {
+                console.log('✅ All images already cached');
+                return;
+            }
+            
+            // Use the new optimized API endpoint to fetch images
+            const starNames = starsNeedingImages.map(star => star.name);
+            
+            const response = await fetch(`${apiUrl}/pornstars/images`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ names: starNames }),
+                mode: "cors"
+            });
+            
+            if (!response.ok) {
+                console.error('Failed to fetch pornstar images');
+                return;
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                console.error('API error:', data.message);
+                return;
             }
             
             // Start with existing images to prevent blinking
             const imgMap = { ...existingImages };
             
-            // Only fetch images for stars that don't have cached images
-            const starsNeedingImages = starsToFetch.filter(star => !existingImages[star.name]);
-            
-            // For each star that needs an image, find a random image from their videos
-            starsNeedingImages.forEach(star => {
-                // Find all records that have this star name
-                const starRecords = records.filter(record => 
-                    Array.isArray(record.name) && 
-                    record.name.some(name => 
-                        name.toLowerCase().trim() === star.name.toLowerCase().trim()
-                    )
-                );
-                
-                // Filter records with valid images
-                const validRecords = starRecords.filter(record => record.imageUrl);
-                
-                if (validRecords.length > 0) {
-                    // Select random image
-                    const randomIndex = Math.floor(Math.random() * validRecords.length);
-                    imgMap[star.name] = validRecords[randomIndex].imageUrl;
+            // Add new images from API response
+            Object.entries(data.images).forEach(([starName, imageData]) => {
+                if (imageData && imageData.image) {
+                    imgMap[starName] = imageData.image;
                 } else {
                     // Fallback to default image
+                    imgMap[starName] = 'female.png';
+                }
+            });
+            
+            // Add fallback images for stars that weren't found
+            starsNeedingImages.forEach(star => {
+                if (!imgMap[star.name]) {
                     imgMap[star.name] = 'female.png';
                 }
             });
@@ -232,10 +225,10 @@ function PornStars() {
             }));
             
             setStarImages(imgMap);
-            console.log(`Fetched random images for ${starsNeedingImages.length} new stars, total cached: ${Object.keys(imgMap).length}`);
+            console.log(`✅ Fetched images for ${Object.keys(data.images).length}/${starsNeedingImages.length} stars, total cached: ${Object.keys(imgMap).length}`);
             
         } catch (error) {
-            console.error('Error fetching star images:', error);
+            console.error('❌ Error fetching star images:', error);
         }
     };
 

@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './footer.css';
 
-const Footer = ({ selectedTag = null, pageTags = null }) => {
+const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) => {
   const location = useLocation();
   const [topTags, setTopTags] = useState([]);
   const [showAllTags, setShowAllTags] = useState(false);
@@ -32,42 +32,60 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
     return shuffled.slice(0, count);
   };
 
-  // Function to get random pornstars from all available pornstars
-  const getRandomPornstars = (pornstars, count = 30) => {
-    if (pornstars.length <= count) return pornstars;
-    const shuffled = [...pornstars].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+  // Static pornstars that must always be included
+  const staticPornstars = [
+    'Niks Indian', 'Sunny Leone', 'Mia Khalifa', 'Dani Daniels', 'Sophia Leone',
+    'Yasmina Khan', 'Alex Star', 'Blake Blossom', 'Reagan Foxx', 'Valentina Nappi', 'Natasha Nice'
+  ];
+
+  // Function to get random pornstars with static ones included
+  const getRandomPornstars = (pornstars, count = 32, useTagSpecific = false) => {
+    // If we have tag-specific pornstars, use them instead of global random
+    if (useTagSpecific && tagPornstars && tagPornstars.length > 0) {
+      // Filter out static pornstars from tag-specific pool to avoid duplicates
+      const availableTagPornstars = tagPornstars.filter(star => 
+        !staticPornstars.some(staticStar => 
+          staticStar.toLowerCase().replace(/\s+/g, '') === star.toLowerCase().replace(/[\s-]+/g, '')
+        )
+      );
+      
+      // Use all available tag-specific pornstars (no limit since it's tag-specific)
+      const tagSpecificPornstars = availableTagPornstars;
+      
+      // Combine static and tag-specific pornstars
+      const allPornstars = [...staticPornstars, ...tagSpecificPornstars];
+      
+      // Shuffle the combined array so static ones don't always appear first
+      return allPornstars.sort(() => 0.5 - Math.random());
+    }
+    
+    // Original logic for home page (global random)
+    // Filter out static pornstars from the random pool to avoid duplicates
+    const availableForRandom = pornstars.filter(star => 
+      !staticPornstars.some(staticStar => 
+        staticStar.toLowerCase().replace(/\s+/g, '') === star.toLowerCase().replace(/[\s-]+/g, '')
+      )
+    );
+    
+    // Get 21 random pornstars from the remaining pool
+    const randomCount = count - staticPornstars.length; // 32 - 11 = 21
+    const randomPornstars = availableForRandom.length <= randomCount 
+      ? availableForRandom 
+      : [...availableForRandom].sort(() => 0.5 - Math.random()).slice(0, randomCount);
+    
+    // Combine static and random pornstars
+    const allPornstars = [...staticPornstars, ...randomPornstars];
+    
+    // Shuffle the combined array so static ones don't always appear first
+    return allPornstars.sort(() => 0.5 - Math.random());
   };
 
-  // Function to fetch all unique pornstars from the API
+  // Function to fetch random pornstars from optimized API (OPTIMIZED)
   const fetchAllPornstars = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/getpostdata?page=1&limit=1000`, { mode: "cors" });
+      console.log('🚀 Footer: Fetching optimized pornstars...');
       
-      if (!response.ok) return;
-      const data = await response.json();
-      
-      const allRecords = data.records || [];
-      
-      // Extract all unique pornstar names from all posts
-      const uniquePornstars = new Set();
-      allRecords.forEach((post, index) => {
-          if (Array.isArray(post.name)) {
-          post.name.forEach(name => {
-            if (name && name.trim()) {
-              uniquePornstars.add(name.trim());
-            }
-          });
-        } else if (post.name && typeof post.name === 'string') {
-          uniquePornstars.add(post.name.trim());
-        }
-      });
-      
-      const pornstarsArray = Array.from(uniquePornstars);
-      
-      setAllPornstars(pornstarsArray);
-      
-      // Check if we have saved pornstars and timestamp in localStorage
+      // Check localStorage cache first
       const savedPornstarsData = localStorage.getItem('vipmilfnut_footer_display_pornstars');
       const now = Date.now();
       
@@ -76,23 +94,59 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
         const timeDiff = now - timestamp;
         const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
         
-        // If less than 10 minutes has passed, use saved pornstars
-        if (timeDiff < tenMinutes && pornstars && pornstars.length > 0) {
+        // If less than 10 minutes has passed and not tag-specific, use saved pornstars
+        if (timeDiff < tenMinutes && pornstars && pornstars.length > 0 && (!tagPornstars || tagPornstars.length === 0)) {
+          console.log('✅ Footer: Using cached pornstars');
           setDisplayPornstars(pornstars);
+          setAllPornstars(pornstars); // For consistency
           return pornstars;
         }
       }
       
-      // Generate new random pornstars and save to localStorage
-      const randomPornstars = getRandomPornstars(pornstarsArray, 30);
-      localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
-        pornstars: randomPornstars,
-        timestamp: now
-      }));
-      setDisplayPornstars(randomPornstars);
+      // Build query parameters
+      const params = new URLSearchParams({
+        count: 32
+      });
       
-      return randomPornstars;
+      // Add tag-specific pornstars if available
+      if (tagPornstars && tagPornstars.length > 0) {
+        params.append('tagPornstars', tagPornstars.join(','));
+      }
+      
+      // Use the new optimized API endpoint
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/footer/pornstars?${params}`, { 
+        mode: "cors" 
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch footer pornstars');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'API error');
+      }
+      
+      const { pornstars, source } = data;
+      console.log(`✅ Footer: Fetched ${pornstars.length} pornstars from ${source}`);
+      
+      setDisplayPornstars(pornstars);
+      setAllPornstars(pornstars); // For consistency with existing code
+      
+      // Only cache if it's not tag-specific (home page only)
+      if (source !== 'tagSpecific') {
+        localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
+          pornstars: pornstars,
+          timestamp: now
+        }));
+      }
+      
+      return pornstars;
+      
     } catch (err) {
+      console.error('❌ Footer: Error fetching pornstars:', err);
+      
       // Fallback to default pornstars if API fails
       const fallbackPornstars = [
         'Sunny Leone', 'Mia Khalifa', 'Angela White', 'Mia Malkova', 'Johnny Sins',
@@ -103,6 +157,7 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
         'Riley Reid', 'Abella Danger', 'Adriana Chechik', 'Kenzie Reeves', 'Autumn Falls'
       ];
       setDisplayPornstars(fallbackPornstars);
+      setAllPornstars(fallbackPornstars);
       return fallbackPornstars;
     }
   };
@@ -110,91 +165,78 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
   // Function to refresh pornstars with new random selection
   const refreshPornstars = () => {
     if (allPornstars.length > 0) {
-      const newRandomPornstars = getRandomPornstars(allPornstars, 30);
+      const useTagSpecific = tagPornstars && tagPornstars.length > 0;
+      const newRandomPornstars = getRandomPornstars(allPornstars, 32, useTagSpecific);
       const now = Date.now();
       
-      // Save new pornstars to localStorage with current timestamp
-      localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
-        pornstars: newRandomPornstars,
-        timestamp: now
-      }));
+      // Only save to localStorage if it's not tag-specific (home page only)
+      if (!useTagSpecific) {
+        localStorage.setItem('vipmilfnut_footer_display_pornstars', JSON.stringify({
+          pornstars: newRandomPornstars,
+          timestamp: now
+        }));
+      }
       
       setDisplayPornstars(newRandomPornstars);
     }
   };
 
-  // Function to fetch all unique tags from the API
+  // Function to fetch random tags from optimized API (OPTIMIZED)
   const fetchAllTags = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/getpostdata?page=1&limit=1000`, { mode: "cors" });
+      console.log('🚀 Footer: Fetching optimized tags...');
       
-      if (!response.ok) return;
-      const data = await response.json();
-      
-      const allRecords = data.records || [];
-      
-      // Extract all unique tags from all posts
-      const uniqueTags = new Set();
-      allRecords.forEach((post, index) => {
-        if (Array.isArray(post.tags)) {
-          post.tags.forEach(tag => {
-            if (tag && tag.trim()) {
-              uniqueTags.add(tag.trim());
-            }
-          });
-        }
+      // Build query parameters
+      const params = new URLSearchParams({
+        count: 30
       });
       
-      const tagsArray = Array.from(uniqueTags);
-      
-      setAllTags(tagsArray);
-      
-      // If pageTags is provided, use those tags from the current page
-      if (pageTags && pageTags.length > 0) {
-        console.log('Footer: Using page tags:', pageTags);
-        setTopTags(pageTags);
-        setDisplayTags(pageTags);
-        return pageTags;
-      }
-      
-      // If selectedTag is provided, use it instead of random tags
+      // Add selectedTag if provided
       if (selectedTag && selectedTag.trim()) {
-        console.log('Footer: Using selected tag:', selectedTag);
-        setTopTags([selectedTag]);
-        setDisplayTags([selectedTag]);
-        return [selectedTag];
+        params.append('selectedTag', selectedTag.trim());
       }
       
-      console.log('Footer: Using random tags (no selectedTag or pageTags provided)');
-      
-      // Check if we have saved tags and timestamp in localStorage
-      const savedTagsData = localStorage.getItem('vipmilfnut_footer_display_tags');
-      const now = Date.now();
-      
-      if (savedTagsData) {
-        const { tags, timestamp } = JSON.parse(savedTagsData);
-        const timeDiff = now - timestamp;
-        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
-        
-        // If less than 10 minutes has passed, use saved tags
-        if (timeDiff < tenMinutes && tags && tags.length > 0) {
-          setTopTags(tags);
-          setDisplayTags(tags);
-          return tags;
-        }
+      // Add pageTags if provided
+      if (pageTags && pageTags.length > 0) {
+        params.append('pageTags', pageTags.join(','));
       }
       
-      // Generate new random tags and save to localStorage
-      const randomTags = getRandomTags(tagsArray, 30);
-      localStorage.setItem('vipmilfnut_footer_display_tags', JSON.stringify({
-        tags: randomTags,
-        timestamp: now
-      }));
-      setTopTags(randomTags);
-      setDisplayTags(randomTags);
+      // Use the new optimized API endpoint
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/footer/tags?${params}`, { 
+        mode: "cors" 
+      });
       
-      return randomTags;
+      if (!response.ok) {
+        throw new Error('Failed to fetch footer tags');
+      }
+      
+      const data = await response.json();
+      
+      if (!data.success) {
+        throw new Error(data.message || 'API error');
+      }
+      
+      const { tags, source } = data;
+      console.log(`✅ Footer: Fetched ${tags.length} tags from ${source}`);
+      
+      setTopTags(tags);
+      setDisplayTags(tags);
+      setAllTags(tags); // For consistency with existing code
+      
+      // Only cache random tags (not selectedTag or pageTags)
+      if (source === 'random') {
+        const now = Date.now();
+        localStorage.setItem('vipmilfnut_footer_display_tags', JSON.stringify({
+          tags: tags,
+          timestamp: now
+        }));
+      }
+      
+      return tags;
+      
     } catch (err) {
+      console.error('❌ Footer: Error fetching tags:', err);
+      
       // Fallback to default categories if API fails
       const fallbackTags = [
         'hardcore', 'milf', 'big-tits', 'big-boobs', 'small-tits', 
@@ -205,6 +247,7 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
       ];
       setTopTags(fallbackTags);
       setDisplayTags(fallbackTags);
+      setAllTags(fallbackTags);
       return fallbackTags;
     }
   };
@@ -242,8 +285,8 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
       })
     ]);
 
-    // Only set up interval if no selectedTag or pageTags are provided (i.e., on home page)
-    if ((!selectedTag || !selectedTag.trim()) && (!pageTags || pageTags.length === 0)) {
+    // Only set up interval if no selectedTag, pageTags, or tagPornstars are provided (i.e., on home page only)
+    if ((!selectedTag || !selectedTag.trim()) && (!pageTags || pageTags.length === 0) && (!tagPornstars || tagPornstars.length === 0)) {
       // Set up 10-minute interval for refreshing tags and pornstars
       const interval = setInterval(() => {
         refreshTags();
@@ -258,9 +301,41 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
           clearInterval(interval);
         }
       };
+    } else {
+      // Clear any existing interval if we're on a tag page
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        setRefreshInterval(null);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedTag, pageTags]);
+  }, [selectedTag, pageTags, tagPornstars]);
+
+  // Handle tagPornstars changes (for tag-specific pages)
+  useEffect(() => {
+    if (tagPornstars && tagPornstars.length > 0) {
+      console.log('Footer: Tag-specific pornstars received:', tagPornstars.length, 'stars');
+      // Generate tag-specific pornstar display immediately
+      const useTagSpecific = true;
+      const tagSpecificDisplay = getRandomPornstars([], 32, useTagSpecific);
+      setDisplayPornstars(tagSpecificDisplay);
+      setPornstarsLoading(false);
+      
+      // Set up 10-minute interval for tag-specific pornstar refresh
+      const tagInterval = setInterval(() => {
+        console.log('Footer: Refreshing tag-specific pornstars...');
+        const refreshedTagDisplay = getRandomPornstars([], 32, true);
+        setDisplayPornstars(refreshedTagDisplay);
+      }, 10 * 60 * 1000); // 10 minutes
+      
+      // Cleanup interval on component unmount or tagPornstars change
+      return () => {
+        if (tagInterval) {
+          clearInterval(tagInterval);
+        }
+      };
+    }
+  }, [tagPornstars]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -283,9 +358,7 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
       <div className="categories-pornstars-section">
         <div className="categories-section">
           <h2 className="section-title">
-            {pageTags && pageTags.length > 0 ? `Tags from this page (${pageTags.length})` : 
-             selectedTag ? `Related to ${selectedTag.replace(/-/g, ' ').charAt(0).toUpperCase() + selectedTag.replace(/-/g, ' ').slice(1)}` : 
-             "Best Porn Categories"}
+            Best Porn Categories
           </h2>
           {loading ? (
             <div className="tags-loading">Loading categories...</div>
@@ -320,7 +393,7 @@ const Footer = ({ selectedTag = null, pageTags = null }) => {
                     to={`/pornstar/${slugifyTag(pornstar)}`} 
                     className="tag-button"
                   >
-                    {pornstar}
+                    {pornstar.replace(/-/g, ' ')}
                   </Link>
                 ))}
               </div>

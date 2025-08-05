@@ -29,3 +29,13 @@ a{
     padding: 26px 20px;
     background-color: #a1a1a1;
 }
+
+@media(max-width:550px){
+    .tag-image{
+        height: 150px !important;
+    }
+    .tag-box{
+        height: 150px !important;
+    }
+    
+}
