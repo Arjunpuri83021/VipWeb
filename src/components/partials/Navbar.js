@@ -18,6 +18,8 @@ const Sidebar = ({ onSearch }) => {
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [allTags, setAllTags] = useState([]);
     const [allStars, setAllStars] = useState([]);
+    const [groupedTags, setGroupedTags] = useState({});
+    const [expandedLetters, setExpandedLetters] = useState({});
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -31,8 +33,6 @@ const Sidebar = ({ onSearch }) => {
     useEffect(() => {
         const fetchSuggestionData = async () => {
             try {
-                console.log('🚀 Navbar: Fetching optimized search suggestions...');
-                
                 // Fetch tags and stars in parallel using optimized APIs
                 const [tagsResponse, starsResponse] = await Promise.all([
                     fetch(`${apiUrl}/tags?limit=500`, { mode: "cors" }),
@@ -72,12 +72,22 @@ const Sidebar = ({ onSearch }) => {
                 setAllTags(tagsArray);
                 setAllStars(starsArray);
                 
-                // Debug logging to see what we extracted
-                console.log('✅ Navbar: Search suggestions loaded');
-                console.log('🏷️ Total unique tags:', tagsArray.length);
-                console.log('⭐ Total unique stars:', starsArray.length);
-                console.log('🔍 Sample tags:', tagsArray.slice(0, 10));
-                console.log('🔍 Sample stars:', starsArray.slice(0, 10));
+                // Group tags alphabetically
+                const grouped = {};
+                tagsArray.forEach(tag => {
+                    const firstLetter = tag.charAt(0).toUpperCase();
+                    if (!grouped[firstLetter]) {
+                        grouped[firstLetter] = [];
+                    }
+                    grouped[firstLetter].push(tag);
+                });
+                
+                // Sort tags within each letter group
+                Object.keys(grouped).forEach(letter => {
+                    grouped[letter].sort((a, b) => a.localeCompare(b));
+                });
+                
+                setGroupedTags(grouped);
                 
             } catch (err) {
                 console.error("❌ Navbar: Error fetching suggestion data:", err);
@@ -97,6 +107,22 @@ const Sidebar = ({ onSearch }) => {
                 
                 setAllTags(fallbackTags);
                 setAllStars(fallbackStars);
+                
+                // Group fallback tags alphabetically
+                const grouped = {};
+                fallbackTags.forEach(tag => {
+                    const firstLetter = tag.charAt(0).toUpperCase();
+                    if (!grouped[firstLetter]) {
+                        grouped[firstLetter] = [];
+                    }
+                    grouped[firstLetter].push(tag);
+                });
+                
+                Object.keys(grouped).forEach(letter => {
+                    grouped[letter].sort((a, b) => a.localeCompare(b));
+                });
+                
+                setGroupedTags(grouped);
             }
         };
         
@@ -137,8 +163,6 @@ const Sidebar = ({ onSearch }) => {
     };
 
     const handleSuggestionClick = (suggestion) => {
-        console.log('🎯 Suggestion clicked:', suggestion);
-        
         // Update search query
         setSearchQuery(suggestion.text);
         setShowSuggestions(false);
@@ -156,25 +180,15 @@ const Sidebar = ({ onSearch }) => {
             star.toLowerCase() === suggestion.text.toLowerCase()
         );
         
-        console.log('🔍 Search analysis:', {
-            searchQuery: suggestion.text,
-            isTagMatch,
-            isStarMatch,
-            suggestionType: suggestion.type
-        });
-        
         // Redirect to appropriate page based on suggestion type
         if (suggestion.type === 'tag' || isTagMatch) {
             const slugifiedTag = slugifyText(suggestion.text);
-            console.log('🏷️ Redirecting to tag page:', `/tag/${slugifiedTag}`);
             navigate(`/tag/${slugifiedTag}`);
         } else if (suggestion.type === 'star' || isStarMatch) {
             const slugifiedStar = slugifyText(suggestion.text);
-            console.log('⭐ Redirecting to star page:', `/pornstar/${slugifiedStar}`);
             navigate(`/pornstar/${slugifiedStar}`);
         } else {
             // Fallback: trigger search for non-tag/star suggestions
-            console.log('🔍 Fallback: triggering title search');
             onSearch(`title:${suggestion.text}`);
         }
     };
@@ -182,8 +196,6 @@ const Sidebar = ({ onSearch }) => {
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         setShowSuggestions(false);
-        
-        console.log('📤 Form submitted with query:', searchQuery);
         
         // Check if the search query matches any tag or star name
         const isTagMatch = allTags.some(tag => 
@@ -193,29 +205,35 @@ const Sidebar = ({ onSearch }) => {
             star.toLowerCase() === searchQuery.toLowerCase()
         );
         
-        console.log('🔍 Search analysis:', {
-            searchQuery,
-            isTagMatch,
-            isStarMatch,
-            totalTags: allTags.length,
-            totalStars: allStars.length
-        });
-        
         if (isTagMatch || isStarMatch) {
             // Search by tag/star name
-            console.log('✅ Exact match found - searching by tag/star:', searchQuery);
             onSearch(searchQuery);
         } else {
             // Fallback: search by title
-            console.log('⚠️ No exact match - falling back to title search:', `title:${searchQuery}`);
             onSearch(`title:${searchQuery}`);
         }
     };
 
 
 
+    const toggleLetter = (letter) => {
+        setExpandedLetters(prev => ({
+            ...prev,
+            [letter]: !prev[letter]
+        }));
+    };
+    
+    const handleTagClick = (tag) => {
+        const slugifiedTag = slugifyText(tag);
+        navigate(`/tag/${slugifiedTag}`);
+        if (isMobile) {
+            setIsOpen(false);
+        }
+    };
+
     const menuItems = [
         { name: "Home", icon: "🏠", path: "/" },
+        { name: "Tags", icon: "🏷️", path: "/tags" },
         { name: "Models", icon: "👩‍🦰", path: "/Pornstars" },
         { name: "Indians", icon: "👧🏼", path: "/indian" },
         { name: "Muslim", icon: "👩‍🦳🎀", path: "/muslim" },
@@ -432,6 +450,7 @@ const Sidebar = ({ onSearch }) => {
                             </Link>
                         </li>
                     ))}
+                    
                 </ul>
             </div>
         </div>

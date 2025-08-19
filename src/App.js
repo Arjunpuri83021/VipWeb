@@ -33,6 +33,7 @@ import Sex18 from './components/Category/Sex18';
 import Aunt from './components/Category/Aunt';
 import Fullporner from './components/Category/Fullporner';
 import TagPage from './components/TagPage';
+import TagsPage from './components/TagsPage';
 
 function App() {
     return (
@@ -48,6 +49,7 @@ function App() {
                 <Route path='/new-content' element={<NewContent />} />
                 <Route path='/most-liked' element={<MostLiked />} />
                 <Route path='/pornstars' element={<PornStars />} />
+                <Route path='/pornstars/:page' element={<PornStars />} />
                 <Route path='/our-network' element={<Network/>} />
                 
                 <Route path='/category/scout69' element={<Scout69 />} />
@@ -104,6 +106,9 @@ function App() {
                 <Route path='/category/small-tits' element={<SmallTits />} />
                 <Route path='/category/small-tits/:page' element={<SmallTits />} />
 
+                {/* Tags page route */}
+                <Route path='/tags' element={<TagsPage />} />
+                
                 {/* Tag based routes */}
                 <Route path='/tag/:tag' element={<TagPage />} />
                 <Route path='/tag/:tag/:page' element={<TagPage />} />

@@ -75,7 +75,7 @@ function PornStars() {
     // Function to fetch all unique pornstars with pagination (OPTIMIZED)
     const fetchAllStars = async () => {
         try {
-            console.log('🚀 Fetching stars for page:', currentPage, 'with letter filter:', selectedLetter);
+
             setLoading(true);
             setError(null);
             
@@ -112,7 +112,7 @@ function PornStars() {
             
             const { pornstars, pagination } = data;
             
-            console.log(`✅ Fetched ${pornstars.length} stars for page ${pagination.currentPage}/${pagination.totalPages}`);
+
             
             // Set the data
             setStars(pornstars);
@@ -146,7 +146,7 @@ function PornStars() {
                 
                 // If less than 10 minutes have passed, use saved images
                 if (timeDiff < tenMinutes && images && Object.keys(images).length > 0) {
-                    console.log('🖼️ Using saved star images from localStorage');
+
                     existingImages = images;
                     
                     // Check if we have images for all current stars
@@ -157,12 +157,12 @@ function PornStars() {
                         setStarImages(existingImages);
                         return;
                     } else {
-                        console.log(`🔄 Some images missing, fetching for: ${missingImages.length} stars`);
+
                         // Set existing images first to prevent blinking
                         setStarImages(existingImages);
                     }
                 } else {
-                    console.log('⏰ Cache expired or empty, fetching fresh images');
+
                 }
             }
             
@@ -170,7 +170,7 @@ function PornStars() {
             const starsNeedingImages = starsToFetch.filter(star => !existingImages[star.name]);
             
             if (starsNeedingImages.length === 0) {
-                console.log('✅ All images already cached');
+
                 return;
             }
             
@@ -225,7 +225,7 @@ function PornStars() {
             }));
             
             setStarImages(imgMap);
-            console.log(`✅ Fetched images for ${Object.keys(data.images).length}/${starsNeedingImages.length} stars, total cached: ${Object.keys(imgMap).length}`);
+
             
         } catch (error) {
             console.error('❌ Error fetching star images:', error);
@@ -244,7 +244,7 @@ function PornStars() {
                 
                 // If cache is still valid, preload images
                 if (timeDiff < tenMinutes && images && Object.keys(images).length > 0) {
-                    console.log('Preloading cached images to prevent blinking');
+
                     setStarImages(images);
                 }
             } catch (error) {
@@ -405,11 +405,11 @@ function PornStars() {
                                     alt={star.name}
                                     loading="lazy"
                                     onError={(e) => {
-                                        console.log(`Image failed to load for ${star.name}, using fallback`);
+
                                         e.target.src = 'female.png';
                                     }}
                                     onLoad={() => {
-                                        console.log(`Image loaded successfully for ${star.name}`);
+
                                     }}
                                 />
                                 <h2 style={{ 

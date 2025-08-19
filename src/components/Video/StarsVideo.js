@@ -1,22 +1,21 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import "./Video.css";
 import Sidebar from "../partials/Navbar";
 import Footer from "../partials/Footer";
+import PaginationComponent from '../partials/PaginationComponent';
 
 const apiUrl = process.env.REACT_APP_API_URL;
-
 function StarsVideo() {
     const { name } = useParams(); // Get pornstar name from the route
     const [results, setResults] = useState([]);
-    const [setRandomImage] = useState("");
+    const [randomImage, setRandomImage] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
+    const [totalRecords, setTotalRecords] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-        const [search, setSearch] = useState(""); // Search query
-    
-    const observer = useRef(null);
+    const [search, setSearch] = useState(""); // Search query
 
     useEffect(() => {
         setResults([]); // Reset results when changing pornstar name
@@ -30,21 +29,20 @@ function StarsVideo() {
                 const response = await fetch(`${apiUrl}/pornstar/${name}?page=${page}&limit=16`);
                 const data = await response.json();
 
-                setResults((prevResults) => {
-                    const newVideos = [...prevResults, ...data.records];
-                    return [...new Set(newVideos.map((v) => JSON.stringify(v)))].map((v) =>
-                        JSON.parse(v)
-                    ); // Prevent duplicate videos
-                });
+                // Replace results instead of appending for pagination
+                setResults(data.records || []);
+                setTotalPages(data.totalPages || 0);
+                setTotalRecords(data.totalRecords || 0);
 
-                setTotalPages(data.totalPages);
-
-                if (data.records.length > 0) {
+                if (data.records && data.records.length > 0) {
                     const randomItem = data.records[Math.floor(Math.random() * data.records.length)];
                     setRandomImage(randomItem.imageUrl);
                 }
             } catch (error) {
                 console.error("Error fetching stars videos:", error);
+                setResults([]);
+                setTotalPages(0);
+                setTotalRecords(0);
             } finally {
                 setIsLoading(false);
             }
@@ -85,27 +83,14 @@ function StarsVideo() {
     
     
 
-    const lastVideoRef = useRef();
-
-    useEffect(() => {
-        if (isLoading) return;
-        observer.current = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && page < totalPages) {
-                    setPage((prev) => prev + 1);
-                }
-            },
-            { threshold: 1.0 }
-        );
-
-        if (lastVideoRef.current) {
-            observer.current.observe(lastVideoRef.current);
+    // Handle page change for pagination
+    const handlePageChange = (event, newPage) => {
+        if (newPage >= 1 && newPage <= totalPages && !isLoading) {
+            setPage(newPage);
+            // Scroll to top when changing pages
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        return () => {
-            if (observer.current) observer.current.disconnect();
-        };
-    }, [isLoading, page, totalPages]);
+    };
 
     const slugifyTitle = (title) => {
         return title
@@ -161,8 +146,8 @@ function StarsVideo() {
                 <div className="row row-cols-1 row-cols-md-4 g-4 mt-0 m-auto">
                     {results.length > 0 ? (
                         results.map((video, index) => (
-                            <div className="col" key={video._id} ref={index === results.length - 1 ? lastVideoRef : null}>
-                                <Link  onClick={() => handleCardClick(video._id, video.views)} to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
+                            <div className="col" key={video._id}>
+                                <Link onClick={() => handleCardClick(video._id, video.views)} to={`/video/${video._id}`} style={{ textDecoration: "none" }}>
                                     <div className="card">
                                         <img
                                             loading="lazy"
@@ -195,7 +180,16 @@ function StarsVideo() {
                     )}
                 </div>
 
-                {isLoading && <div className="text-center">Loading...</div>}
+                {isLoading && <div className="text-center mt-4"><div className="spinner-border" role="status"><span className="visually-hidden">Loading...</span></div></div>}
+                
+                {/* Pagination Component */}
+                {totalPages > 1 && (
+                    <PaginationComponent
+                        count={totalPages}
+                        page={page}
+                        onPageChange={handlePageChange}
+                    />
+                )}
             </div>
 
             {/* Pornstar Bio Section */}

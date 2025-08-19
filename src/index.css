@@ -30,12 +30,35 @@ a{
     background-color: #a1a1a1;
 }
 
+/* Material-UI Grid padding override - More specific selector to override MUI's !important */
+.MuiGrid-root.MuiGrid-container,
+.MuiGrid-root.MuiGrid-item,
+.MuiGrid-root {
+    padding: 0px !important;
+}
+
+/* Alternative approach - Target specific Grid containers */
+.MuiGrid-container > .MuiGrid-item {
+    padding: 0px !important;
+}
+
+/* Force override for all Grid spacing */
+[class*="MuiGrid-"] {
+    padding: 0px !important;
+}
+.tag-image{
+   
+    border-radius: 0px !important;
+}
 @media(max-width:550px){
     .tag-image{
         height: 150px !important;
+        border-radius: 0px !important;
     }
     .tag-box{
         height: 150px !important;
     }
-    
+    .css-816sqb-MuiGrid-root{
+        padding: 0px !important;
+    }
 }

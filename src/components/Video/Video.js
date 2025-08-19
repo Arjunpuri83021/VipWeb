@@ -108,10 +108,7 @@ function Video() {
             ? searchQuery.join(' ') 
             : data.titel; // Fallback to title if no tags or names
             
-        // Debug: Log the search query to console
-        console.log('Related videos search query:', finalQuery);
-        console.log('Video data tags:', data.tags);
-        console.log('Video data names:', data.name);
+
             
         fetchPostData(finalQuery, 1);
     } catch (error) {

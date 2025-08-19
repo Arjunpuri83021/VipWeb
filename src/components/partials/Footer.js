@@ -81,28 +81,29 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
   };
 
   // Function to fetch random pornstars from optimized API (OPTIMIZED)
+  // लाइन 92 के आसपास
   const fetchAllPornstars = async () => {
-    try {
-      console.log('🚀 Footer: Fetching optimized pornstars...');
-      
-      // Check localStorage cache first
-      const savedPornstarsData = localStorage.getItem('vipmilfnut_footer_display_pornstars');
-      const now = Date.now();
-      
-      if (savedPornstarsData) {
-        const { pornstars, timestamp } = JSON.parse(savedPornstarsData);
-        const timeDiff = now - timestamp;
-        const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
-        
-        // If less than 10 minutes has passed and not tag-specific, use saved pornstars
-        if (timeDiff < tenMinutes && pornstars && pornstars.length > 0 && (!tagPornstars || tagPornstars.length === 0)) {
-          console.log('✅ Footer: Using cached pornstars');
-          setDisplayPornstars(pornstars);
-          setAllPornstars(pornstars); // For consistency
-          return pornstars;
-        }
-      }
-      
+  try {
+
+  
+  // Check localStorage cache first
+  const savedPornstarsData = localStorage.getItem('vipmilfnut_footer_display_pornstars');
+  const now = Date.now();
+  
+  if (savedPornstarsData) {
+  const { pornstars, timestamp } = JSON.parse(savedPornstarsData);
+  const timeDiff = now - timestamp;
+  const tenMinutes = 10 * 60 * 1000; // 10 minutes in milliseconds
+  
+  // If less than 10 minutes has passed and not tag-specific, use saved pornstars
+  if (timeDiff < tenMinutes && pornstars && pornstars.length > 0 && (!tagPornstars || tagPornstars.length === 0)) {
+
+  setDisplayPornstars(pornstars);
+  setAllPornstars(pornstars); // For consistency
+  return pornstars;
+  }
+  }
+  
       // Build query parameters
       const params = new URLSearchParams({
         count: 32
@@ -129,7 +130,7 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
       }
       
       const { pornstars, source } = data;
-      console.log(`✅ Footer: Fetched ${pornstars.length} pornstars from ${source}`);
+
       
       setDisplayPornstars(pornstars);
       setAllPornstars(pornstars); // For consistency with existing code
@@ -145,7 +146,7 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
       return pornstars;
       
     } catch (err) {
-      console.error('❌ Footer: Error fetching pornstars:', err);
+      console.error('❌ Footer: Error fetching pornstars:', err); // इसे रखें - यह एरर हैंडलिंग के लिए महत्वपूर्ण है
       
       // Fallback to default pornstars if API fails
       const fallbackPornstars = [
@@ -184,7 +185,7 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
   // Function to fetch random tags from optimized API (OPTIMIZED)
   const fetchAllTags = async () => {
     try {
-      console.log('🚀 Footer: Fetching optimized tags...');
+
       
       // Build query parameters
       const params = new URLSearchParams({
@@ -217,7 +218,7 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
       }
       
       const { tags, source } = data;
-      console.log(`✅ Footer: Fetched ${tags.length} tags from ${source}`);
+
       
       setTopTags(tags);
       setDisplayTags(tags);
@@ -312,21 +313,22 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
   }, [selectedTag, pageTags, tagPornstars]);
 
   // Handle tagPornstars changes (for tag-specific pages)
+  // लाइन 317 के आसपास
   useEffect(() => {
-    if (tagPornstars && tagPornstars.length > 0) {
-      console.log('Footer: Tag-specific pornstars received:', tagPornstars.length, 'stars');
-      // Generate tag-specific pornstar display immediately
-      const useTagSpecific = true;
-      const tagSpecificDisplay = getRandomPornstars([], 32, useTagSpecific);
-      setDisplayPornstars(tagSpecificDisplay);
-      setPornstarsLoading(false);
-      
-      // Set up 10-minute interval for tag-specific pornstar refresh
-      const tagInterval = setInterval(() => {
-        console.log('Footer: Refreshing tag-specific pornstars...');
-        const refreshedTagDisplay = getRandomPornstars([], 32, true);
-        setDisplayPornstars(refreshedTagDisplay);
-      }, 10 * 60 * 1000); // 10 minutes
+  if (tagPornstars && tagPornstars.length > 0) {
+
+  // Generate tag-specific pornstar display immediately
+  const useTagSpecific = true;
+  const tagSpecificDisplay = getRandomPornstars([], 32, useTagSpecific);
+  setDisplayPornstars(tagSpecificDisplay);
+  setPornstarsLoading(false);
+  
+  // Set up 10-minute interval for tag-specific pornstar refresh
+  const tagInterval = setInterval(() => {
+
+  const refreshedTagDisplay = getRandomPornstars([], 32, true);
+  setDisplayPornstars(refreshedTagDisplay);
+  }, 10 * 60 * 1000); // 10 minutes
       
       // Cleanup interval on component unmount or tagPornstars change
       return () => {
@@ -403,31 +405,10 @@ const Footer = ({ selectedTag = null, pageTags = null, tagPornstars = null }) =>
       </div>
 
       <footer className="footer">
-      <p style={{textAlign:"center", fontSize:"15px", color:"#908989", width:"90%", margin:"auto"}}>
- If you're someone who enjoys real, unfiltered adult content, you'll feel right at home here. We've got a solid mix of desi and international videos from trusted names like <strong>Badwap</strong>, <strong>WowUncut</strong>, and <strong>SpanBank</strong>. Whether you're into amateur clips, spicy Indian aunty scenes, or full-on professional shoots, there's something for every mood. And if you're a fan of mature action, don't miss out on what <strong>MilfNut</strong> and <strong>MilfNuts</strong> bring to the table — real women, real passion, no scripts. Fresh videos drop regularly, so there's always something new to check out.
-</p>
-
-        <div className="footer-content mt-4">
-          <nav>
-            <h6 className="footer-heading">New Videos</h6>
-            <Link to="/category/indian" className="footer-link">Indian Desi</Link>
-            <Link to="/category/boobs-pressing" className="footer-link">Big Boobs</Link>
-            <Link to="/category/blueflim" className="footer-link">BlowJob</Link>
-            <Link to="/category/badwap" className="footer-link">Bad Porn</Link>
-          </nav>
-          <nav>
-            <h6 className="footer-heading">Top Porn videos</h6>
-            <Link to="/category/milfnut" className="footer-link">Milf</Link>
-            <Link to="/category/aunt-sex" className="footer-link">Aunt Sex</Link>
-            <Link to="/category/small-tits" className="footer-link">Small Tits Girl</Link>
-            <Link to="/category/boobs-pressing" className="footer-link">Big Boobs Girl</Link>
-          </nav>
-          <nav>
-            <h6 className="footer-heading">Family Porn Videos</h6>
-            <Link to="/category/famili-sex-com" className="footer-link">Family Swap</Link>
-            <Link to="/category/sex-sister" className="footer-link">Sister & Brother Porn</Link>
-            <Link to="/category/aunt-sex" className="footer-link">Sex With Step Mom</Link>
-          </nav>
+        <div className="footer-content">
+          <p style={{textAlign:"center", fontSize:"14px", color:"#666", margin:"20px auto"}}>
+            © 2024 VipMilfNut. All rights reserved.
+          </p>
         </div>
       </footer>
 

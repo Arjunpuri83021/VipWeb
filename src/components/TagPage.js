@@ -18,9 +18,7 @@ function TagPage() {
   // Convert slug back to readable tag (e.g., "cum-in-pussy" => "cum in pussy")
   const urlTag = (tag || "").toLowerCase();
 
-  console.log('TagPage: Current tag from URL:', tag);
-  console.log('TagPage: urlTag (normalized):', urlTag);
-  console.log('TagPage: Passing to Footer:', urlTag);
+
 
   const [postData, setPostData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,6 +28,7 @@ function TagPage() {
   const [allFilteredRecords, setAllFilteredRecords] = useState([]);
   const [uniqueTagsFromPage, setUniqueTagsFromPage] = useState([]); // Store unique tags from current page
   const [tagSpecificPornstars, setTagSpecificPornstars] = useState([]); // Store unique pornstars from this tag
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   const navigate = useNavigate();
 
@@ -45,156 +44,80 @@ function TagPage() {
     setCurrentPage(urlPage);
   }, [urlPage]);
 
-  // Update page metadata and structured data
+  // Handle window resize for responsive image height
   useEffect(() => {
-    // SEO optimized title (around 56 characters)
-    const displayTag = urlTag.replace(/-/g, ' '); // Convert dashes to spaces
-    const capitalizedTag = displayTag.charAt(0).toUpperCase() + displayTag.slice(1);
-    document.title = `Full ${capitalizedTag} Porn Videos & xxbrits Porn videos VipMilfNut`;
-
-    // SEO optimized description (around 119 characters)
-    const metaDescContent = `${capitalizedTag} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`;
-
-    // Update meta description
-    const metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute("content", metaDescContent);
-    } else {
-      const newMeta = document.createElement("meta");
-      newMeta.name = "description";
-      newMeta.content = metaDescContent;
-      document.head.appendChild(newMeta);
-    }
-
-    // Update canonical URL
-    const canonicalUrl = `https://vipmilfnut.com/tag/${tag}`;
-    const canonicalLink = document.querySelector("link[rel='canonical']");
-    if (canonicalLink) {
-      canonicalLink.setAttribute("href", canonicalUrl);
-    } else {
-      const newCanonical = document.createElement("link");
-      newCanonical.rel = "canonical";
-      newCanonical.href = canonicalUrl;
-      document.head.appendChild(newCanonical);
-    }
-
-    // Add Open Graph tags
-    const ogTags = [
-      { property: 'og:title', content: `⬤ Full ${capitalizedTag} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut` },
-      { property: 'og:description', content: metaDescContent },
-      { property: 'og:url', content: canonicalUrl },
-      { property: 'og:type', content: 'website' },
-      { property: 'og:site_name', content: 'VipMilfNut' },
-      { property: 'og:locale', content: 'en_US' }
-    ];
-
-    ogTags.forEach(tag => {
-      let metaTag = document.querySelector(`meta[property="${tag.property}"]`);
-      if (metaTag) {
-        metaTag.setAttribute("content", tag.content);
-      } else {
-        const newMeta = document.createElement("meta");
-        newMeta.setAttribute("property", tag.property);
-        newMeta.setAttribute("content", tag.content);
-        document.head.appendChild(newMeta);
-      }
-    });
-
-    // Add Twitter Card tags
-    const twitterTags = [
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: `⬤ Full ${capitalizedTag} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut` },
-      { name: 'twitter:description', content: metaDescContent },
-      { name: 'twitter:site', content: '@vipmilfnut' }
-    ];
-
-    twitterTags.forEach(tag => {
-      let metaTag = document.querySelector(`meta[name="${tag.name}"]`);
-      if (metaTag) {
-        metaTag.setAttribute("content", tag.content);
-      } else {
-        const newMeta = document.createElement("meta");
-        newMeta.setAttribute("name", tag.name);
-        newMeta.setAttribute("content", tag.content);
-        document.head.appendChild(newMeta);
-      }
-    });
-
-    // Add additional SEO meta tags
-    const additionalTags = [
-      { name: 'keywords', content: `${capitalizedTag}, ${capitalizedTag} porn, ${capitalizedTag} videos, adult content, free porn, sex videos, xxx movies` },
-      { name: 'author', content: 'VipMilfNut' },
-      { name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' },
-      { name: 'language', content: 'English' },
-      { name: 'revisit-after', content: '1 days' },
-      { name: 'distribution', content: 'global' },
-      { name: 'rating', content: 'adult' },
-      { name: 'classification', content: 'adult content' }
-    ];
-
-    additionalTags.forEach(tag => {
-      let metaTag = document.querySelector(`meta[name="${tag.name}"]`);
-      if (metaTag) {
-        metaTag.setAttribute("content", tag.content);
-      } else {
-        const newMeta = document.createElement("meta");
-        newMeta.setAttribute("name", tag.name);
-        newMeta.setAttribute("content", tag.content);
-        document.head.appendChild(newMeta);
-      }
-    });
-
-    // Add structured data (JSON-LD)
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": `${capitalizedTag} Porn Videos`,
-      "description": metaDescContent,
-      "url": canonicalUrl,
-      "mainEntity": {
-        "@type": "ItemList",
-        "itemListElement": postData.map((post, index) => ({
-          "@type": "VideoObject",
-          "position": index + 1,
-          "name": post.titel,
-          "description": post.altKeywords || post.titel,
-          "thumbnailUrl": post.imageUrl,
-          "url": `https://vipmilfnut.com/video/${post._id}`,
-          "duration": `PT${post.minutes}M`,
-          "uploadDate": post.createdAt || new Date().toISOString(),
-          "interactionStatistic": {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/WatchAction",
-            "userInteractionCount": post.views || 0
-          }
-        }))
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "VipMilfNut",
-        "url": "https://vipmilfnut.com"
-      }
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
     };
 
-    // Remove existing structured data script
-    const existingScript = document.querySelector('script[type="application/ld+json"]');
-    if (existingScript) {
-      existingScript.remove();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Manually set meta tags as fallback for React Helmet issues
+  useEffect(() => {
+    const capitalizedTag = urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1);
+    const dynamicDescription = `${capitalizedTag} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`;
+    const dynamicKeywords = `${capitalizedTag}, ${capitalizedTag} porn, ${capitalizedTag} videos, adult content, free porn, sex videos, xxx movies`;
+    const canonicalUrl = currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`;
+
+    // Set description
+    let metaDesc = document.querySelector("meta[name='description']");
+    if (metaDesc) {
+      metaDesc.setAttribute("content", dynamicDescription);
+    } else {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      metaDesc.content = dynamicDescription;
+      metaDesc.setAttribute("data-dynamic", "true");
+      document.head.appendChild(metaDesc);
     }
 
-    // Add new structured data script
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify(structuredData);
-    document.head.appendChild(script);
+    // Set keywords
+    let metaKeywords = document.querySelector("meta[name='keywords']");
+    if (metaKeywords) {
+      metaKeywords.setAttribute("content", dynamicKeywords);
+    } else {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.name = "keywords";
+      metaKeywords.content = dynamicKeywords;
+      metaKeywords.setAttribute("data-dynamic", "true");
+      document.head.appendChild(metaKeywords);
+    }
 
-  }, [urlTag, currentPage, tag, postData]);
+    // Set canonical URL
+    let canonical = document.querySelector("link[rel='canonical']");
+    if (canonical) {
+      canonical.setAttribute("href", canonicalUrl);
+    } else {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      canonical.href = canonicalUrl;
+      canonical.setAttribute("data-dynamic", "true");
+      document.head.appendChild(canonical);
+    }
+
+    // Cleanup function
+    return () => {
+      const dynamicTags = document.querySelectorAll('[data-dynamic="true"]');
+      dynamicTags.forEach(tag => tag.remove());
+    };
+  }, [urlTag, currentPage, tag]);
+
+  // Clean up any existing dynamic meta tags on unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup function to remove any dynamically added tags
+      const dynamicTags = document.querySelectorAll('meta[data-dynamic="true"]');
+      dynamicTags.forEach(tag => tag.remove());
+    };
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
-      console.log(`🚀 TagPage: Fetching optimized data for tag "${urlTag}", page ${currentPage}`);
+
       
       // Use optimized API endpoint for posts by tag
       const response = await fetch(
@@ -212,7 +135,7 @@ function TagPage() {
         throw new Error(data.message || 'Failed to fetch tag posts');
       }
       
-      console.log(`✅ TagPage: Found ${data.records.length} posts for tag "${urlTag}" (${data.totalRecords} total, page ${data.currentPage}/${data.totalPages})`);
+
       
       // Set the fetched data
       setPostData(data.records || []);
@@ -232,7 +155,7 @@ function TagPage() {
   // Separate function to fetch tag metadata (unique tags and pornstars)
   const fetchTagMetadata = async () => {
     try {
-      console.log(`📊 TagPage: Fetching metadata for tag "${urlTag}"`);
+
       
       const response = await fetch(
         `${apiUrl}/tags/${encodeURIComponent(urlTag)}/metadata`,
@@ -249,7 +172,7 @@ function TagPage() {
       if (data.success) {
         setUniqueTagsFromPage(data.uniqueTags || []);
         setTagSpecificPornstars(data.uniquePornstars || []);
-        console.log(`✅ TagPage: Found ${data.uniqueTags?.length || 0} unique tags and ${data.uniquePornstars?.length || 0} unique pornstars`);
+
       }
       
     } catch (err) {
@@ -270,6 +193,37 @@ function TagPage() {
 
   const slugifyTitle = (title) =>
     title.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+
+  const formatDuration = (minutes, videoId) => {
+    if (!minutes || minutes === 0) return "00:00";
+    
+    const totalMinutes = parseInt(minutes);
+    
+    // Generate consistent random seconds based on videoId
+    const generateRandomSeconds = (id) => {
+      if (!id) return 0;
+      // Use video ID to generate consistent random seconds (0-59)
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        const char = id.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+      }
+      return Math.abs(hash) % 60;
+    };
+    
+    const seconds = generateRandomSeconds(videoId);
+    
+    if (totalMinutes < 60) {
+      // For videos under 60 minutes, show as MM:SS format
+      return `${totalMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+      // For videos 60+ minutes, show as HH:MM:SS format
+      const hours = Math.floor(totalMinutes / 60);
+      const remainingMinutes = totalMinutes % 60;
+      return `${hours.toString().padStart(2, '0')}:${remainingMinutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+  };
 
   const handleCardClick = async (id, currentViews) => {
     try {
@@ -293,10 +247,10 @@ function TagPage() {
   return (
     <>
       <Helmet>
-        <title>{`⬤ Full ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`}</title>
+        <title>{`Tranding ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Sex Videos Free on VipMilfNut.com`}</title>
         <link
           rel="canonical"
-          href={`https://vipmilfnut.com/tag/${tag}`}
+          href={currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`}
         />
         <meta
           name="description"
@@ -314,10 +268,18 @@ function TagPage() {
         <meta name="rating" content="adult" />
         <meta name="classification" content="adult content" />
         
+        {/* Pagination Navigation Links */}
+        {currentPage > 1 && (
+          <link rel="prev" href={currentPage === 2 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage - 1}`} />
+        )}
+        {currentPage < totalPages && (
+          <link rel="next" href={`https://vipmilfnut.com/tag/${tag}/${currentPage + 1}`} />
+        )}
+        
         {/* Open Graph Tags */}
         <meta property="og:title" content={`⬤ Full ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`} />
         <meta property="og:description" content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`} />
-        <meta property="og:url" content={`https://vipmilfnut.com/tag/${tag}`} />
+        <meta property="og:url" content={currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="VipMilfNut" />
         <meta property="og:locale" content="en_US" />
@@ -335,7 +297,7 @@ function TagPage() {
             "@type": "CollectionPage",
             "name": `${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos`,
             "description": `${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`,
-            "url": `https://vipmilfnut.com/tag/${tag}`,
+            "url": currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`,
             "mainEntity": {
               "@type": "ItemList",
               "itemListElement": postData.map((post, index) => ({
@@ -358,12 +320,24 @@ function TagPage() {
               "@type": "Organization",
               "name": "VipMilfNut",
               "url": "https://vipmilfnut.com"
+            },
+            "pagination": {
+              "@type": "PaginationInfo",
+              "currentPage": currentPage,
+              "totalPages": totalPages,
+              "itemsPerPage": itemsPerPage,
+              ...(currentPage > 1 && {
+                "previousPage": currentPage === 2 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage - 1}`
+              }),
+              ...(currentPage < totalPages && {
+                "nextPage": `https://vipmilfnut.com/tag/${tag}/${currentPage + 1}`
+              })
             }
           })}
         </script>
       </Helmet>
       <Sidebar onSearch={() => {}} />
-      <div style={{ width: "95%", margin: "auto" }}>
+      <div style={{ width: "100%", margin: "auto" }}>
         <h1
           style={{ fontSize: "18px", textAlign: "center", marginTop: "10px", textTransform:"capitalize"}}
         >
@@ -373,7 +347,7 @@ function TagPage() {
         {loading && <p>Loading...</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <div className="row row-cols-1 row-cols-md-3 g-2">
+        <div className="row row-cols-2 row-cols-md-3 g-1">
           {postData.map((post) => (
             <div className="col" key={post._id}>
               <Link
@@ -381,31 +355,33 @@ function TagPage() {
                 style={{ textDecoration: "none" }}
                 to={`/video/${post._id}`}
               >
-                <div className="card">
+                <div className="card" style={{ position: "relative", border: "none" }}>
                   <img
                     loading="lazy"
-                    style={{ height: "250px" }}
+                    style={{ 
+                      height: windowWidth <= 460 ? "150px" : "250px", 
+                      width: "100%", 
+                      objectFit: "cover"
+                    }}
                     src={post.imageUrl}
                     className="card-img-top card-img"
                     alt={post.altKeywords?.trim() || post.titel}
                   />
-                  <div className="card-body p-2">
-                    <h2
-                      className="card-title"
-                      style={{ fontSize: "13px", margin: 0, padding: 0 }}
-                    >
-                      {post.titel.length > 30
-                        ? `${post.titel.substring(0, 30)}...`
-                        : post.titel}
-                    </h2>
-                    <div style={{ display: "flex", gap: "10px", marginTop: "5px" }}>
-                      <p>
-                        <i className="bi bi-eye-fill"></i> {post.views || 2}
-                      </p>
-                      <p>
-                        <i className="bi bi-clock-fill"></i> {post.minutes}
-                      </p>
-                    </div>
+                  {/* Duration overlay - bottom right corner */}
+                  <div style={{
+                    position: "absolute",
+                    bottom: "0px",
+                    right: "0px",
+                    backgroundColor: "rgba(0, 0, 0, 0.75)",
+                    color: "white",
+                    padding: "4px 8px",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px"
+                  }}>
+{formatDuration(post.minutes, post._id)}
                   </div>
                 </div>
               </Link>
@@ -419,36 +395,91 @@ function TagPage() {
           onPageChange={handlePageChange}
         />
 
-        {/* SEO-friendly content section */}
-        <div style={{ margin: "20px 0", padding: "15px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-          <h2 style={{ fontSize: "16px", marginBottom: "10px", color: "#333" }}>
-            {urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos Collection
+        {/* Enhanced SEO Content Section */}
+        <div style={{ margin: "20px 0", padding: "20px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
+          <h2 style={{ fontSize: "18px", marginBottom: "15px", color: "#333", fontWeight: "600" }}>
+            Premium {urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos - Page {currentPage}
           </h2>
-          <p style={{ fontSize: "14px", lineHeight: "1.6", color: "#666", margin: 0 }}>
-            Discover the hottest {urlTag.replace(/-/g, ' ')} porn videos on VipMilfNut. Our collection features high-quality adult content with the best {urlTag.replace(/-/g, ' ')} scenes. 
-            Browse through our extensive library of free {urlTag.replace(/-/g, ' ')} videos and enjoy unlimited streaming.
+          <p style={{ fontSize: "15px", lineHeight: "1.7", color: "#555", marginBottom: "15px" }}>
+            Welcome to our exclusive collection of {urlTag.replace(/-/g, ' ')} adult videos on page {currentPage}. 
+            VipMilfNut offers premium quality {urlTag.replace(/-/g, ' ')} content featuring top performers and high-definition streaming. 
+            Our curated selection ensures you get the best {urlTag.replace(/-/g, ' ')} entertainment experience with fast loading and crystal clear video quality.
           </p>
+          
+          {currentPage > 1 && (
+            <div style={{ marginBottom: "15px", padding: "10px", backgroundColor: "#e9ecef", borderRadius: "5px" }}>
+              <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+                <strong>Page {currentPage} Content:</strong> This page contains videos {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, postData.length + ((currentPage - 1) * itemsPerPage))} 
+                from our {urlTag.replace(/-/g, ' ')} collection. Each page is carefully organized to provide diverse content and optimal browsing experience.
+              </p>
+            </div>
+          )}
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "15px", marginTop: "15px" }}>
+            <div>
+              <h3 style={{ fontSize: "16px", marginBottom: "8px", color: "#444" }}>Video Quality</h3>
+              <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+                All {urlTag.replace(/-/g, ' ')} videos are available in HD quality with optimized streaming for all devices.
+              </p>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "16px", marginBottom: "8px", color: "#444" }}>Content Variety</h3>
+              <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+                Our {urlTag.replace(/-/g, ' ')} category features diverse scenarios and top-rated performers from around the world.
+              </p>
+            </div>
+            <div>
+              <h3 style={{ fontSize: "16px", marginBottom: "8px", color: "#444" }}>Free Access</h3>
+              <p style={{ fontSize: "14px", color: "#666", margin: 0 }}>
+                Enjoy unlimited access to all {urlTag.replace(/-/g, ' ')} videos without registration or hidden fees.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* FAQ Section for SEO */}
-        <div style={{ margin: "20px 0", padding: "15px", backgroundColor: "#f8f9fa", borderRadius: "8px" }}>
-          <h3 style={{ fontSize: "16px", marginBottom: "15px", color: "#333" }}>Frequently Asked Questions</h3>
-          <div style={{ marginBottom: "10px" }}>
-            <h4 style={{ fontSize: "14px", marginBottom: "5px", color: "#555" }}>What are {urlTag.replace(/-/g, ' ')} porn videos?</h4>
-            <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>
-              {urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos feature adult content focused on {urlTag.replace(/-/g, ' ')} scenes and scenarios.
+        {/* Enhanced FAQ Section */}
+        <div style={{ margin: "20px 0", padding: "20px", backgroundColor: "#fff", border: "1px solid #e9ecef", borderRadius: "8px" }}>
+          <h3 style={{ fontSize: "18px", marginBottom: "20px", color: "#333", fontWeight: "600" }}>
+            {urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Videos - Frequently Asked Questions
+          </h3>
+          
+          <div style={{ marginBottom: "20px" }}>
+            <h4 style={{ fontSize: "16px", marginBottom: "8px", color: "#444", fontWeight: "500" }}>
+              What makes our {urlTag.replace(/-/g, ' ')} collection special?
+            </h4>
+            <p style={{ fontSize: "14px", color: "#666", lineHeight: "1.6", margin: 0 }}>
+              Our {urlTag.replace(/-/g, ' ')} video collection stands out due to its high-quality content, diverse performers, and regular updates. 
+              We carefully curate each video to ensure premium entertainment value and optimal viewing experience across all devices.
             </p>
           </div>
-          <div style={{ marginBottom: "10px" }}>
-            <h4 style={{ fontSize: "14px", marginBottom: "5px", color: "#555" }}>Are these videos free to watch?</h4>
-            <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>
-              Yes, all {urlTag.replace(/-/g, ' ')} videos on VipMilfNut are completely free to watch without any registration required.
+
+          <div style={{ marginBottom: "20px" }}>
+            <h4 style={{ fontSize: "16px", marginBottom: "8px", color: "#444", fontWeight: "500" }}>
+              How often do you add new {urlTag.replace(/-/g, ' ')} videos?
+            </h4>
+            <p style={{ fontSize: "14px", color: "#666", lineHeight: "1.6", margin: 0 }}>
+              We update our {urlTag.replace(/-/g, ' ')} category daily with fresh content from top studios and independent creators. 
+              This ensures our users always have access to the latest and most popular {urlTag.replace(/-/g, ' ')} videos in the industry.
             </p>
           </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <h4 style={{ fontSize: "16px", marginBottom: "8px", color: "#444", fontWeight: "500" }}>
+              Can I watch {urlTag.replace(/-/g, ' ')} videos on mobile devices?
+            </h4>
+            <p style={{ fontSize: "14px", color: "#666", lineHeight: "1.6", margin: 0 }}>
+              Yes, all our {urlTag.replace(/-/g, ' ')} videos are fully optimized for mobile viewing. 
+              Our responsive design ensures smooth playback on smartphones, tablets, and desktop computers with adaptive quality streaming.
+            </p>
+          </div>
+
           <div>
-            <h4 style={{ fontSize: "14px", marginBottom: "5px", color: "#555" }}>How often is new content added?</h4>
-            <p style={{ fontSize: "13px", color: "#666", margin: 0 }}>
-              We regularly update our {urlTag.replace(/-/g, ' ')} video collection with fresh content to provide the best adult entertainment experience.
+            <h4 style={{ fontSize: "16px", marginBottom: "8px", color: "#444", fontWeight: "500" }}>
+              Are there different categories within {urlTag.replace(/-/g, ' ')} videos?
+            </h4>
+            <p style={{ fontSize: "14px", color: "#666", lineHeight: "1.6", margin: 0 }}>
+              Our {urlTag.replace(/-/g, ' ')} section includes various subcategories and related tags to help you find exactly what you're looking for. 
+              Use our advanced filtering system to discover content that matches your specific preferences within the {urlTag.replace(/-/g, ' ')} category.
             </p>
           </div>
         </div>

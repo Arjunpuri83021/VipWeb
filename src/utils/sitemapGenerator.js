@@ -21,16 +21,12 @@ function escapeXml(unsafe) {
 // Function to sync sitemap from backend to frontend
 export const syncSitemapFromBackend = async () => {
   try {
-    console.log('🔄 Syncing sitemap from backend...');
-    
     // Call backend sitemap generation
     const response = await fetch(`${apiUrl}/generate-sitemap`, { mode: "cors" });
     if (!response.ok) throw new Error("Failed to generate sitemap from backend");
     const data = await response.json();
     
     if (data.success) {
-      console.log('✅ Backend sitemap generated successfully');
-      
       // Now copy the backend sitemap to frontend public folder
       const fs = require('fs');
       const path = require('path');
@@ -41,33 +37,25 @@ export const syncSitemapFromBackend = async () => {
       if (fs.existsSync(backendSitemapPath)) {
         const sitemapContent = fs.readFileSync(backendSitemapPath, 'utf8');
         fs.writeFileSync(frontendSitemapPath, sitemapContent, 'utf8');
-        console.log(`✅ Sitemap synced to frontend: ${frontendSitemapPath}`);
         return true;
       } else {
-        console.error('❌ Backend sitemap file not found');
         return false;
       }
     } else {
-      console.error('❌ Backend sitemap generation failed');
       return false;
     }
   } catch (error) {
-    console.error('❌ Error syncing sitemap:', error);
     return false;
   }
 };
 
 export const generateSitemap = async () => {
   try {
-    console.log('🚀 Starting sitemap generation...');
-    
     // Fetch all posts to get video URLs, tags, and pornstars
     const response = await fetch(`${apiUrl}/getpostdata?page=1&limit=10000`, { mode: "cors" });
     if (!response.ok) throw new Error("Failed to fetch data");
     const data = await response.json();
     const allRecords = data.records || [];
-    
-    console.log(`📊 Total records fetched: ${allRecords.length}`);
 
     // Extract unique tags
     const tagSet = new Set();
@@ -81,7 +69,6 @@ export const generateSitemap = async () => {
       }
     });
     const tags = Array.from(tagSet);
-    console.log(`🏷️ Unique tags found: ${tags.length}`);
 
     // Extract unique pornstar names
     const pornstarSet = new Set();
@@ -95,7 +82,6 @@ export const generateSitemap = async () => {
       }
     });
     const pornstars = Array.from(pornstarSet);
-    console.log(`⭐ Unique pornstars found: ${pornstars.length}`);
 
     // Static pages
     const staticUrls = [
@@ -138,8 +124,6 @@ export const generateSitemap = async () => {
     const sitemapPath = path.join(__dirname, '../../public/sitemap.xml');
     
     fs.writeFileSync(sitemapPath, sitemap, 'utf8');
-    console.log(`✅ Sitemap saved to: ${sitemapPath}`);
-    console.log(`📊 Total URLs: ${urls.length + allRecords.slice(0, 5000).length}`);
 
     return {
       success: true,
@@ -153,7 +137,6 @@ export const generateSitemap = async () => {
     };
 
   } catch (error) {
-    console.error("❌ Error generating sitemap:", error);
     return {
       success: false,
       error: error.message
@@ -162,7 +145,6 @@ export const generateSitemap = async () => {
 };
 
 export const downloadSitemap = async () => {
-  console.log('📥 Starting sitemap download...');
   const sitemap = await generateSitemap();
   if (sitemap) {
     const blob = new Blob([sitemap], { type: 'application/xml' });
@@ -174,8 +156,5 @@ export const downloadSitemap = async () => {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-    console.log('✅ Sitemap downloaded successfully!');
-  } else {
-    console.error('❌ Failed to generate sitemap for download');
   }
 }; 

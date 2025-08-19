@@ -74,8 +74,6 @@ function Home() {
     // Function to fetch random tags from optimized API
     const fetchRandomTags = async () => {
         try {
-            console.log('🚀 Fetching random tags from optimized API...');
-            
             // Check if we have saved tags and timestamp in localStorage
             const savedTagsData = localStorage.getItem('vipmilfnut_display_tags');
             const now = Date.now();
@@ -87,7 +85,6 @@ function Home() {
                 
                 // If less than 10 minutes have passed, use saved tags and images
                 if (timeDiff < tenMinutes && tags && tags.length > 0) {
-                    console.log('✅ Using saved tags and images from localStorage');
                     setDisplayTags(tags);
                     if (images) {
                         setTagImages(images);
@@ -110,7 +107,7 @@ function Home() {
             }
             
             const randomTags = data.tags;
-            console.log(`✅ Fetched ${randomTags.length} random tags from server`);
+
             
             // Save to localStorage
             localStorage.setItem('vipmilfnut_display_tags', JSON.stringify({
@@ -131,7 +128,7 @@ function Home() {
     // Function to refresh tags with new random selection
     const refreshTags = async () => {
         try {
-            console.log('🔄 Refreshing tags with new random selection...');
+
             
             // Fetch new random tags from API
             const response = await fetch(`${apiUrl}/tags/random?count=64`, { mode: "cors" });
@@ -160,7 +157,7 @@ function Home() {
             }));
             
             setDisplayTags(newRandomTags);
-            console.log('✅ Tags refreshed with new random selection');
+
         } catch (err) {
             console.error('❌ Error refreshing tags:', err);
         }
@@ -176,7 +173,7 @@ function Home() {
                 if (savedTagsData) {
                     const { images } = JSON.parse(savedTagsData);
                     if (images && Object.keys(images).length > 0) {
-                        console.log('Images already cached, skipping fetch');
+
                         return;
                     }
                 }
@@ -207,7 +204,7 @@ function Home() {
         if (targetTags.length === 0) return;
         
         try {
-            console.log(`🖼️ Fetching images for ${targetTags.length} tags using optimized API...`);
+
             
             // Use optimized tag images API
             const response = await fetch(`${apiUrl}/tags/images`, {
@@ -234,7 +231,7 @@ function Home() {
             const successCount = Object.values(imgMap).filter(img => img !== null).length;
             
             setTagImages(imgMap);
-            console.log(`✅ Fetched images for ${successCount}/${targetTags.length} tags using optimized API`);
+
             
             // Return the image map for use in refreshTags
             return imgMap;
@@ -303,18 +300,16 @@ function Home() {
                 // Remove 'title:' prefix and search by title
                 searchParam = searchQuery.replace('title:', '');
                 apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}&search=${searchParam}`;
-                console.log('🔍 Searching by title (fallback):', searchParam);
-                console.log('📡 API Endpoint:', apiEndpoint);
+
             } else if (searchQuery) {
                 // Regular tag/star name search
                 searchParam = searchQuery;
                 apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}&search=${searchParam}`;
-                console.log('🏷️ Searching by tag/star:', searchParam);
-                console.log('📡 API Endpoint:', apiEndpoint);
+
             } else {
                 // No search query
                 apiEndpoint = `${apiUrl}/getpostdata?page=${page}&limit=${itemsPerPage}&category=${category}`;
-                console.log('📋 Loading all posts (no search)');
+
             }
             
             const response = await fetch(apiEndpoint, { mode: "cors" });
@@ -323,26 +318,10 @@ function Home() {
             }
             const data = await response.json();
             
-            // Detailed debugging
-            console.log('📊 API Response:', {
-                totalRecords: data.totalRecords,
-                totalPages: data.totalPages,
-                currentPage: data.currentPage,
-                recordsCount: data.records?.length || 0
-            });
-            
             if (searchQuery && data.records?.length > 0) {
-                console.log('✅ Sample search results:', data.records.slice(0, 2).map(record => ({
-                    title: record.titel,
-                    tags: record.tags,
-                    stars: record.name
-                })));
+
             } else if (searchQuery) {
-                console.log('❌ No results found for search:', searchParam);
-                console.log('💡 This might mean:');
-                console.log('   - The backend search doesn\'t search in tags/name fields');
-                console.log('   - The search term doesn\'t match any content');
-                console.log('   - There\'s a case sensitivity issue');
+
             }
             
             setPostData(data.records);
@@ -350,7 +329,7 @@ function Home() {
             
             // Log search results for debugging
             if (searchQuery) {
-                console.log(`🎯 Final results for "${searchParam}": ${data.records?.length || 0} videos found`);
+
             }
         } catch (error) {
             setError(error.message);
