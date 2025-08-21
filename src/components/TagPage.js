@@ -54,64 +54,97 @@ function TagPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Manually set meta tags as fallback for React Helmet issues
+  // Client-side meta tags update for proper SEO
   useEffect(() => {
     const capitalizedTag = urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1);
-    const dynamicDescription = `${capitalizedTag} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`;
-    const dynamicKeywords = `${capitalizedTag}, ${capitalizedTag} porn, ${capitalizedTag} videos, adult content, free porn, sex videos, xxx movies`;
-    const canonicalUrl = currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`;
-
-    // Set description
-    let metaDesc = document.querySelector("meta[name='description']");
-    if (metaDesc) {
-      metaDesc.setAttribute("content", dynamicDescription);
-    } else {
-      metaDesc = document.createElement("meta");
-      metaDesc.name = "description";
-      metaDesc.content = dynamicDescription;
-      metaDesc.setAttribute("data-dynamic", "true");
-      document.head.appendChild(metaDesc);
-    }
-
-    // Set keywords
-    let metaKeywords = document.querySelector("meta[name='keywords']");
-    if (metaKeywords) {
-      metaKeywords.setAttribute("content", dynamicKeywords);
-    } else {
-      metaKeywords = document.createElement("meta");
-      metaKeywords.name = "keywords";
-      metaKeywords.content = dynamicKeywords;
-      metaKeywords.setAttribute("data-dynamic", "true");
-      document.head.appendChild(metaKeywords);
-    }
-
-    // Set canonical URL
-    let canonical = document.querySelector("link[rel='canonical']");
-    if (canonical) {
-      canonical.setAttribute("href", canonicalUrl);
-    } else {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      canonical.href = canonicalUrl;
-      canonical.setAttribute("data-dynamic", "true");
-      document.head.appendChild(canonical);
-    }
-
-    // Cleanup function
-    return () => {
-      const dynamicTags = document.querySelectorAll('[data-dynamic="true"]');
-      dynamicTags.forEach(tag => tag.remove());
+    
+    // Update title
+    const title = currentPage === 1 
+      ? `Trending ${capitalizedTag} Sex Videos Free on VipMilfNut.com`
+      : `Trending ${capitalizedTag} Sex Videos - Page ${currentPage} | VipMilfNut.com`;
+    document.title = title;
+    
+    // Update or create meta description
+    const description = currentPage === 1
+      ? `Watch free ${capitalizedTag} porn videos in HD quality. Premium ${capitalizedTag} sex videos with top performers. Stream unlimited ${capitalizedTag} content on VipMilfNut.com`
+      : `Page ${currentPage} of ${capitalizedTag} porn videos. Watch free HD ${capitalizedTag} sex videos with premium quality streaming on VipMilfNut.com`;
+    
+    // Update or create meta keywords
+    const keywords = `${capitalizedTag}, ${capitalizedTag} porn, ${capitalizedTag} sex videos, free ${capitalizedTag} videos, HD ${capitalizedTag}, VipMilfNut`;
+    
+    // Update or create canonical URL
+    const canonicalUrl = currentPage === 1 
+      ? `https://vipmilfnut.com/tag/${urlTag}`
+      : `https://vipmilfnut.com/tag/${urlTag}/${currentPage}`;
+    
+    // Function to update or create meta tag
+    const updateMetaTag = (name, content, attribute = 'name') => {
+      let metaTag = document.querySelector(`meta[${attribute}="${name}"]`);
+      if (metaTag) {
+        metaTag.setAttribute('content', content);
+      } else {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute(attribute, name);
+        metaTag.setAttribute('content', content);
+        document.head.appendChild(metaTag);
+      }
     };
-  }, [urlTag, currentPage, tag]);
-
-  // Clean up any existing dynamic meta tags on unmount
-  useEffect(() => {
-    return () => {
-      // Cleanup function to remove any dynamically added tags
-      const dynamicTags = document.querySelectorAll('meta[data-dynamic="true"]');
-      dynamicTags.forEach(tag => tag.remove());
+    
+    // Function to update or create link tag
+    const updateLinkTag = (rel, href) => {
+      let linkTag = document.querySelector(`link[rel="${rel}"]`);
+      if (linkTag) {
+        linkTag.setAttribute('href', href);
+      } else {
+        linkTag = document.createElement('link');
+        linkTag.setAttribute('rel', rel);
+        linkTag.setAttribute('href', href);
+        document.head.appendChild(linkTag);
+      }
     };
-  }, []);
+    
+    // Update meta tags
+    updateMetaTag('description', description);
+    updateMetaTag('keywords', keywords);
+    updateMetaTag('og:title', title, 'property');
+    updateMetaTag('og:description', description, 'property');
+    updateMetaTag('og:url', canonicalUrl, 'property');
+    updateMetaTag('twitter:title', title);
+    updateMetaTag('twitter:description', description);
+    
+    // Update canonical URL
+    updateLinkTag('canonical', canonicalUrl);
+    
+    // Add pagination links
+    if (currentPage > 1) {
+      const prevUrl = currentPage === 2 
+        ? `https://vipmilfnut.com/tag/${urlTag}`
+        : `https://vipmilfnut.com/tag/${urlTag}/${currentPage - 1}`;
+      updateLinkTag('prev', prevUrl);
+    } else {
+      // Remove prev link if on first page
+      const prevLink = document.querySelector('link[rel="prev"]');
+      if (prevLink) prevLink.remove();
+    }
+    
+    if (currentPage < totalPages) {
+      const nextUrl = `https://vipmilfnut.com/tag/${urlTag}/${currentPage + 1}`;
+      updateLinkTag('next', nextUrl);
+    } else {
+      // Remove next link if on last page
+      const nextLink = document.querySelector('link[rel="next"]');
+      if (nextLink) nextLink.remove();
+    }
+    
+    console.log('✅ Meta tags updated:', {
+      title,
+      description: description.substring(0, 50) + '...',
+      canonical: canonicalUrl,
+      page: currentPage,
+      totalPages
+    });
+    
+  }, [urlTag, currentPage, totalPages]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -246,96 +279,7 @@ function TagPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{`Tranding ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Sex Videos Free on VipMilfNut.com`}</title>
-        <link
-          rel="canonical"
-          href={currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`}
-        />
-        <meta
-          name="description"
-          content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`}
-        />
-        <meta
-          name="keywords"
-          content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)}, ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn, ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} videos, adult content, free porn, sex videos, xxx movies`}
-        />
-        <meta name="author" content="VipMilfNut" />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-        <meta name="language" content="English" />
-        <meta name="revisit-after" content="1 days" />
-        <meta name="distribution" content="global" />
-        <meta name="rating" content="adult" />
-        <meta name="classification" content="adult content" />
-        
-        {/* Pagination Navigation Links */}
-        {currentPage > 1 && (
-          <link rel="prev" href={currentPage === 2 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage - 1}`} />
-        )}
-        {currentPage < totalPages && (
-          <link rel="next" href={`https://vipmilfnut.com/tag/${tag}/${currentPage + 1}`} />
-        )}
-        
-        {/* Open Graph Tags */}
-        <meta property="og:title" content={`⬤ Full ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`} />
-        <meta property="og:description" content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`} />
-        <meta property="og:url" content={currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="VipMilfNut" />
-        <meta property="og:locale" content="en_US" />
-        
-        {/* Twitter Card Tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`⬤ Full ${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos & xxbrits Porn videos ⬤ VipMilfNut`} />
-        <meta name="twitter:description" content={`${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`} />
-        <meta name="twitter:site" content="@vipmilfnut" />
-        
-        {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": `${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} Porn Videos`,
-            "description": `${urlTag.replace(/-/g, ' ').charAt(0).toUpperCase() + urlTag.replace(/-/g, ' ').slice(1)} porn videos collection for 18+ adults. ✔ Free Full Access ✔ Tons Of Movies ✔ 100% Hot sex18 Content ☛ Enjoy NOW!`,
-            "url": currentPage === 1 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage}`,
-            "mainEntity": {
-              "@type": "ItemList",
-              "itemListElement": postData.map((post, index) => ({
-                "@type": "VideoObject",
-                "position": index + 1,
-                "name": post.titel,
-                "description": post.altKeywords || post.titel,
-                "thumbnailUrl": post.imageUrl,
-                "url": `https://vipmilfnut.com/video/${post._id}`,
-                "duration": `PT${post.minutes}M`,
-                "uploadDate": post.createdAt || new Date().toISOString(),
-                "interactionStatistic": {
-                  "@type": "InteractionCounter",
-                  "interactionType": "https://schema.org/WatchAction",
-                  "userInteractionCount": post.views || 0
-                }
-              }))
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "VipMilfNut",
-              "url": "https://vipmilfnut.com"
-            },
-            "pagination": {
-              "@type": "PaginationInfo",
-              "currentPage": currentPage,
-              "totalPages": totalPages,
-              "itemsPerPage": itemsPerPage,
-              ...(currentPage > 1 && {
-                "previousPage": currentPage === 2 ? `https://vipmilfnut.com/tag/${tag}` : `https://vipmilfnut.com/tag/${tag}/${currentPage - 1}`
-              }),
-              ...(currentPage < totalPages && {
-                "nextPage": `https://vipmilfnut.com/tag/${tag}/${currentPage + 1}`
-              })
-            }
-          })}
-        </script>
-      </Helmet>
+      {/* Server-side rendering handles meta tags in production, React Helmet only for client-side navigation */}
       <Sidebar onSearch={() => {}} />
       <div style={{ width: "100%", margin: "auto" }}>
         <h1
